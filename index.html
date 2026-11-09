@@ -141,7 +141,8 @@
       <div class="hero-value"><span id="kpiAssets">—</span><button id="maskBtn" class="eye-btn" type="button" aria-label="隐藏金额" title="隐藏金额"></button></div>
       <div class="hero-stats">
         <div class="hero-stat"><span class="hero-stat-label">总本金</span><span class="hero-stat-value" id="kpiPrincipal">$39,236.14</span></div>
-        <div class="hero-stat"><span class="hero-stat-label">总盈亏</span><span class="hero-stat-value" id="kpiPnl">—</span></div>
+        <div class="hero-stat"><span class="hero-stat-label">持仓盈亏</span><span class="hero-stat-value" id="kpiPnl">—</span></div>
+        <div class="hero-stat"><span class="hero-stat-label">今日盈亏</span><span class="hero-stat-value" id="kpiDayPnl">—</span></div>
         <div class="hero-stat"><span class="hero-stat-label">现金</span><span class="hero-stat-value" id="kpiCash">$2,500.00</span></div>
       </div>
       <span id="priceNote" class="note hidden" style="margin-top:10px">行情未更新，显示上次价格</span>
@@ -157,7 +158,7 @@
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>代码</th><th class="num">现价 · 实时</th><th class="num">持股 × 成本</th><th class="num">市值 · 占比</th><th class="num">浮动盈亏</th></tr>
+            <tr><th>代码</th><th class="num">现价 · 实时</th><th class="num">持股 × 成本</th><th class="num">市值 · 占比</th><th class="num">今日盈亏</th><th class="num">浮动盈亏</th></tr>
           </thead>
           <tbody id="holdingsBody"></tbody>
         </table>
@@ -307,7 +308,7 @@ function fmtSignedAmt(n, d) { return masked ? '****' : fmtSigned(n, d); }
 /* ================= 行情 ================= */
 var prices = {};
 Object.keys(FALLBACK).forEach(function (sym) {
-  prices[sym] = { price: FALLBACK[sym].price, change: null, live: false };
+  prices[sym] = { price: FALLBACK[sym].price, change: null, prev: null, live: false };
 });
 var usingFallback = true;
 var priceSource = null; // 'yahoo' | 'stooq' | 'mixed' | null（本地兜底）
@@ -320,14 +321,14 @@ function applyPrices(data) {
   Object.keys(FALLBACK).forEach(function (sym) {
     var p = data && data.prices ? data.prices[sym] : null;
     if (p && typeof p.price === 'number') {
-      prices[sym] = { price: p.price, change: (typeof p.change_pct === 'number' ? p.change_pct / 100 : null), live: true };
+      prices[sym] = { price: p.price, change: (typeof p.change_pct === 'number' ? p.change_pct / 100 : null), prev: (typeof p.prev_close === 'number' ? p.prev_close : null), live: true };
     }
   });
 }
 
 function useFallbackPrices() {
   Object.keys(FALLBACK).forEach(function (sym) {
-    prices[sym] = { price: FALLBACK[sym].price, change: null, live: false };
+    prices[sym] = { price: FALLBACK[sym].price, change: null, prev: null, live: false };
   });
 }
 
@@ -400,8 +401,14 @@ function compute() {
     var pr = prices[h.sym];
     var value = h.shares * pr.price;
     var principal = h.shares * h.cost;
+    var dayPnl = null, dayPnlPct = null;
+    if (typeof pr.prev === 'number' && pr.prev > 0) {
+      dayPnl = round2((pr.price - pr.prev) * h.shares);
+      dayPnlPct = (pr.price - pr.prev) / pr.prev;
+    }
     return { type: 'hold', sym: h.sym, ideal: h.ideal, shares: h.shares, cost: h.cost,
-      price: pr.price, change: pr.change, principal: principal, value: value, pnl: value - principal };
+      price: pr.price, change: pr.change, prev: pr.prev, principal: principal, value: value, pnl: value - principal,
+      dayPnl: dayPnl, dayPnlPct: dayPnlPct };
   });
   var totalHold = rows.reduce(function (s, r) { return s + r.value; }, 0);
   var totalAssets = totalHold + CASH;
@@ -413,8 +420,16 @@ function compute() {
     return { type: 'watch', sym: w.sym, ideal: w.ideal, costLine: w.costLine,
       price: pr.price, change: pr.change, value: 0, weight: 0 };
   });
+  var totalDayPnl = 0, totalPrevValue = 0, dayOk = true;
+  rows.forEach(function (r) {
+    if (r.dayPnl === null) { dayOk = false; }
+    else { totalDayPnl += r.dayPnl; totalPrevValue += r.prev * r.shares; }
+  });
+  if (!dayOk) totalDayPnl = null;
+  var totalDayPnlPct = (totalDayPnl === null || totalPrevValue <= 0) ? null : totalDayPnl / totalPrevValue;
   return { rows: rows, cashRow: cashRow, watchRows: watchRows,
-    totalAssets: totalAssets, totalPnl: totalAssets - PRINCIPAL, totalHold: totalHold };
+    totalAssets: totalAssets, totalPnl: totalAssets - PRINCIPAL, totalHold: totalHold,
+    totalDayPnl: totalDayPnl, totalDayPnlPct: totalDayPnlPct };
 }
 
 /* ================= 月度走势数据 ================= */
@@ -462,6 +477,14 @@ function render() {
   var pnlEl = $('kpiPnl');
   pnlEl.textContent = fmtSignedAmt(c.totalPnl) + ' (' + fmtPct(c.totalPnl / PRINCIPAL) + ')';
   pnlEl.className = 'hero-stat-value ' + (c.totalPnl >= 0 ? 'up' : 'down');
+  var dayEl = $('kpiDayPnl');
+  if (c.totalDayPnl === null) {
+    dayEl.textContent = '—';
+    dayEl.className = 'hero-stat-value';
+  } else {
+    dayEl.textContent = fmtSignedAmt(c.totalDayPnl) + ' (' + fmtPct(c.totalDayPnlPct) + ')';
+    dayEl.className = 'hero-stat-value ' + (c.totalDayPnl >= 0 ? 'up' : 'down');
+  }
 
   $('priceNote').classList.toggle('hidden', !usingFallback);
   $('heroStatus').textContent = (!usingFallback && priceUpdatedAt)
@@ -488,12 +511,14 @@ function render() {
           + '<td class="num">' + fmtMoney(r.price) + '<div class="sub ' + (r.change === null ? '' : (r.change >= 0 ? 'up' : 'down')) + '">' + (r.change === null ? '—' : fmtPct(r.change)) + '</div></td>'
           + '<td class="num">' + fmtNum(r.shares) + ' × ' + fmtAmt(r.cost) + '<div class="sub">本金 ' + fmtAmt(r.principal) + '</div></td>'
           + '<td class="num">' + fmtAmt(r.value) + '<div class="mini-bar"><span style="width:' + (r.weight * 100).toFixed(2) + '%"></span></div><div class="sub">' + (r.weight * 100).toFixed(1) + '%（理想 ' + r.ideal + '%）</div></td>'
+          + '<td class="num ' + (r.dayPnl === null ? '' : (r.dayPnl >= 0 ? 'up' : 'down')) + '">' + (r.dayPnl === null ? '—' : fmtSignedAmt(r.dayPnl) + '<div class="sub">(' + fmtPct(r.dayPnlPct) + ')</div>') + '</td>'
           + '<td class="num ' + (r.pnl >= 0 ? 'up' : 'down') + '">' + fmtSignedAmt(r.pnl) + '<div class="sub">(' + fmtPct(r.pnl / r.principal) + ')</div></td></tr>';
       } else {
         html += '<tr><td><div class="code-cell"><span class="rank-dot" style="background:' + color + '">' + (i + 1) + '</span><span><b>现金</b><div class="sub">现金 (USD)</div></span></div></td>'
           + '<td class="num">—</td>'
           + '<td class="num">' + fmtAmt(CASH) + '<div class="sub">可用现金</div></td>'
           + '<td class="num">' + fmtAmt(CASH) + '<div class="mini-bar"><span style="width:' + (r.weight * 100).toFixed(2) + '%"></span></div><div class="sub">' + (r.weight * 100).toFixed(1) + '%（理想 ' + r.ideal + '%）</div></td>'
+          + '<td class="num">不计盈亏</td>'
           + '<td class="num">不计盈亏</td></tr>';
       }
     });
@@ -504,6 +529,7 @@ function render() {
         + '<td class="num"><span class="watch-price">' + fmtMoney(w.price) + '</span><div class="sub">' + (w.change === null ? '—' : fmtPct(w.change)) + '</div></td>'
         + '<td class="num">0 × ' + fmtAmt(w.costLine) + '<div class="sub">本金 ' + fmtAmt(0) + '</div></td>'
         + '<td class="num">' + fmtAmt(0) + '<div class="mini-bar"><span style="width:0%;background:#9ca3af"></span></div><div class="sub">0.0%（理想 ' + w.ideal + '%）</div></td>'
+        + '<td class="num" style="color:#6b7280">' + fmtSignedAmt(0) + '<div class="sub">(—)</div></td>'
         + '<td class="num" style="color:#6b7280">' + fmtSignedAmt(0) + '<div class="sub">(—)</div></td></tr>';
     });
   }
