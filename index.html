@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>持仓看板</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #f6f7f9; color: #1f2937;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 16px; }
+  header h1 { margin: 4px 0 2px; font-size: 26px; }
+  .subtitle { margin: 0 0 14px; color: #6b7280; font-size: 14px; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .tab-btn { flex: 1; padding: 11px 0; font-size: 16px; font-weight: 700; cursor: pointer;
+    border: 1px solid #d1d5db; background: #fff; color: #374151; border-radius: 10px; }
+  .tab-btn.active { background: #1f2937; color: #fff; border-color: #1f2937; }
+  .hidden { display: none !important; }
+  .card { background: #fff; border-radius: 12px; padding: 18px 20px; margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .card h2 { margin: 0 0 14px; font-size: 18px; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  .kpi { background: #fff; border-radius: 12px; padding: 16px 18px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .kpi-label { color: #6b7280; font-size: 13px; margin-bottom: 6px; }
+  .kpi-value { font-size: 24px; font-weight: 800; }
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .btn { padding: 9px 18px; font-size: 15px; font-weight: 700; cursor: pointer; color: #fff;
+    background: #2563eb; border: none; border-radius: 8px; }
+  .btn:active { background: #1d4ed8; }
+  .muted { color: #6b7280; font-size: 13px; }
+  .small { font-size: 13px; }
+  .note { display: inline-block; background: #fffbeb; border: 1px solid #fde68a; color: #92400e;
+    font-size: 13px; padding: 5px 10px; border-radius: 6px; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 760px; }
+  th, td { padding: 9px 8px; border-bottom: 1px solid #f1f1f1; white-space: nowrap; }
+  th { text-align: left; color: #6b7280; font-weight: 600; font-size: 13px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td.c { text-align: center; color: #6b7280; }
+  tr.watch td { color: #6b7280; }
+  tr.total td { font-weight: 800; border-top: 2px solid #d1d5db; border-bottom: none; }
+  .sub { font-size: 12px; color: #9ca3af; font-weight: 400; margin-top: 2px; }
+  .up { color: #16a34a; }
+  .down { color: #dc2626; }
+  .conc { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; border-radius: 8px;
+    padding: 10px 12px; font-size: 14px; margin: 12px 0 0; }
+  .donut-flex { display: flex; align-items: center; gap: 28px; }
+  .legend { flex: 1; min-width: 0; }
+  .legend-row { display: flex; align-items: center; gap: 8px; padding: 8px 0;
+    border-bottom: 1px solid #f1f1f1; font-size: 14px; }
+  .legend-row:last-child { border-bottom: none; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+  .legend-val { margin-left: auto; font-variant-numeric: tabular-nums; }
+  .legend-pct { width: 64px; text-align: right; color: #6b7280; font-variant-numeric: tabular-nums; }
+  .donut-center-label { font-size: 13px; fill: #6b7280; }
+  .donut-center-value { font-size: 19px; font-weight: 800; fill: #1f2937; }
+  .axis { font-size: 12px; fill: #6b7280; }
+  .bar-val { font-size: 14px; font-weight: 700; fill: #1f2937; }
+  .legend-line { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #374151; margin-bottom: 8px; }
+  .swatch { display: inline-block; width: 14px; height: 14px; background: #5ecf6e; border-radius: 2px; }
+  .swatch-line { display: inline-block; width: 22px; height: 3px; background: #1f9be0; border-radius: 2px; margin-left: 14px; }
+  .trend-detail { margin-top: 10px; }
+  .trend-row { display: flex; gap: 18px; font-size: 13px; color: #374151; padding: 5px 0;
+    border-bottom: 1px solid #f1f1f1; font-variant-numeric: tabular-nums; }
+  .trend-row:last-child { border-bottom: none; }
+  .footer { margin: 4px 0 24px; }
+  .principles { list-style: none; counter-reset: p; margin: 0; padding: 0; }
+  .principles li { counter-increment: p; font-weight: 700; color: #1f2937; font-size: 16px;
+    line-height: 1.7; padding: 14px 0 14px 44px; position: relative;
+    border-bottom: 1px solid #f1f1f1; }
+  .principles li:last-child { border-bottom: none; }
+  .principles li::before { content: counter(p) "."; position: absolute; left: 0; top: 14px;
+    font-weight: 800; color: #1f2937; }
+  @media (max-width: 640px) {
+    .kpi-grid { grid-template-columns: 1fr; }
+    .kpi-value { font-size: 21px; }
+    .donut-flex { flex-direction: column; gap: 8px; }
+    .legend { width: 100%; }
+    .principles li { font-size: 15px; }
+    .card { padding: 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>持仓看板</h1>
+    <p class="subtitle">实时行情 · 每月登记总资产与利润走势</p>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="board" type="button">投资看板</button>
+    <button class="tab-btn" data-tab="principles" type="button">投资原则</button>
+  </nav>
+
+  <section id="boardView">
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">总资产</div><div class="kpi-value" id="kpiAssets">—</div></div>
+      <div class="kpi"><div class="kpi-label">总本金</div><div class="kpi-value" id="kpiPrincipal">$39,236.14</div></div>
+      <div class="kpi"><div class="kpi-label">浮动盈亏</div><div class="kpi-value" id="kpiPnl">—</div></div>
+    </div>
+
+    <div class="toolbar">
+      <button id="refreshBtn" class="btn" type="button">刷新价格</button>
+      <span id="updateTime" class="muted">更新时间：—</span>
+      <span id="priceNote" class="note hidden">行情未更新，显示上次价格</span>
+    </div>
+
+    <div class="card">
+      <h2>持仓列表</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>序号</th><th>标的</th><th class="num">现价</th><th class="num">日涨幅</th><th class="num">持股</th><th class="num">成本价</th><th class="num">本金</th><th class="num">市值</th><th class="num">占比</th><th class="num">浮动盈亏</th></tr>
+          </thead>
+          <tbody id="holdingsBody"></tbody>
+        </table>
+      </div>
+      <p class="muted small">美股以美元计价；观察列表的成本价为成本线（买入参考价），持股为 0。</p>
+      <p class="muted small" id="hkLine"></p>
+      <p class="conc" id="concNote"></p>
+    </div>
+
+    <div class="card">
+      <h2>持仓占比</h2>
+      <div class="donut-flex">
+        <svg id="donutSvg" viewBox="0 0 220 220" width="220" height="220" role="img" aria-label="持仓占比环形图"></svg>
+        <div id="donutLegend" class="legend"></div>
+      </div>
+      <p class="muted small">占比按股票市值计算（不含现金）。</p>
+    </div>
+
+    <div class="card">
+      <h2>本金与总资产</h2>
+      <div id="barChart"></div>
+    </div>
+
+    <div class="card">
+      <h2>总资产与利润走势</h2>
+      <div class="legend-line"><span class="swatch"></span>总资产<span class="swatch-line"></span>利润</div>
+      <div id="trendChart"></div>
+      <div id="trendDetail" class="trend-detail"></div>
+      <p class="muted small">每月登记一次（以当月最新一次数据为准），仅保留近 12 个月。</p>
+    </div>
+
+    <p class="muted small footer">价格来源：Stooq；港股以港币计价。本页为静态页面，价格由浏览器实时拉取；持仓股数与成本价固定不变。</p>
+  </section>
+
+  <section id="principlesView" class="hidden">
+    <div class="card">
+      <h2>投资原则</h2>
+      <ol class="principles">
+        <li>跟随趋势，低买高卖，控制风险，避免在市场过热或过冷时盲目操作。</li>
+        <li>不要总以为股市即将崩盘就被吓得匆匆卖出，天不会塌的，除非公司基本面恶化，否则坚决不要因恐慌害怕而卖出手中好公司的股票。</li>
+        <li>总会有事让你担心，不要因为网络上那些危言耸听的分析和评论而焦虑不安，也不要理会最近新闻报道中的悲观预测言论。</li>
+        <li>别贪快，别浮躁，别怕慢，慢就是快。</li>
+        <li>散户痛点：持股数量过多，不会空仓，弱势急于补仓，钱少票多，侥幸心理，死扛到底。</li>
+        <li>真正的高手不会追逐短期快钱，而是守得住寂寞，赚时间的钱。</li>
+        <li>投资最重要的是买好公司，剩下的就交给时间，价值投资不是天天盯盘，而是用心选对公司。</li>
+        <li>广泛的恐惧是投资者的朋友，因为它提供了廉价的购买。</li>
+        <li>一定要培养对事情悬而未决的耐受力，避免因急于求成的心态而造成焦虑和烦恼，要允许事情处于灰色地带，接受事情的不可控因素。</li>
+        <li>除非你真的了解自己在干什么，否则什么也别做。</li>
+        <li>平常时间最好静坐，越少买卖越好，永远耐心等待投资机会的来临。</li>
+      </ol>
+    </div>
+  </section>
+</div>
+
+<script>
+'use strict';
+/* ================= 数据 ================= */
+var STOOQ_URL = 'https://stooq.com/q/l/?s=rklb.us,tsla.us,gev.us,googl.us,spcx.us,0700.hk,9992.hk&f=sd2t2ohlcv&h&e=csv';
+var FALLBACK = {
+  RKLB:   { price: 53.07,  ccy: 'USD' },
+  TSLA:   { price: 358.22, ccy: 'USD' },
+  GEV:    { price: 774.11, ccy: 'USD' },
+  GOOGL:  { price: 284.78, ccy: 'USD' },
+  SPCX:   { price: 134.27, ccy: 'USD' },
+  HK700:  { price: 419.80, ccy: 'HKD', label: '腾讯 0700.HK' },
+  HK9992: { price: 141.90, ccy: 'HKD', label: '泡泡玛特 9992.HK' }
+};
+var STOOQ_KEY = { RKLB: 'rklb.us', TSLA: 'tsla.us', GEV: 'gev.us', GOOGL: 'googl.us', SPCX: 'spcx.us', HK700: '0700.hk', HK9992: '9992.hk' };
+var HOLDINGS = [
+  { sym: 'RKLB',  shares: 500, cost: 21.20,  ideal: 8  },
+  { sym: 'TSLA',  shares: 43,  cost: 214.00, ideal: 10 },
+  { sym: 'GEV',   shares: 10,  cost: 693.00, ideal: 12 },
+  { sym: 'GOOGL', shares: 26,  cost: 169.39, ideal: 10 },
+  { sym: 'SPCX',  shares: 40,  cost: 140.00, ideal: 10 }
+];
+var CASH = 2500;
+var WATCH = [
+  { sym: 'BRK.B', costLine: 480.00, ideal: 15 },
+  { sym: 'NVDA',  costLine: 123.69, ideal: 10 },
+  { sym: 'PLTR',  costLine: 160.00, ideal: 10 },
+  { sym: 'MU',    costLine: 650.00, ideal: 5  },
+  { sym: 'AMD',   costLine: 127.00, ideal: 0  }
+];
+var PRINCIPAL = 39236.14;
+var LS_MONTHLY = 'kanban-monthly';
+var LS_PREV = 'kanban-prev-close';
+var SEED_MONTHLY = [{ m: '2026-11', assets: 64954.64, profit: 25718.50 }];
+var DONUT_COLORS = { RKLB: '#2563eb', TSLA: '#e11d48', GEV: '#059669', GOOGL: '#d97706', SPCX: '#7c3aed' };
+
+/* ================= 工具 ================= */
+function $(id) { return document.getElementById(id); }
+function fmtMoney(n, d) {
+  if (d === undefined) d = 2;
+  return (n < 0 ? '-$' : '$') + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+function fmtSigned(n, d) {
+  if (d === undefined) d = 2;
+  return (n >= 0 ? '+' : '-') + '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+function fmtPct(x) { return (x >= 0 ? '+' : '') + (x * 100).toFixed(2) + '%'; }
+function fmtNum(n) { return n.toLocaleString('en-US'); }
+function fmtAxis(v) { return v >= 1000 ? '$' + Math.round(v / 1000) + 'k' : '$' + Math.round(v); }
+function round2(n) { return Math.round(n * 100) / 100; }
+
+var memStore = {};
+function lsGet(k) {
+  try { return localStorage.getItem(k); }
+  catch (e) { return Object.prototype.hasOwnProperty.call(memStore, k) ? memStore[k] : null; }
+}
+function lsSet(k, v) {
+  try { localStorage.setItem(k, v); }
+  catch (e) { memStore[k] = v; }
+}
+
+/* ================= 行情 ================= */
+var prices = {};
+Object.keys(FALLBACK).forEach(function (sym) {
+  prices[sym] = { price: FALLBACK[sym].price, change: null, live: false };
+});
+var usingFallback = true;
+var lastUpdated = null;
+
+function parseStooq(text) {
+  var out = {};
+  if (!text) return out;
+  var lines = text.replace(/\r/g, '').split('\n');
+  for (var i = 1; i < lines.length; i++) {
+    var line = lines[i].trim();
+    if (!line) continue;
+    var f = line.split(',');
+    if (f.length < 7) continue;
+    var sym = f[0].trim().toLowerCase();
+    var close = parseFloat(f[6]);
+    if (!sym || !isFinite(close)) continue;
+    out[sym] = { close: close, date: (f[1] || '').trim() };
+  }
+  return out;
+}
+
+async function fetchQuotes() {
+  var data = null, ok = false;
+  try {
+    var opts = {};
+    if (typeof AbortController !== 'undefined') {
+      var ctrl = new AbortController();
+      opts.signal = ctrl.signal;
+      setTimeout(function () { try { ctrl.abort(); } catch (e) {} }, 10000);
+    }
+    var res = await fetch(STOOQ_URL, opts);
+    if (res && res.ok) { data = parseStooq(await res.text()); ok = true; }
+  } catch (e) { ok = false; }
+
+  var prev = {};
+  try { prev = JSON.parse(lsGet(LS_PREV) || '{}') || {}; } catch (e) { prev = {}; }
+  var anyMissing = !ok;
+  var next = {};
+  Object.keys(FALLBACK).forEach(function (sym) {
+    var key = STOOQ_KEY[sym];
+    var hit = (ok && data && data[key]) ? data[key] : null;
+    if (hit) {
+      var change = null;
+      var p = prev[sym];
+      if (p && p.date && hit.date && p.date !== hit.date && p.close) {
+        change = (hit.close - p.close) / p.close;
+      }
+      next[sym] = { price: hit.close, change: change, live: true };
+      if (!p || (hit.date && (!p.date || hit.date > p.date))) {
+        prev[sym] = { date: hit.date, close: hit.close };
+      }
+    } else {
+      anyMissing = true;
+      next[sym] = { price: FALLBACK[sym].price, change: null, live: false };
+    }
+  });
+  try { lsSet(LS_PREV, JSON.stringify(prev)); } catch (e) {}
+  prices = next;
+  usingFallback = anyMissing;
+  lastUpdated = new Date();
+  render();
+}
+
+/* ================= 计算 ================= */
+function compute() {
+  var rows = HOLDINGS.map(function (h) {
+    var pr = prices[h.sym];
+    var value = h.shares * pr.price;
+    var principal = h.shares * h.cost;
+    return { type: 'hold', sym: h.sym, ideal: h.ideal, shares: h.shares, cost: h.cost,
+      price: pr.price, change: pr.change, principal: principal, value: value, pnl: value - principal };
+  });
+  var totalHold = rows.reduce(function (s, r) { return s + r.value; }, 0);
+  var totalAssets = totalHold + CASH;
+  rows.forEach(function (r) { r.weight = totalAssets ? r.value / totalAssets : 0; });
+  var cashRow = { type: 'cash', sym: '现金', ideal: 10, value: CASH, principal: CASH, pnl: 0,
+    weight: totalAssets ? CASH / totalAssets : 0 };
+  var watchRows = WATCH.map(function (w) {
+    return { type: 'watch', sym: w.sym, ideal: w.ideal, costLine: w.costLine, value: 0, weight: 0 };
+  });
+  return { rows: rows, cashRow: cashRow, watchRows: watchRows,
+    totalAssets: totalAssets, totalPnl: totalAssets - PRINCIPAL, totalHold: totalHold };
+}
+
+/* ================= 月度走势数据 ================= */
+function loadMonthly() {
+  try {
+    var raw = lsGet(LS_MONTHLY);
+    if (raw) {
+      var arr = JSON.parse(raw);
+      if (Array.isArray(arr) && arr.length) return arr;
+    }
+  } catch (e) {}
+  return SEED_MONTHLY.slice();
+}
+function saveMonthly(arr) {
+  try { lsSet(LS_MONTHLY, JSON.stringify(arr)); } catch (e) {}
+}
+function monthKey(d) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+}
+function updateMonthly(c) {
+  var arr = loadMonthly();
+  var key = monthKey(new Date());
+  var last = arr[arr.length - 1];
+  if (last && last.m === key) {
+    last.assets = round2(c.totalAssets);
+    last.profit = round2(c.totalPnl);
+  } else {
+    arr.push({ m: key, assets: round2(c.totalAssets), profit: round2(c.totalPnl) });
+  }
+  var trimmed = arr.slice(-12);
+  saveMonthly(trimmed);
+  return trimmed;
+}
+
+/* ================= 渲染 ================= */
+function render() {
+  var c = compute();
+
+  $('kpiAssets').textContent = fmtMoney(c.totalAssets);
+  $('kpiPrincipal').textContent = fmtMoney(PRINCIPAL);
+  var pnlEl = $('kpiPnl');
+  pnlEl.textContent = fmtSigned(c.totalPnl) + ' (' + fmtPct(c.totalPnl / PRINCIPAL) + ')';
+  pnlEl.className = 'kpi-value ' + (c.totalPnl >= 0 ? 'up' : 'down');
+
+  $('priceNote').classList.toggle('hidden', !usingFallback);
+  $('updateTime').textContent = lastUpdated ? ('更新时间：' + lastUpdated.toLocaleString('zh-CN')) : '更新时间：—';
+
+  var items = c.rows.concat([c.cashRow]).sort(function (a, b) { return b.value - a.value; });
+  var html = '';
+  items.forEach(function (r, i) {
+    if (r.type === 'hold') {
+      html += '<tr><td class="c">' + (i + 1) + '</td>'
+        + '<td><b>' + r.sym + '</b><div class="sub">理想占比 ' + r.ideal + '%</div></td>'
+        + '<td class="num">' + fmtMoney(r.price) + '</td>'
+        + '<td class="num ' + (r.change === null ? '' : (r.change >= 0 ? 'up' : 'down')) + '">' + (r.change === null ? '—' : fmtPct(r.change)) + '</td>'
+        + '<td class="num">' + fmtNum(r.shares) + '</td>'
+        + '<td class="num">' + fmtMoney(r.cost) + '</td>'
+        + '<td class="num">' + fmtMoney(r.principal) + '</td>'
+        + '<td class="num">' + fmtMoney(r.value) + '</td>'
+        + '<td class="num">' + (r.weight * 100).toFixed(2) + '%</td>'
+        + '<td class="num ' + (r.pnl >= 0 ? 'up' : 'down') + '">' + fmtSigned(r.pnl) + '</td></tr>';
+    } else {
+      html += '<tr><td class="c">' + (i + 1) + '</td>'
+        + '<td><b>现金</b><div class="sub">理想占比 10%</div></td>'
+        + '<td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td>'
+        + '<td class="num">' + fmtMoney(CASH) + '</td>'
+        + '<td class="num">' + fmtMoney(CASH) + '</td>'
+        + '<td class="num">' + (r.weight * 100).toFixed(2) + '%</td>'
+        + '<td class="num">$0.00</td></tr>';
+    }
+  });
+  var base = items.length;
+  c.watchRows.forEach(function (w, i) {
+    html += '<tr class="watch"><td class="c">' + (base + 1 + i) + '</td>'
+      + '<td><b>' + w.sym + '</b><div class="sub">理想占比 ' + w.ideal + '%</div></td>'
+      + '<td class="num">—</td><td class="num">—</td><td class="num">0</td>'
+      + '<td class="num">' + fmtMoney(w.costLine) + '</td>'
+      + '<td class="num">—</td><td class="num">$0.00</td><td class="num">0.00%</td><td class="num">—</td></tr>';
+  });
+  html += '<tr class="total"><td class="c"></td><td><b>合计</b></td>'
+    + '<td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td>'
+    + '<td class="num">' + fmtMoney(PRINCIPAL) + '</td>'
+    + '<td class="num">' + fmtMoney(c.totalAssets) + '</td>'
+    + '<td class="num">100.00%</td>'
+    + '<td class="num ' + (c.totalPnl >= 0 ? 'up' : 'down') + '">' + fmtSigned(c.totalPnl) + '</td></tr>';
+  $('holdingsBody').innerHTML = html;
+
+  var hkParts = ['HK700', 'HK9992'].map(function (sym) {
+    var p = prices[sym];
+    var ch = (p.change === null || p.change === undefined) ? '—' : fmtPct(p.change);
+    return FALLBACK[sym].label + ' HK$' + p.price.toFixed(2) + '（' + ch + '）';
+  });
+  $('hkLine').textContent = '其他关注：' + hkParts.join('　·　');
+
+  var rklb = null;
+  c.rows.forEach(function (r) { if (r.sym === 'RKLB') rklb = r; });
+  $('concNote').textContent = '集中度提示：RKLB 占总资产 ' + (rklb.value / c.totalAssets * 100).toFixed(2) + '%，高于 8% 的理想占比。';
+
+  renderDonut(c);
+  renderBars(c);
+  var entries = updateMonthly(c);
+  renderTrend(entries);
+}
+
+function renderDonut(c) {
+  var total = c.totalHold;
+  var offset = 0;
+  var segs = '<g transform="rotate(-90 110 110)">';
+  c.rows.forEach(function (r) {
+    var pct = total ? (r.value / total) * 100 : 0;
+    segs += '<circle cx="110" cy="110" r="84" fill="none" stroke="' + DONUT_COLORS[r.sym] + '" stroke-width="34" pathLength="100" stroke-dasharray="' + pct.toFixed(2) + ' 100" stroke-dashoffset="' + (-offset).toFixed(2) + '"/>';
+    offset += pct;
+  });
+  segs += '</g>';
+  segs += '<text x="110" y="104" text-anchor="middle" class="donut-center-label">股票市值</text>'
+    + '<text x="110" y="128" text-anchor="middle" class="donut-center-value">' + fmtMoney(total, 0) + '</text>';
+  $('donutSvg').innerHTML = segs;
+
+  var leg = '';
+  c.rows.slice().sort(function (a, b) { return b.value - a.value; }).forEach(function (r) {
+    leg += '<div class="legend-row"><span class="dot" style="background:' + DONUT_COLORS[r.sym] + '"></span><b>' + r.sym + '</b>'
+      + '<span class="legend-val">' + fmtMoney(r.value) + '</span>'
+      + '<span class="legend-pct">' + (total ? (r.value / total * 100).toFixed(2) : '0.00') + '%</span></div>';
+  });
+  $('donutLegend').innerHTML = leg;
+}
+
+function renderBars(c) {
+  var W = 560, H = 260, ml = 64, mr = 16, mt = 20, mb = 36;
+  var max = Math.max(PRINCIPAL, c.totalAssets) * 1.12;
+  function y(v) { return mt + (1 - v / max) * (H - mt - mb); }
+  var g = '';
+  for (var i = 0; i <= 4; i++) {
+    var v = max * i / 4, yy = y(v);
+    g += '<line x1="' + ml + '" y1="' + yy + '" x2="' + (W - mr) + '" y2="' + yy + '" stroke="#e5e7eb"/>';
+    g += '<text x="' + (ml - 8) + '" y="' + (yy + 4) + '" text-anchor="end" class="axis">' + fmtAxis(v) + '</text>';
+  }
+  var bw = 110;
+  var plotW = W - ml - mr;
+  var x1 = ml + plotW / 4 - bw / 2, x2 = ml + plotW * 3 / 4 - bw / 2;
+  g += '<rect x="' + x1 + '" y="' + y(PRINCIPAL) + '" width="' + bw + '" height="' + (y(0) - y(PRINCIPAL)) + '" fill="#9ca3af" rx="4"/>';
+  g += '<rect x="' + x2 + '" y="' + y(c.totalAssets) + '" width="' + bw + '" height="' + (y(0) - y(c.totalAssets)) + '" fill="#22c55e" rx="4"/>';
+  g += '<text x="' + (x1 + bw / 2) + '" y="' + (y(PRINCIPAL) - 8) + '" text-anchor="middle" class="bar-val">' + fmtMoney(PRINCIPAL, 0) + '</text>';
+  g += '<text x="' + (x2 + bw / 2) + '" y="' + (y(c.totalAssets) - 8) + '" text-anchor="middle" class="bar-val">' + fmtMoney(c.totalAssets, 0) + '</text>';
+  g += '<text x="' + (x1 + bw / 2) + '" y="' + (H - 10) + '" text-anchor="middle" class="axis">总本金</text>';
+  g += '<text x="' + (x2 + bw / 2) + '" y="' + (H - 10) + '" text-anchor="middle" class="axis">总资产</text>';
+  $('barChart').innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img" aria-label="本金与总资产柱状图">' + g + '</svg>';
+}
+
+function renderTrend(entries) {
+  var W = 720, H = 300, ml = 56, mr = 16, mt = 18, mb = 32;
+  var maxV = 0;
+  entries.forEach(function (e) { maxV = Math.max(maxV, e.assets, e.profit); });
+  var max = Math.max(10000, Math.ceil(maxV * 1.08 / 10000) * 10000);
+  function y(v) { return mt + (1 - v / max) * (H - mt - mb); }
+  var plotW = W - ml - mr;
+  var slot = plotW / entries.length;
+  var bw = Math.min(38, slot * 0.55);
+  var g = '';
+  for (var i = 0; i <= 4; i++) {
+    var v = max * i / 4, yy = y(v);
+    g += '<line x1="' + ml + '" y1="' + yy + '" x2="' + (W - mr) + '" y2="' + yy + '" stroke="#e5e7eb"/>';
+    g += '<text x="' + (ml - 8) + '" y="' + (yy + 4) + '" text-anchor="end" class="axis">' + fmtAxis(v) + '</text>';
+  }
+  entries.forEach(function (e, i) {
+    var cx = ml + slot * (i + 0.5);
+    g += '<rect x="' + (cx - bw / 2) + '" y="' + y(e.assets) + '" width="' + bw + '" height="' + (y(0) - y(e.assets)) + '" fill="#5ecf6e" rx="3"/>';
+    g += '<text x="' + cx + '" y="' + (H - 10) + '" text-anchor="middle" class="axis">' + e.m.slice(5).replace(/^0/, '') + '月</text>';
+  });
+  var pts = entries.map(function (e, i) {
+    var cx = ml + slot * (i + 0.5);
+    return cx.toFixed(1) + ',' + y(e.profit).toFixed(1);
+  }).join(' ');
+  g += '<polyline points="' + pts + '" fill="none" stroke="#1f9be0" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
+  entries.forEach(function (e, i) {
+    var cx = ml + slot * (i + 0.5);
+    g += '<circle cx="' + cx + '" cy="' + y(e.profit) + '" r="4" fill="#1f9be0" stroke="#fff" stroke-width="1.5"/>';
+  });
+  $('trendChart').innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img" aria-label="总资产与利润走势图">' + g + '</svg>';
+
+  var det = '';
+  entries.forEach(function (e) {
+    det += '<div class="trend-row"><span>' + e.m + '</span><span>总资产 ' + fmtMoney(e.assets) + '</span><span>利润 ' + fmtSigned(e.profit) + '</span></div>';
+  });
+  $('trendDetail').innerHTML = det;
+}
+
+/* ================= 页签 ================= */
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(function (b) {
+    b.classList.toggle('active', b.getAttribute('data-tab') === name);
+  });
+  $('boardView').classList.toggle('hidden', name !== 'board');
+  $('principlesView').classList.toggle('hidden', name !== 'principles');
+}
+document.querySelectorAll('.tab-btn').forEach(function (b) {
+  b.addEventListener('click', function () { switchTab(b.getAttribute('data-tab')); });
+});
+
+/* ================= 启动 ================= */
+render();
+fetchQuotes();
+setInterval(fetchQuotes, 5 * 60 * 1000);
+$('refreshBtn').addEventListener('click', fetchQuotes);
+</script>
+</body>
+</html>
