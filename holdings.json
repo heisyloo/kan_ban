@@ -1,0 +1,69 @@
+{
+  "updated_at": "2026-11-09T09:28:08.270Z",
+  "updated_at_beijing": "2026-11-09 17:28",
+  "cash": 2500,
+  "cash_ideal": 10,
+  "holdings": [
+    {
+      "sym": "RKLB",
+      "name": "Rocket Lab",
+      "shares": 520,
+      "cost": 21.2,
+      "ideal": 8
+    },
+    {
+      "sym": "TSLA",
+      "name": "Tesla",
+      "shares": 43,
+      "cost": 214,
+      "ideal": 10
+    },
+    {
+      "sym": "GEV",
+      "name": "GE Vernova",
+      "shares": 10,
+      "cost": 693,
+      "ideal": 12
+    },
+    {
+      "sym": "GOOGL",
+      "name": "Alphabet",
+      "shares": 26,
+      "cost": 169.39,
+      "ideal": 10
+    },
+    {
+      "sym": "SPCX",
+      "name": "SpaceX",
+      "shares": 40,
+      "cost": 140,
+      "ideal": 10
+    }
+  ],
+  "watch": [
+    {
+      "sym": "MU",
+      "name": "Micron Technology, Inc.",
+      "cost_line": 700,
+      "ideal": 5
+    },
+    {
+      "sym": "NVDA",
+      "name": "NVIDIA Corporation",
+      "cost_line": 0,
+      "ideal": 10
+    },
+    {
+      "sym": "BRK.B",
+      "name": "Berkshire Hathaway Inc",
+      "cost_line": 0,
+      "ideal": 15
+    },
+    {
+      "sym": "AMD",
+      "name": "Advanced Micro Devices, Inc.",
+      "cost_line": 0,
+      "ideal": 0
+    }
+  ]
+}
