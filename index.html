@@ -196,7 +196,6 @@
 <script>
 'use strict';
 /* ================= 数据（以 Muse 版 getPortfolio 为准） ================= */
-var STOOQ_URL = 'https://stooq.com/q/l/?s=rklb.us,tsla.us,gev.us,googl.us,spcx.us,brk-b.us,nvda.us,mu.us,amd.us&f=sd2t2ohlcv&h&e=csv';
 var FALLBACK = {
   RKLB:   { price: 53.07,  ccy: 'USD' },
   TSLA:   { price: 358.22, ccy: 'USD' },
@@ -208,8 +207,6 @@ var FALLBACK = {
   MU:     { price: 690.00, ccy: 'USD' },
   AMD:    { price: 449.04, ccy: 'USD' }
 };
-var STOOQ_KEY = { RKLB: 'rklb.us', TSLA: 'tsla.us', GEV: 'gev.us', GOOGL: 'googl.us', SPCX: 'spcx.us',
-  'BRK.B': 'brk-b.us', NVDA: 'nvda.us', MU: 'mu.us', AMD: 'amd.us' };
 var HOLDINGS = [
   { sym: 'RKLB',  shares: 500, cost: 21.20,  ideal: 8  },
   { sym: 'TSLA',  shares: 43,  cost: 214.00, ideal: 10 },
@@ -226,7 +223,6 @@ var WATCH = [
 ];
 var PRINCIPAL = 39236.14;
 var LS_MONTHLY = 'kanban-monthly';
-var LS_PREV = 'kanban-prev-close';
 var SEED_MONTHLY = [{ m: '2026-11', assets: 64954.64, profit: 25718.50 }];
 var DONUT_COLORS = { RKLB: '#2fd574', TSLA: '#3b82c4', GEV: '#e0a32e', GOOGL: '#9b7ede', SPCX: '#e05d7a', '现金': '#7e939e' };
 var NAMES = { RKLB: 'Rocket Lab', TSLA: 'Tesla', GEV: 'GE Vernova', GOOGL: 'Alphabet', SPCX: 'SpaceX',
@@ -245,9 +241,20 @@ function fmtSigned(n, d) {
 function fmtPct(x) { return (x >= 0 ? '+' : '') + (x * 100).toFixed(2) + '%'; }
 function fmtNum(n) { return n.toLocaleString('en-US'); }
 function fmtAxis(v) { return v >= 1000 ? '$' + Math.round(v / 1000) + 'k' : '$' + Math.round(v); }
-function fmtHeroTime(d) {
-  var p = function (n) { return String(n).padStart(2, '0'); };
-  return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+function beijingTime(date) {
+  try {
+    return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Shanghai' });
+  } catch (e) {
+    var d = new Date(date.getTime() + 8 * 3600 * 1000);
+    return String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0');
+  }
+}
+function beijingDateTime(date) {
+  try {
+    return date.toLocaleString('zh-CN', { hour12: false, timeZone: 'Asia/Shanghai' });
+  } catch (e) {
+    return date.toISOString().replace('T', ' ').slice(0, 19);
+  }
 }
 function round2(n) { return Math.round(n * 100) / 100; }
 
@@ -267,64 +274,52 @@ Object.keys(FALLBACK).forEach(function (sym) {
   prices[sym] = { price: FALLBACK[sym].price, change: null, live: false };
 });
 var usingFallback = true;
-var lastUpdated = null;
+var priceSource = null; // 'yahoo' | 'stooq' | 'mixed' | null（本地兜底）
+var priceUpdatedAt = null; // prices.json 的 updated_at（Date）
+var STALE_MS = 24 * 3600 * 1000; // 数据超过约 1 天未更新视为过期
 
-function parseStooq(text) {
-  var out = {};
-  if (!text) return out;
-  var lines = text.replace(/\r/g, '').split('\n');
-  for (var i = 1; i < lines.length; i++) {
-    var line = lines[i].trim();
-    if (!line) continue;
-    var f = line.split(',');
-    if (f.length < 7) continue;
-    var sym = f[0].trim().toLowerCase();
-    var close = parseFloat(f[6]);
-    if (!sym || !isFinite(close)) continue;
-    out[sym] = { close: close, date: (f[1] || '').trim() };
-  }
-  return out;
+var PRICE_URL = 'prices.json'; // 同源 prices.json，由 GitHub Actions 定时拉价写入
+
+function applyPrices(data) {
+  Object.keys(FALLBACK).forEach(function (sym) {
+    var p = data && data.prices ? data.prices[sym] : null;
+    if (p && typeof p.price === 'number') {
+      prices[sym] = { price: p.price, change: (typeof p.change_pct === 'number' ? p.change_pct / 100 : null), live: true };
+    }
+  });
+}
+
+function useFallbackPrices() {
+  Object.keys(FALLBACK).forEach(function (sym) {
+    prices[sym] = { price: FALLBACK[sym].price, change: null, live: false };
+  });
 }
 
 async function fetchQuotes() {
-  var data = null, ok = false;
+  // 主路径：同源 prices.json。浏览器端直拉 Stooq 会被 JS 验证拦截
+  // （CSV 链接返回 404），不再作为主路径，也不做兜底尝试。
+  var data = null;
   try {
-    var opts = {};
-    if (typeof AbortController !== 'undefined') {
-      var ctrl = new AbortController();
-      opts.signal = ctrl.signal;
-      setTimeout(function () { try { ctrl.abort(); } catch (e) {} }, 10000);
-    }
-    var res = await fetch(STOOQ_URL, opts);
-    if (res && res.ok) { data = parseStooq(await res.text()); ok = true; }
-  } catch (e) { ok = false; }
-
-  var prev = {};
-  try { prev = JSON.parse(lsGet(LS_PREV) || '{}') || {}; } catch (e) { prev = {}; }
-  var anyMissing = !ok;
-  var next = {};
-  Object.keys(FALLBACK).forEach(function (sym) {
-    var key = STOOQ_KEY[sym];
-    var hit = (ok && data && data[key]) ? data[key] : null;
-    if (hit) {
-      var change = null;
-      var p = prev[sym];
-      if (p && p.date && hit.date && p.date !== hit.date && p.close) {
-        change = (hit.close - p.close) / p.close;
-      }
-      next[sym] = { price: hit.close, change: change, live: true };
-      if (!p || (hit.date && (!p.date || hit.date > p.date))) {
-        prev[sym] = { date: hit.date, close: hit.close };
-      }
-    } else {
-      anyMissing = true;
-      next[sym] = { price: FALLBACK[sym].price, change: null, live: false };
-    }
-  });
-  try { lsSet(LS_PREV, JSON.stringify(prev)); } catch (e) {}
-  prices = next;
-  usingFallback = anyMissing;
-  lastUpdated = new Date();
+    var res = await fetch(PRICE_URL + '?v=' + Date.now(), { cache: 'no-store' });
+    if (res && res.ok) data = await res.json();
+  } catch (e) { data = null; }
+  var upd = null;
+  if (data && data.updated_at) {
+    var t = Date.parse(data.updated_at);
+    if (!isNaN(t)) upd = new Date(t);
+  }
+  var fresh = !!(upd && (Date.now() - upd.getTime()) < STALE_MS && data.source && data.source !== 'fallback');
+  if (data && data.prices && fresh) {
+    applyPrices(data);
+    usingFallback = false;
+    priceSource = data.source;
+    priceUpdatedAt = upd;
+  } else {
+    useFallbackPrices();
+    usingFallback = true;
+    priceSource = null;
+    priceUpdatedAt = null;
+  }
   render();
 }
 
@@ -397,12 +392,13 @@ function render() {
   pnlEl.className = 'hero-stat-value ' + (c.totalPnl >= 0 ? 'up' : 'down');
 
   $('priceNote').classList.toggle('hidden', !usingFallback);
-  $('heroStatus').textContent = lastUpdated
-    ? ('总资产 · USD · 价格实时更新 · 行情 ' + fmtHeroTime(lastUpdated))
+  $('heroStatus').textContent = (!usingFallback && priceUpdatedAt)
+    ? ('总资产 · USD · 价格实时更新 · 行情更新于 ' + beijingTime(priceUpdatedAt) + '（北京时间）')
     : '总资产 · USD · 价格实时更新 · 行情 —';
-  $('sourceLine').textContent = lastUpdated
-    ? ('行情来源：Stooq · 最近刷新 ' + lastUpdated.toLocaleString('zh-CN', { hour12: false }))
-    : '行情来源：Stooq · 最近刷新 —';
+  var srcLabel = { yahoo: 'Yahoo', stooq: 'Stooq', mixed: 'Yahoo/Stooq' }[priceSource] || '本地兜底';
+  $('sourceLine').textContent = (!usingFallback && priceUpdatedAt)
+    ? ('行情来源：' + srcLabel + ' · 最近刷新 ' + beijingDateTime(priceUpdatedAt))
+    : '行情来源：本地兜底 · 最近刷新 —';
   $('barFooter').innerHTML = '<span>合计本金 ' + fmtMoney(PRINCIPAL) + '</span><span>合计总资产 ' + fmtMoney(c.totalAssets) + '</span>';
 
   $('tabHold').textContent = '持仓（' + (c.rows.length + 1) + '）';

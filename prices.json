@@ -1,0 +1,73 @@
+{
+  "updated_at": "2026-11-09T09:06:16Z",
+  "updated_at_beijing": "2026-11-09 17:06",
+  "source": "yahoo",
+  "prices": {
+    "RKLB": {
+      "price": 53.07,
+      "prev_close": 45.99,
+      "change_pct": 15.39,
+      "source": "yahoo"
+    },
+    "TSLA": {
+      "price": 358.22,
+      "prev_close": 343.69,
+      "change_pct": 4.23,
+      "source": "yahoo"
+    },
+    "GEV": {
+      "price": 774.11,
+      "prev_close": 770.51,
+      "change_pct": 0.47,
+      "source": "yahoo"
+    },
+    "GOOGL": {
+      "price": 284.78,
+      "prev_close": 282.57,
+      "change_pct": 0.78,
+      "source": "yahoo"
+    },
+    "SPCX": {
+      "price": 134.27,
+      "prev_close": 123.62,
+      "change_pct": 8.62,
+      "source": "yahoo"
+    },
+    "BRK.B": {
+      "price": 570.89,
+      "prev_close": 572.33,
+      "change_pct": -0.25,
+      "source": "yahoo"
+    },
+    "NVDA": {
+      "price": 186.64,
+      "prev_close": 181.6,
+      "change_pct": 2.78,
+      "source": "yahoo"
+    },
+    "MU": {
+      "price": 690.0,
+      "prev_close": 656.39,
+      "change_pct": 5.12,
+      "source": "yahoo"
+    },
+    "AMD": {
+      "price": 449.04,
+      "prev_close": 404.4,
+      "change_pct": 11.04,
+      "source": "yahoo"
+    },
+    "HK700": {
+      "price": 418.4,
+      "prev_close": 419.8,
+      "change_pct": -0.33,
+      "source": "yahoo"
+    },
+    "HK9992": {
+      "price": 143.2,
+      "prev_close": 141.9,
+      "change_pct": 0.92,
+      "source": "yahoo"
+    }
+  }
+}
