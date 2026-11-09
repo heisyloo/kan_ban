@@ -33,13 +33,14 @@
   .small { font-size: 13px; }
   .note { display: inline-block; background: #fffbeb; border: 1px solid #fde68a; color: #92400e;
     font-size: 13px; padding: 5px 10px; border-radius: 6px; }
+  .sub-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+  .list-tab { padding: 8px 0; font-size: 14px; }
   .table-wrap { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 620px; }
   th, td { padding: 9px 8px; border-bottom: 1px solid #f1f1f1; white-space: nowrap; }
   th { text-align: left; color: #6b7280; font-weight: 600; font-size: 13px; }
   td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
   td.c { text-align: center; color: #6b7280; }
-  tr.watch td { color: #6b7280; }
   tr.total td { font-weight: 800; border-top: 2px solid #d1d5db; border-bottom: none; }
   .sub { font-size: 12px; color: #9ca3af; font-weight: 400; margin-top: 2px; }
   .up { color: #0d9d57; }
@@ -48,16 +49,22 @@
   .code-cell { display: flex; align-items: center; gap: 8px; }
   .rank-dot { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px;
     border-radius: 50%; color: #fff; font-size: 12px; font-weight: 800; flex: none; }
+  .watch-price { color: #1f2937; font-weight: 700; }
   .mini-bar { width: 72px; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; margin: 5px 0 3px auto; }
   .mini-bar span { display: block; height: 100%; background: #0d9d57; border-radius: 3px; }
-  .donut-flex { display: flex; align-items: center; gap: 28px; }
-  .legend { flex: 1; min-width: 0; }
-  .legend-row { display: flex; align-items: center; gap: 8px; padding: 8px 0;
-    border-bottom: 1px solid #f1f1f1; font-size: 14px; }
-  .legend-row:last-child { border-bottom: none; }
-  .dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
-  .legend-val { margin-left: auto; font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-  .legend-pct { width: 64px; text-align: right; color: #6b7280; font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; align-items: stretch; }
+  .charts-grid .card { margin-bottom: 0; display: flex; flex-direction: column; height: 100%; }
+  .donut-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 220px; }
+  .donut-seg { transition: transform 300ms cubic-bezier(0.22,1,0.36,1); transform-box: view-box; transform-origin: center; cursor: pointer; }
+  .donut-seg:hover { transform: scale(1.107); }
+  @media (prefers-reduced-motion: reduce) { .donut-seg { transition: none; } }
+  .donut-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; margin-top: 12px; }
+  .donut-legend-item { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  #donutCard { position: relative; }
+  #donutTip { position: absolute; background: #1f2937; color: #fff; font-size: 13px; padding: 5px 9px;
+    border-radius: 6px; pointer-events: none; z-index: 5; white-space: nowrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
   .axis { font-size: 12px; fill: #6b7280; }
   .bar-val { font-size: 14px; font-weight: 700; fill: #1f2937; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
   .legend-line { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #374151; margin-bottom: 8px; }
@@ -77,8 +84,7 @@
     font-weight: 800; color: #1f2937; }
   @media (max-width: 640px) {
     .hero-value { font-size: 28px; }
-    .donut-flex { flex-direction: column; gap: 8px; }
-    .legend { width: 100%; }
+    .charts-grid { grid-template-columns: 1fr; }
     .principles li { font-size: 15px; }
     .card { padding: 14px; }
   }
@@ -114,6 +120,10 @@
 
     <div class="card">
       <h2>持仓列表</h2>
+      <div class="sub-tabs">
+        <button id="tabHold" class="tab-btn list-tab active" type="button">持仓</button>
+        <button id="tabWatch" class="tab-btn list-tab" type="button">观望</button>
+      </div>
       <div class="table-wrap">
         <table>
           <thead>
@@ -126,19 +136,22 @@
       <p class="muted small" id="hkLine"></p>
     </div>
 
-    <div class="card">
-      <h2>持仓占比</h2>
-      <div class="donut-flex">
-        <svg id="donutSvg" viewBox="0 0 220 220" width="220" height="220" role="img" aria-label="持仓占比环形图"></svg>
-        <div id="donutLegend" class="legend"></div>
+    <div class="charts-grid">
+      <div class="card" id="donutCard">
+        <h2>持仓占比</h2>
+        <div class="donut-box">
+          <svg id="donutSvg" viewBox="0 0 220 220" width="220" height="220" role="img" aria-label="持仓占比环形图"></svg>
+          <div id="donutLegend" class="donut-legend"></div>
+        </div>
+        <p class="muted small">占比按总资产计算（含现金）。</p>
+        <div id="donutTip" class="hidden"></div>
       </div>
-      <p class="muted small">占比按总资产计算（含现金）。</p>
-    </div>
 
-    <div class="card">
-      <h2>本金与总资产</h2>
-      <div class="legend-line"><span class="swatch" style="background:#5b6b73"></span>本金<span class="swatch" style="background:#0d9d57"></span>总资产</div>
-      <div id="barChart"></div>
+      <div class="card">
+        <h2>本金与总资产</h2>
+        <div class="legend-line"><span class="swatch" style="background:#5b6b73"></span>本金<span class="swatch" style="background:#0d9d57"></span>总资产</div>
+        <div id="barChart"></div>
+      </div>
     </div>
 
     <div class="card">
@@ -155,6 +168,7 @@
   <section id="principlesView" class="hidden">
     <div class="card">
       <h2>投资原则</h2>
+      <p class="muted small" style="margin:-6px 0 6px">共 11 条 · 每次操作前先过一遍</p>
       <ol class="principles">
         <li>跟随趋势，低买高卖，控制风险，避免在市场过热或过冷时盲目操作。</li>
         <li>不要总以为股市即将崩盘就被吓得匆匆卖出，天不会塌的，除非公司基本面恶化，否则坚决不要因恐慌害怕而卖出手中好公司的股票。</li>
@@ -174,18 +188,23 @@
 
 <script>
 'use strict';
-/* ================= 数据 ================= */
-var STOOQ_URL = 'https://stooq.com/q/l/?s=rklb.us,tsla.us,gev.us,googl.us,spcx.us,0700.hk,9992.hk&f=sd2t2ohlcv&h&e=csv';
+/* ================= 数据（以 Muse 版 getPortfolio 为准） ================= */
+var STOOQ_URL = 'https://stooq.com/q/l/?s=rklb.us,tsla.us,gev.us,googl.us,spcx.us,brk-b.us,nvda.us,mu.us,amd.us,0700.hk,9992.hk&f=sd2t2ohlcv&h&e=csv';
 var FALLBACK = {
   RKLB:   { price: 53.07,  ccy: 'USD' },
   TSLA:   { price: 358.22, ccy: 'USD' },
   GEV:    { price: 774.11, ccy: 'USD' },
   GOOGL:  { price: 284.78, ccy: 'USD' },
   SPCX:   { price: 134.27, ccy: 'USD' },
+  'BRK.B':{ price: 570.89, ccy: 'USD' },
+  NVDA:   { price: 186.64, ccy: 'USD' },
+  MU:     { price: 690.00, ccy: 'USD' },
+  AMD:    { price: 449.04, ccy: 'USD' },
   HK700:  { price: 419.80, ccy: 'HKD', label: '腾讯 0700.HK' },
   HK9992: { price: 141.90, ccy: 'HKD', label: '泡泡玛特 9992.HK' }
 };
-var STOOQ_KEY = { RKLB: 'rklb.us', TSLA: 'tsla.us', GEV: 'gev.us', GOOGL: 'googl.us', SPCX: 'spcx.us', HK700: '0700.hk', HK9992: '9992.hk' };
+var STOOQ_KEY = { RKLB: 'rklb.us', TSLA: 'tsla.us', GEV: 'gev.us', GOOGL: 'googl.us', SPCX: 'spcx.us',
+  'BRK.B': 'brk-b.us', NVDA: 'nvda.us', MU: 'mu.us', AMD: 'amd.us', HK700: '0700.hk', HK9992: '9992.hk' };
 var HOLDINGS = [
   { sym: 'RKLB',  shares: 500, cost: 21.20,  ideal: 8  },
   { sym: 'TSLA',  shares: 43,  cost: 214.00, ideal: 10 },
@@ -197,7 +216,6 @@ var CASH = 2500;
 var WATCH = [
   { sym: 'BRK.B', costLine: 480.00, ideal: 15 },
   { sym: 'NVDA',  costLine: 123.69, ideal: 10 },
-  { sym: 'PLTR',  costLine: 160.00, ideal: 10 },
   { sym: 'MU',    costLine: 650.00, ideal: 5  },
   { sym: 'AMD',   costLine: 127.00, ideal: 0  }
 ];
@@ -206,8 +224,8 @@ var LS_MONTHLY = 'kanban-monthly';
 var LS_PREV = 'kanban-prev-close';
 var SEED_MONTHLY = [{ m: '2026-11', assets: 64954.64, profit: 25718.50 }];
 var DONUT_COLORS = { RKLB: '#2fd574', TSLA: '#3b82c4', GEV: '#e0a32e', GOOGL: '#9b7ede', SPCX: '#e05d7a', '现金': '#7e939e' };
-var NAMES = { RKLB: 'Rocket Lab', TSLA: 'Tesla', GEV: 'GE Vernova', GOOGL: 'Google', SPCX: 'SpaceX',
-  'BRK.B': 'Berkshire Hathaway', NVDA: 'NVIDIA', PLTR: 'Palantir', MU: 'Micron', AMD: 'AMD' };
+var NAMES = { RKLB: 'Rocket Lab', TSLA: 'Tesla', GEV: 'GE Vernova', GOOGL: 'Alphabet', SPCX: 'SpaceX',
+  'BRK.B': 'Berkshire Hathaway Inc', NVDA: 'NVIDIA Corporation', MU: 'Micron Technology, Inc.', AMD: 'Advanced Micro Devices, Inc.' };
 
 /* ================= 工具 ================= */
 function $(id) { return document.getElementById(id); }
@@ -316,7 +334,9 @@ function compute() {
   var cashRow = { type: 'cash', sym: '现金', ideal: 10, value: CASH, principal: CASH, pnl: 0,
     weight: totalAssets ? CASH / totalAssets : 0 };
   var watchRows = WATCH.map(function (w) {
-    return { type: 'watch', sym: w.sym, ideal: w.ideal, costLine: w.costLine, value: 0, weight: 0 };
+    var pr = prices[w.sym];
+    return { type: 'watch', sym: w.sym, ideal: w.ideal, costLine: w.costLine,
+      price: pr.price, change: pr.change, value: 0, weight: 0 };
   });
   return { rows: rows, cashRow: cashRow, watchRows: watchRows,
     totalAssets: totalAssets, totalPnl: totalAssets - PRINCIPAL, totalHold: totalHold };
@@ -355,6 +375,9 @@ function updateMonthly(c) {
 }
 
 /* ================= 渲染 ================= */
+var listTab = 'hold';
+function setListTab(t) { listTab = t; render(); }
+
 function render() {
   var c = compute();
 
@@ -367,37 +390,45 @@ function render() {
   $('priceNote').classList.toggle('hidden', !usingFallback);
   $('updateTime').textContent = lastUpdated ? ('更新时间：' + lastUpdated.toLocaleString('zh-CN')) : '更新时间：—';
 
+  $('tabHold').textContent = '持仓（' + (c.rows.length + 1) + '）';
+  $('tabWatch').textContent = '观望（' + c.watchRows.length + '）';
+  $('tabHold').classList.toggle('active', listTab === 'hold');
+  $('tabWatch').classList.toggle('active', listTab === 'watch');
+
   var items = c.rows.concat([c.cashRow]).sort(function (a, b) { return b.value - a.value; });
   var html = '';
-  items.forEach(function (r, i) {
-    var color = DONUT_COLORS[r.sym] || '#7e939e';
-    if (r.type === 'hold') {
-      html += '<tr><td><div class="code-cell"><span class="rank-dot" style="background:' + color + '">' + (i + 1) + '</span><span><b>' + r.sym + '</b><div class="sub">' + NAMES[r.sym] + '</div></span></div></td>'
-        + '<td class="num">' + fmtMoney(r.price) + '<div class="sub ' + (r.change === null ? '' : (r.change >= 0 ? 'up' : 'down')) + '">' + (r.change === null ? '—' : fmtPct(r.change)) + '</div></td>'
-        + '<td class="num">' + fmtNum(r.shares) + ' × ' + fmtMoney(r.cost) + '<div class="sub">本金 ' + fmtMoney(r.principal) + '</div></td>'
-        + '<td class="num">' + fmtMoney(r.value) + '<div class="mini-bar"><span style="width:' + (r.weight * 100).toFixed(2) + '%"></span></div><div class="sub">' + (r.weight * 100).toFixed(2) + '%（理想 ' + r.ideal + '%）</div></td>'
-        + '<td class="num ' + (r.pnl >= 0 ? 'up' : 'down') + '">' + fmtSigned(r.pnl) + '<div class="sub">' + fmtPct(r.pnl / r.principal) + '</div></td></tr>';
-    } else {
-      html += '<tr><td><div class="code-cell"><span class="rank-dot" style="background:' + color + '">' + (i + 1) + '</span><span><b>现金</b><div class="sub">Cash</div></span></div></td>'
-        + '<td class="num">—</td>'
-        + '<td class="num">—<div class="sub">本金 ' + fmtMoney(CASH) + '</div></td>'
-        + '<td class="num">' + fmtMoney(CASH) + '<div class="mini-bar"><span style="width:' + (r.weight * 100).toFixed(2) + '%"></span></div><div class="sub">' + (r.weight * 100).toFixed(2) + '%（理想 10%）</div></td>'
-        + '<td class="num">$0.00<div class="sub">0.00%</div></td></tr>';
-    }
-  });
-  var base = items.length;
-  c.watchRows.forEach(function (w, i) {
-    html += '<tr class="watch"><td><div class="code-cell"><span class="rank-dot" style="background:#9ca3af">' + (base + 1 + i) + '</span><span><b>' + w.sym + '</b><div class="sub">' + NAMES[w.sym] + '</div></span></div></td>'
+  if (listTab === 'hold') {
+    items.forEach(function (r, i) {
+      var color = DONUT_COLORS[r.sym] || '#7e939e';
+      if (r.type === 'hold') {
+        html += '<tr><td><div class="code-cell"><span class="rank-dot" style="background:' + color + '">' + (i + 1) + '</span><span><b>' + r.sym + '</b><div class="sub">' + NAMES[r.sym] + '</div></span></div></td>'
+          + '<td class="num">' + fmtMoney(r.price) + '<div class="sub ' + (r.change === null ? '' : (r.change >= 0 ? 'up' : 'down')) + '">' + (r.change === null ? '—' : fmtPct(r.change)) + '</div></td>'
+          + '<td class="num">' + fmtNum(r.shares) + ' × ' + fmtMoney(r.cost) + '<div class="sub">本金 ' + fmtMoney(r.principal) + '</div></td>'
+          + '<td class="num">' + fmtMoney(r.value) + '<div class="mini-bar"><span style="width:' + (r.weight * 100).toFixed(2) + '%"></span></div><div class="sub">' + (r.weight * 100).toFixed(2) + '%（理想 ' + r.ideal + '%）</div></td>'
+          + '<td class="num ' + (r.pnl >= 0 ? 'up' : 'down') + '">' + fmtSigned(r.pnl) + '<div class="sub">(' + fmtPct(r.pnl / r.principal) + ')</div></td></tr>';
+      } else {
+        html += '<tr><td><div class="code-cell"><span class="rank-dot" style="background:' + color + '">' + (i + 1) + '</span><span><b>现金</b><div class="sub">Cash</div></span></div></td>'
+          + '<td class="num">—</td>'
+          + '<td class="num">' + fmtMoney(CASH) + '<div class="sub">可用现金</div></td>'
+          + '<td class="num">' + fmtMoney(CASH) + '<div class="mini-bar"><span style="width:' + (r.weight * 100).toFixed(2) + '%"></span></div><div class="sub">' + (r.weight * 100).toFixed(2) + '%（理想 10%）</div></td>'
+          + '<td class="num">不计盈亏</td></tr>';
+      }
+    });
+    html += '<tr class="total"><td><b>合计</b></td>'
       + '<td class="num">—</td>'
-      + '<td class="num">0 × ' + fmtMoney(w.costLine) + '<div class="sub">本金 $0.00</div></td>'
-      + '<td class="num">$0.00<div class="mini-bar"><span style="width:0%"></span></div><div class="sub">0.00%（理想 ' + w.ideal + '%）</div></td>'
-      + '<td class="num">—</td></tr>';
-  });
-  html += '<tr class="total"><td><b>合计</b></td>'
-    + '<td class="num">—</td>'
-    + '<td class="num">—<div class="sub">本金 ' + fmtMoney(PRINCIPAL) + '</div></td>'
-    + '<td class="num">' + fmtMoney(c.totalAssets) + '<div class="mini-bar"><span style="width:100%"></span></div><div class="sub">100.00%</div></td>'
-    + '<td class="num ' + (c.totalPnl >= 0 ? 'up' : 'down') + '">' + fmtSigned(c.totalPnl) + '<div class="sub">' + fmtPct(c.totalPnl / PRINCIPAL) + '</div></td></tr>';
+      + '<td class="num">—<div class="sub">本金 ' + fmtMoney(PRINCIPAL) + '</div></td>'
+      + '<td class="num">' + fmtMoney(c.totalAssets) + '<div class="mini-bar"><span style="width:100%"></span></div><div class="sub">100.00%</div></td>'
+      + '<td class="num ' + (c.totalPnl >= 0 ? 'up' : 'down') + '">' + fmtSigned(c.totalPnl) + '<div class="sub">(' + fmtPct(c.totalPnl / PRINCIPAL) + ')</div></td></tr>';
+  } else {
+    var base = items.length;
+    c.watchRows.forEach(function (w, i) {
+      html += '<tr class="watch"><td><div class="code-cell"><span class="rank-dot" style="background:#9ca3af">' + (base + 1 + i) + '</span><span><b>' + w.sym + '</b><div class="sub">' + NAMES[w.sym] + '</div></span></div></td>'
+        + '<td class="num"><span class="watch-price">' + fmtMoney(w.price) + '</span><div class="sub">' + (w.change === null ? '—' : fmtPct(w.change)) + '</div></td>'
+        + '<td class="num">0 × ' + fmtMoney(w.costLine) + '<div class="sub">本金 $0.00</div></td>'
+        + '<td class="num">$0.00<div class="mini-bar"><span style="width:0%;background:#9ca3af"></span></div><div class="sub">0.00%（理想 ' + w.ideal + '%）</div></td>'
+        + '<td class="num" style="color:#6b7280">+$0.00<div class="sub">(—)</div></td></tr>';
+    });
+  }
   $('holdingsBody').innerHTML = html;
 
   var hkParts = ['HK700', 'HK9992'].map(function (sym) {
@@ -407,33 +438,67 @@ function render() {
   });
   $('hkLine').textContent = '其他关注：' + hkParts.join('　·　');
 
-
   renderDonut(c);
   renderBars(c);
   var entries = updateMonthly(c);
   renderTrend(entries);
 }
 
+function polar(cx, cy, r, angleDeg) {
+  var a = angleDeg * Math.PI / 180;
+  return { x: cx + r * Math.sin(a), y: cy - r * Math.cos(a) };
+}
+
 function renderDonut(c) {
   var total = c.totalAssets;
   var items = c.rows.concat([{ sym: '现金', value: CASH }]).sort(function (a, b) { return b.value - a.value; });
-  var offset = 0;
-  var segs = '<g transform="rotate(-90 110 110)">';
+  var R_OUT = 96, R_IN = 45, CX = 110, CY = 110, GAP = 2;
+  var cursor = 0, segs = '';
   items.forEach(function (it) {
-    var pct = total ? (it.value / total) * 100 : 0;
-    segs += '<circle cx="110" cy="110" r="84" fill="none" stroke="' + DONUT_COLORS[it.sym] + '" stroke-width="34" pathLength="100" stroke-dasharray="' + pct.toFixed(2) + ' 100" stroke-dashoffset="' + (-offset).toFixed(2) + '"/>';
-    offset += pct;
+    var pct = total ? it.value / total : 0;
+    var sweep = pct * 360;
+    var halfGap = sweep > GAP ? GAP / 2 : 0;
+    var a0 = cursor + halfGap, a1 = cursor + sweep - halfGap;
+    if (sweep > 0.1) {
+      var p0 = polar(CX, CY, R_OUT, a0), p1 = polar(CX, CY, R_OUT, a1);
+      var p2 = polar(CX, CY, R_IN, a1), p3 = polar(CX, CY, R_IN, a0);
+      var large = (a1 - a0) > 180 ? 1 : 0;
+      var d = 'M ' + p0.x.toFixed(2) + ' ' + p0.y.toFixed(2)
+        + ' A ' + R_OUT + ' ' + R_OUT + ' 0 ' + large + ' 1 ' + p1.x.toFixed(2) + ' ' + p1.y.toFixed(2)
+        + ' L ' + p2.x.toFixed(2) + ' ' + p2.y.toFixed(2)
+        + ' A ' + R_IN + ' ' + R_IN + ' 0 ' + large + ' 0 ' + p3.x.toFixed(2) + ' ' + p3.y.toFixed(2) + ' Z';
+      var label = '';
+      if (pct >= 0.04) {
+        var mid = polar(CX, CY, (R_OUT + R_IN) / 2, (a0 + a1) / 2);
+        label = '<text x="' + mid.x.toFixed(1) + '" y="' + mid.y.toFixed(1) + '" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="11" font-weight="700">' + (pct * 100).toFixed(1) + '%</text>';
+      }
+      segs += '<g class="donut-seg" data-sym="' + it.sym + '" data-value="' + fmtMoney(it.value) + '"><path d="' + d + '" fill="' + DONUT_COLORS[it.sym] + '"/>' + label + '</g>';
+    }
+    cursor += sweep;
   });
-  segs += '</g>';
   $('donutSvg').innerHTML = segs;
 
   var leg = '';
   items.forEach(function (it) {
-    leg += '<div class="legend-row"><span class="dot" style="background:' + DONUT_COLORS[it.sym] + '"></span><b>' + it.sym + '</b>'
-      + '<span class="legend-val">' + fmtMoney(it.value) + '</span>'
-      + '<span class="legend-pct">' + (total ? (it.value / total * 100).toFixed(2) : '0.00') + '%</span></div>';
+    leg += '<span class="donut-legend-item"><span class="dot" style="background:' + DONUT_COLORS[it.sym] + '"></span><b>' + it.sym + '</b></span>';
   });
   $('donutLegend').innerHTML = leg;
+
+  var tip = $('donutTip');
+  var svg = $('donutSvg');
+  svg.querySelectorAll('.donut-seg').forEach(function (g) {
+    g.addEventListener('mouseenter', function () {
+      tip.textContent = g.getAttribute('data-sym') + ' : ' + g.getAttribute('data-value');
+      tip.classList.remove('hidden');
+    });
+    g.addEventListener('mousemove', function (ev) {
+      var rect = $('donutCard').getBoundingClientRect();
+      var x = ev.clientX - rect.left + 12, y = ev.clientY - rect.top + 12;
+      tip.style.left = Math.max(0, Math.min(x, rect.width - 140)) + 'px';
+      tip.style.top = y + 'px';
+    });
+    g.addEventListener('mouseleave', function () { tip.classList.add('hidden'); });
+  });
 }
 
 function renderBars(c) {
@@ -466,13 +531,25 @@ function renderBars(c) {
 }
 
 function renderTrend(entries) {
+  var last = entries[entries.length - 1];
+  var anchor = last ? last.m : monthKey(new Date());
+  var parts = anchor.split('-');
+  var ay = parseInt(parts[0], 10), am = parseInt(parts[1], 10);
+  var slots = [];
+  for (var i = 11; i >= 0; i--) {
+    var d = new Date(ay, am - 1 - i, 1);
+    var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    var found = null;
+    entries.forEach(function (e) { if (e.m === key) found = e; });
+    slots.push({ m: key, e: found });
+  }
   var W = 720, H = 300, ml = 56, mr = 16, mt = 18, mb = 32;
   var maxV = 0;
   entries.forEach(function (e) { maxV = Math.max(maxV, e.assets, e.profit); });
   var max = Math.max(10000, Math.ceil(maxV * 1.08 / 10000) * 10000);
   function y(v) { return mt + (1 - v / max) * (H - mt - mb); }
   var plotW = W - ml - mr;
-  var slot = plotW / entries.length;
+  var slot = plotW / 12;
   var bw = Math.min(38, slot * 0.55);
   var g = '';
   for (var i = 0; i <= 4; i++) {
@@ -480,19 +557,24 @@ function renderTrend(entries) {
     g += '<line x1="' + ml + '" y1="' + yy + '" x2="' + (W - mr) + '" y2="' + yy + '" stroke="#e5e7eb"/>';
     g += '<text x="' + (ml - 8) + '" y="' + (yy + 4) + '" text-anchor="end" class="axis">' + fmtAxis(v) + '</text>';
   }
-  entries.forEach(function (e, i) {
+  slots.forEach(function (s, i) {
     var cx = ml + slot * (i + 0.5);
-    g += '<rect x="' + (cx - bw / 2) + '" y="' + y(e.assets) + '" width="' + bw + '" height="' + (y(0) - y(e.assets)) + '" fill="#5ecf6e" rx="3"/>';
-    g += '<text x="' + cx + '" y="' + (H - 10) + '" text-anchor="middle" class="axis">' + e.m.slice(5).replace(/^0/, '') + '月</text>';
+    g += '<text x="' + cx + '" y="' + (H - 10) + '" text-anchor="middle" class="axis">' + parseInt(s.m.slice(5), 10) + '月</text>';
+    if (s.e) {
+      g += '<rect x="' + (cx - bw / 2) + '" y="' + y(s.e.assets) + '" width="' + bw + '" height="' + (y(0) - y(s.e.assets)) + '" fill="#5ecf6e" rx="3"/>';
+    }
   });
-  var pts = entries.map(function (e, i) {
-    var cx = ml + slot * (i + 0.5);
-    return cx.toFixed(1) + ',' + y(e.profit).toFixed(1);
-  }).join(' ');
-  g += '<polyline points="' + pts + '" fill="none" stroke="#1f9be0" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
-  entries.forEach(function (e, i) {
-    var cx = ml + slot * (i + 0.5);
-    g += '<circle cx="' + cx + '" cy="' + y(e.profit) + '" r="4" fill="#1f9be0" stroke="#fff" stroke-width="1.5"/>';
+  for (var j = 0; j < slots.length - 1; j++) {
+    if (slots[j].e && slots[j + 1].e) {
+      var x1 = ml + slot * (j + 0.5), x2 = ml + slot * (j + 1.5);
+      g += '<line x1="' + x1 + '" y1="' + y(slots[j].e.profit) + '" x2="' + x2 + '" y2="' + y(slots[j + 1].e.profit) + '" stroke="#1f9be0" stroke-width="2.5" stroke-linecap="round"/>';
+    }
+  }
+  slots.forEach(function (s, i) {
+    if (s.e) {
+      var cx = ml + slot * (i + 0.5);
+      g += '<circle cx="' + cx + '" cy="' + y(s.e.profit) + '" r="4" fill="#1f9be0" stroke="#fff" stroke-width="1.5"/>';
+    }
   });
   $('trendChart').innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img" aria-label="总资产与利润走势图">' + g + '</svg>';
 
@@ -506,14 +588,17 @@ function renderTrend(entries) {
 /* ================= 页签 ================= */
 function switchTab(name) {
   document.querySelectorAll('.tab-btn').forEach(function (b) {
+    if (b.classList.contains('list-tab')) return;
     b.classList.toggle('active', b.getAttribute('data-tab') === name);
   });
   $('boardView').classList.toggle('hidden', name !== 'board');
   $('principlesView').classList.toggle('hidden', name !== 'principles');
 }
-document.querySelectorAll('.tab-btn').forEach(function (b) {
+document.querySelectorAll('.tabs .tab-btn').forEach(function (b) {
   b.addEventListener('click', function () { switchTab(b.getAttribute('data-tab')); });
 });
+$('tabHold').addEventListener('click', function () { setListTab('hold'); });
+$('tabWatch').addEventListener('click', function () { setListTab('watch'); });
 
 /* ================= 启动 ================= */
 render();
