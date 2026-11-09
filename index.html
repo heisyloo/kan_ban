@@ -219,22 +219,28 @@ var FALLBACK = {
   AMD:    { price: 449.04, ccy: 'USD' }
 };
 var HOLDINGS = [
-  { sym: 'RKLB',  shares: 500, cost: 21.20,  ideal: 8  },
+  { sym: 'RKLB',  shares: 520, cost: 21.20,  ideal: 8  },
   { sym: 'TSLA',  shares: 43,  cost: 214.00, ideal: 10 },
   { sym: 'GEV',   shares: 10,  cost: 693.00, ideal: 12 },
   { sym: 'GOOGL', shares: 26,  cost: 169.39, ideal: 10 },
   { sym: 'SPCX',  shares: 40,  cost: 140.00, ideal: 10 }
 ];
 var CASH = 2500;
+var CASH_IDEAL = 10;
 var WATCH = [
-  { sym: 'BRK.B', costLine: 480.00, ideal: 15 },
-  { sym: 'NVDA',  costLine: 123.69, ideal: 10 },
-  { sym: 'MU',    costLine: 650.00, ideal: 5  },
-  { sym: 'AMD',   costLine: 127.00, ideal: 0  }
+  { sym: 'MU',    costLine: 700.00, ideal: 5  },
+  { sym: 'NVDA',  costLine: 0,      ideal: 10 },
+  { sym: 'BRK.B', costLine: 0,      ideal: 15 },
+  { sym: 'AMD',   costLine: 0,      ideal: 0  }
 ];
-var PRINCIPAL = 39236.14;
+function calcPrincipal() {
+  var s = CASH;
+  HOLDINGS.forEach(function (h) { s += h.shares * h.cost; });
+  return Math.round(s * 100) / 100;
+}
+var PRINCIPAL = calcPrincipal();
 var LS_MONTHLY = 'kanban-monthly';
-var SEED_MONTHLY = [{ m: '2026-11', assets: 64954.64, profit: 25718.50 }];
+var SEED_MONTHLY = [{ m: '2026-11', assets: 66016.04, profit: 26355.90 }];
 var DONUT_COLORS = { RKLB: '#2fd574', TSLA: '#3b82c4', GEV: '#e0a32e', GOOGL: '#9b7ede', SPCX: '#e05d7a', '现金': '#7e939e' };
 var NAMES = { RKLB: 'Rocket Lab', TSLA: 'Tesla', GEV: 'GE Vernova', GOOGL: 'Alphabet', SPCX: 'SpaceX',
   'BRK.B': 'Berkshire Hathaway Inc', NVDA: 'NVIDIA Corporation', MU: 'Micron Technology, Inc.', AMD: 'Advanced Micro Devices, Inc.' };
@@ -334,6 +340,41 @@ async function fetchQuotes() {
   render();
 }
 
+/* ================= 持仓数据（holdings.json） ================= */
+// Muse 版“保存并同步”按钮把当前持仓写到仓库根目录 holdings.json；
+// GitHub 版优先读该文件（同源，加时间戳防缓存），拉不到或格式不对时用页内默认值。
+var HOLDINGS_URL = 'holdings.json';
+function applyHoldings(data) {
+  if (!data || !Array.isArray(data.holdings) || !data.holdings.length) return false;
+  var nh = [], nw = [], ok = true;
+  data.holdings.forEach(function (h) {
+    if (!h || typeof h.sym !== 'string' || typeof h.shares !== 'number' || typeof h.cost !== 'number') { ok = false; return; }
+    nh.push({ sym: h.sym, shares: h.shares, cost: h.cost, ideal: (typeof h.ideal === 'number' ? h.ideal : 0) });
+    if (typeof h.name === 'string' && h.name) NAMES[h.sym] = h.name;
+  });
+  if (!ok || !nh.length) return false;
+  (Array.isArray(data.watch) ? data.watch : []).forEach(function (w) {
+    if (!w || typeof w.sym !== 'string') return;
+    var cl = (typeof w.cost_line === 'number') ? w.cost_line : ((typeof w.cost === 'number') ? w.cost : 0);
+    nw.push({ sym: w.sym, costLine: cl, ideal: (typeof w.ideal === 'number' ? w.ideal : 0) });
+    if (typeof w.name === 'string' && w.name) NAMES[w.sym] = w.name;
+  });
+  HOLDINGS = nh;
+  WATCH = nw;
+  if (typeof data.cash === 'number') CASH = data.cash;
+  if (typeof data.cash_ideal === 'number') CASH_IDEAL = data.cash_ideal;
+  PRINCIPAL = calcPrincipal();
+  return true;
+}
+async function fetchHoldings() {
+  var data = null;
+  try {
+    var res = await fetch(HOLDINGS_URL + '?v=' + Date.now(), { cache: 'no-store' });
+    if (res && res.ok) data = await res.json();
+  } catch (e) { data = null; }
+  if (data && applyHoldings(data)) render();
+}
+
 /* ================= 计算 ================= */
 function compute() {
   var rows = HOLDINGS.map(function (h) {
@@ -346,7 +387,7 @@ function compute() {
   var totalHold = rows.reduce(function (s, r) { return s + r.value; }, 0);
   var totalAssets = totalHold + CASH;
   rows.forEach(function (r) { r.weight = totalAssets ? r.value / totalAssets : 0; });
-  var cashRow = { type: 'cash', sym: '现金', ideal: 10, value: CASH, principal: CASH, pnl: 0,
+  var cashRow = { type: 'cash', sym: '现金', ideal: CASH_IDEAL, value: CASH, principal: CASH, pnl: 0,
     weight: totalAssets ? CASH / totalAssets : 0 };
   var watchRows = WATCH.map(function (w) {
     var pr = prices[w.sym];
@@ -423,7 +464,7 @@ function render() {
     items.forEach(function (r, i) {
       var color = DONUT_COLORS[r.sym] || '#7e939e';
       if (r.type === 'hold') {
-        html += '<tr><td><div class="code-cell"><span class="rank-dot" style="background:' + color + '">' + (i + 1) + '</span><span><b>' + r.sym + '</b><div class="sub">' + NAMES[r.sym] + '</div></span></div></td>'
+        html += '<tr><td><div class="code-cell"><span class="rank-dot" style="background:' + color + '">' + (i + 1) + '</span><span><b>' + r.sym + '</b><div class="sub">' + (NAMES[r.sym] || r.sym) + '</div></span></div></td>'
           + '<td class="num">' + fmtMoney(r.price) + '<div class="sub ' + (r.change === null ? '' : (r.change >= 0 ? 'up' : 'down')) + '">' + (r.change === null ? '—' : fmtPct(r.change)) + '</div></td>'
           + '<td class="num">' + fmtNum(r.shares) + ' × ' + fmtMoney(r.cost) + '<div class="sub">本金 ' + fmtMoney(r.principal) + '</div></td>'
           + '<td class="num">' + fmtMoney(r.value) + '<div class="mini-bar"><span style="width:' + (r.weight * 100).toFixed(2) + '%"></span></div><div class="sub">' + (r.weight * 100).toFixed(1) + '%（理想 ' + r.ideal + '%）</div></td>'
@@ -432,14 +473,14 @@ function render() {
         html += '<tr><td><div class="code-cell"><span class="rank-dot" style="background:' + color + '">' + (i + 1) + '</span><span><b>现金</b><div class="sub">现金 (USD)</div></span></div></td>'
           + '<td class="num">—</td>'
           + '<td class="num">' + fmtMoney(CASH) + '<div class="sub">可用现金</div></td>'
-          + '<td class="num">' + fmtMoney(CASH) + '<div class="mini-bar"><span style="width:' + (r.weight * 100).toFixed(2) + '%"></span></div><div class="sub">' + (r.weight * 100).toFixed(1) + '%（理想 10%）</div></td>'
+          + '<td class="num">' + fmtMoney(CASH) + '<div class="mini-bar"><span style="width:' + (r.weight * 100).toFixed(2) + '%"></span></div><div class="sub">' + (r.weight * 100).toFixed(1) + '%（理想 ' + r.ideal + '%）</div></td>'
           + '<td class="num">不计盈亏</td></tr>';
       }
     });
   } else {
     var base = items.length;
     c.watchRows.forEach(function (w, i) {
-      html += '<tr class="watch"><td><div class="code-cell"><span class="rank-dot" style="background:#9ca3af">' + (base + 1 + i) + '</span><span><b>' + w.sym + '</b><div class="sub">' + NAMES[w.sym] + '</div></span></div></td>'
+      html += '<tr class="watch"><td><div class="code-cell"><span class="rank-dot" style="background:#9ca3af">' + (base + 1 + i) + '</span><span><b>' + w.sym + '</b><div class="sub">' + (NAMES[w.sym] || w.sym) + '</div></span></div></td>'
         + '<td class="num"><span class="watch-price">' + fmtMoney(w.price) + '</span><div class="sub">' + (w.change === null ? '—' : fmtPct(w.change)) + '</div></td>'
         + '<td class="num">0 × ' + fmtMoney(w.costLine) + '<div class="sub">本金 $0.00</div></td>'
         + '<td class="num">$0.00<div class="mini-bar"><span style="width:0%;background:#9ca3af"></span></div><div class="sub">0.0%（理想 ' + w.ideal + '%）</div></td>'
@@ -552,7 +593,9 @@ function renderBars(c) {
   });
   groups.push({ label: '现金', principal: CASH, assets: CASH });
   var W = 720, H = 300, ml = 52, mr = 8, mt = 8, mb = 36;
-  var max = Math.max(PRINCIPAL, c.totalAssets) * 1.12;
+  var maxBar = 0;
+  groups.forEach(function (gr) { maxBar = Math.max(maxBar, gr.principal, gr.assets); });
+  var max = Math.max(maxBar * 1.1, 1);
   function y(v) { return mt + (1 - v / max) * (H - mt - mb); }
   var g = '';
   for (var i = 0; i <= 4; i++) {
@@ -647,6 +690,7 @@ $('tabWatch').addEventListener('click', function () { setListTab('watch'); });
 
 /* ================= 启动 ================= */
 render();
+fetchHoldings();
 fetchQuotes();
 setInterval(fetchQuotes, 5 * 60 * 1000);
 $('refreshBtn').addEventListener('click', fetchQuotes);
