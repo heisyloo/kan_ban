@@ -66,10 +66,10 @@
   .charts-grid .card { margin-bottom: 0; display: flex; flex-direction: column; height: 100%; }
   .donut-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 252px; }
   .donut-seg { cursor: pointer; }
-  .donut-seg path { transition: d 300ms cubic-bezier(0.22,1,0.36,1); }
-  .donut-label { transition: transform 300ms cubic-bezier(0.22,1,0.36,1); }
-  .donut-label text { transition: font-size 300ms cubic-bezier(0.22,1,0.36,1); }
-  .donut-scale .donut-seg { transition: transform 300ms cubic-bezier(0.22,1,0.36,1); transform-box: view-box; transform-origin: center; }
+  .donut-seg path { transition: d 420ms cubic-bezier(0.22,1,0.36,1); }
+  .donut-label { transition: transform 420ms cubic-bezier(0.22,1,0.36,1); }
+  .donut-label text { transition: font-size 420ms cubic-bezier(0.22,1,0.36,1); }
+  .donut-scale .donut-seg { transition: transform 420ms cubic-bezier(0.22,1,0.36,1); transform-box: view-box; transform-origin: center; }
   .donut-scale .donut-seg:hover { transform: scale(1.107); }
   @media (prefers-reduced-motion: reduce) { .donut-seg path, .donut-label, .donut-label text, .donut-scale .donut-seg { transition: none; } }
   .donut-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 16px; margin-top: 8px; }
@@ -156,8 +156,8 @@
     <div class="charts-grid">
       <div class="card">
         <h2>本金与总资产</h2>
-        <div class="legend-line"><span class="swatch" style="background:#5b6b73"></span>本金<span class="swatch" style="background:#0d9d57"></span>总资产</div>
         <div id="barChart"></div>
+        <div class="legend-line" style="justify-content:center; margin:8px 0 4px;"><span class="swatch" style="background:#5b6b73"></span>本金<span class="swatch" style="background:#0d9d57"></span>总资产</div>
         <div class="bar-footer" id="barFooter"></div>
       </div>
 
