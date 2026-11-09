@@ -35,6 +35,10 @@
   .btn-ghost { padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; color: #374151;
     background: #fff; border: 1px solid #dde3dd; border-radius: 6px; white-space: nowrap; }
   .btn-ghost:active { background: #f3f4f6; }
+  .btn-ghost.loading { color: #9ca3af; cursor: default; pointer-events: none; }
+  .btn-ghost .refresh-icon { display: inline-block; }
+  .btn-ghost.loading .refresh-icon { animation: refresh-spin 0.8s linear infinite; }
+  @keyframes refresh-spin { to { transform: rotate(360deg); } }
   .card-sub { color: #68736a; font-size: 12px; margin: -8px 0 12px; }
   .source-line { text-align: center; color: #68736a; font-size: 11px; margin: 24px 0 32px; }
   .bar-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 24px; margin-top: auto; padding-top: 8px;
@@ -137,7 +141,7 @@
     <div class="hero">
       <div class="hero-top">
         <div class="hero-label"><span class="status-dot"></span><span id="heroStatus">总资产 · USD · 价格实时更新 · 行情 —</span></div>
-        <button id="refreshBtn" class="btn-ghost" type="button">↻ 刷新价格</button>
+        <button id="refreshBtn" class="btn-ghost" type="button"><span class="refresh-icon">↻</span> <span class="refresh-text">刷新价格</span></button>
       </div>
       <div class="hero-value"><span id="kpiAssets">—</span><button id="maskBtn" class="eye-btn" type="button" aria-label="隐藏金额" title="隐藏金额"></button></div>
       <div class="hero-stats">
@@ -336,6 +340,9 @@ function useFallbackPrices() {
 async function fetchQuotes() {
   // 主路径：同源 prices.json。浏览器端直拉 Stooq 会被 JS 验证拦截
   // （CSV 链接返回 404），不再作为主路径，也不做兜底尝试。
+  var btn = $('refreshBtn');
+  if (btn) { btn.classList.add('loading'); btn.disabled = true; }
+  try {
   var data = null;
   try {
     var res = await fetch(PRICE_URL + '?v=' + Date.now(), { cache: 'no-store' });
@@ -359,6 +366,9 @@ async function fetchQuotes() {
     priceUpdatedAt = null;
   }
   render();
+  } finally {
+    if (btn) { btn.classList.remove('loading'); btn.disabled = false; }
+  }
 }
 
 /* ================= 持仓数据（holdings.json） ================= */
