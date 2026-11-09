@@ -62,7 +62,7 @@
   .watch-price { color: #131713; font-weight: 700; }
   .mini-bar { width: 40px; height: 4px; background: #f4f6f4; border-radius: 2px; overflow: hidden; margin: 5px 0 3px auto; }
   .mini-bar span { display: block; height: 100%; background: #0d9d57; border-radius: 2px; }
-  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 0; align-items: stretch; }
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; align-items: stretch; }
   .charts-grid .card { margin-bottom: 0; display: flex; flex-direction: column; height: 100%; }
   .donut-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 252px; }
   .donut-seg { cursor: pointer; }
@@ -175,8 +175,8 @@
     <div class="card">
       <h2>总资产与利润走势</h2>
       <p class="card-sub" id="trendNote">近一年 · 每月最后一天登记一次（当月数值随实时价格更新，月末定格） · 已登记 1 个月</p>
-      <div class="legend-line"><span class="swatch"></span>总资产<span class="swatch-line"></span>利润</div>
       <div id="trendChart"></div>
+      <div class="legend-line" style="justify-content:center; margin:8px 0 4px;"><span class="swatch"></span>总资产<span class="swatch-line"></span>利润</div>
       <div id="trendDetail" class="trend-detail"></div>
     </div>
   </section>
