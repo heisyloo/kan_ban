@@ -1,0 +1,37 @@
+name: Update prices
+
+# 拉取持仓看板所需的实时价，写入仓库根目录的 prices.json。
+# 浏览器端直接拉 Stooq 会被 JS 验证拦截、Yahoo 没有 CORS 头，
+# 所以改由 Actions 在服务端拉价；页面改为拉同源的 prices.json。
+# GITHUB_TOKEN 的提交不会再次触发 workflow，不会死循环。
+on:
+  schedule:
+    # 每 15 分钟，美股时段（UTC 周一至周五 13:00-21:45）
+    - cron: '*/15 13-21 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-prices:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch prices
+        run: python3 scripts/update-prices.py
+      - name: Commit prices.json if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add prices.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Update prices.json"
+            git push
+          else
+            echo "prices.json unchanged, nothing to commit"
+          fi
