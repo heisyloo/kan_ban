@@ -106,7 +106,7 @@
   </header>
 
   <nav class="tabs">
-    <button class="tab-btn active" data-tab="board" type="button">投资看板</button>
+    <button class="tab-btn active" data-tab="board" type="button">持仓看板</button>
     <button class="tab-btn" data-tab="principles" type="button">投资原则</button>
   </nav>
 
@@ -596,7 +596,6 @@ function switchTab(name) {
   });
   $('boardView').classList.toggle('hidden', name !== 'board');
   $('principlesView').classList.toggle('hidden', name !== 'principles');
-  $('pageHeader').classList.toggle('hidden', name !== 'board');
 }
 document.querySelectorAll('.tabs .tab-btn').forEach(function (b) {
   b.addEventListener('click', function () { switchTab(b.getAttribute('data-tab')); });
