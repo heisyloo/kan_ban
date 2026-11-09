@@ -20,7 +20,19 @@ prices.json format:
   {"updated_at": "ISO UTC time", "updated_at_beijing": "YYYY-MM-DD HH:MM",
    "source": "yahoo|tencent|sina|stooq|mixed|fallback",
    "prices": {"RKLB": {"price": 53.07, "prev_close": 50.0,
-                       "change_pct": 6.14, "source": "yahoo"}, ...}}
+                       "change_pct": 6.14, "source": "yahoo",
+                       "ext_session": "pre", "ext_change_pct": 0.43}, ...}}
+
+Extended-hours fields (added 2026-11-09 for the old static board):
+  "ext_session": "pre" | "post" | null (US Eastern 04:00-09:30 pre,
+  16:00-20:00 post; null in regular hours and after close),
+  "ext_change_pct": pre/post change % vs prev close, 2 decimals, or null.
+  Yahoo supplies preMarketChangePercent/postMarketChangePercent in the
+  quote API, but the chart meta used here does not carry them (probed
+  2026-11-09); fulldayChangePercent is used instead -- during pre/post
+  it equals the ext change vs the last regular close. Sina US carries
+  the ext change% in field [22]. Tencent and Stooq supply no ext data.
+  HK symbols always have null ext fields (no US sessions).
 
 Field layouts (verified 2026-11-09 against live responses):
   Tencent US  v_usSYM="200~name~CODE~price~prev~open~...~change~chg%~high~low~USD~..."
@@ -34,6 +46,14 @@ Field layouts (verified 2026-11-09 against live responses):
               price=[6], prev=[3], change_pct=[8]
   Sina has no usable BRK.B quote (gb_brk.b is empty, gb_brkb is a stale
   2019 record), so BRK.B skips Sina.
+  Sina US ext fields (verified live 2026-11-09 in pre-market): [21] ext
+  price, [22] ext change%, [23] ext change, [24] ext quote time
+  ('Nov 09 07:37AM EST'); [1] is only the last regular close, so the
+  ext value must come from [22], never (price-prev)/prev.
+  Tencent US quotes do NOT update in pre/post sessions ([3] is the last
+  regular close, timestamped last close), so Tencent supplies no ext
+  data -- computing (price-prev)/prev would mislabel Friday's change
+  as the pre-market change. Same for Stooq (close only).
 """
 import json
 import os
@@ -75,6 +95,39 @@ UA = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
                    '(KHTML, like Gecko) Chrome/120.0 Safari/537.36'}
 SINA_HEADERS = dict(UA, Referer='https://finance.sina.com.cn/')
 
+# US-listed symbols have pre/post sessions; HK symbols do not.
+US_SYMBOLS = {s for s in YAHOO_SYMBOLS if s not in ('HK700', 'HK9992')}
+
+
+def _ext_session(now=None):
+    """Current US extended-hours session ('pre'/'post') by Eastern time.
+
+    Pre-market 04:00-09:30, regular 09:30-16:00, post-market 16:00-20:00
+    Eastern; anything else is closed (None).
+    """
+    try:
+        from zoneinfo import ZoneInfo
+        eastern = (now or datetime.now(timezone.utc)).astimezone(
+            ZoneInfo('America/New_York'))
+    except Exception:
+        eastern = (now or datetime.now(timezone.utc)) + timedelta(hours=-5)
+    minutes = eastern.hour * 60 + eastern.minute
+    if 4 * 60 <= minutes < 9 * 60 + 30:
+        return 'pre'
+    if 16 * 60 <= minutes < 20 * 60:
+        return 'post'
+    return None
+
+
+def _sina_ext(f):
+    """Sina US fields [21]/[22]/[23] are the extended-hours price,
+    change% and change (pre-market in the morning, post-market in the
+    evening); [24] is the ext quote time. Return the change% or None."""
+    try:
+        return round(float(f[22]), 2)
+    except (TypeError, ValueError, IndexError):
+        return None
+
 
 def _validate(price, prev, chg):
     """Check a parsed quote for sanity; return a normalized entry or None.
@@ -109,8 +162,12 @@ def _get(url, headers=None, timeout=12):
         return r.read()
 
 
-def fetch_yahoo(sym):
-    """Yahoo chart API: query1 then query2, 2 attempts each, backoff 1s/3s."""
+def fetch_yahoo(sym, session=None):
+    """Yahoo chart API: query1 then query2, 2 attempts each, backoff 1s/3s.
+
+    In pre/post sessions, also read preMarketChangePercent /
+    postMarketChangePercent from meta into entry['ext_change_pct'].
+    """
     for host in ('query1', 'query2'):
         for attempt in range(2):
             try:
@@ -121,6 +178,26 @@ def fetch_yahoo(sym):
                 entry = _validate(meta.get('regularMarketPrice'),
                                   meta.get('chartPreviousClose'), None)
                 if entry:
+                    if session and sym in US_SYMBOLS:
+                        # Chart meta carries no preMarketChangePercent /
+                        # postMarketChangePercent fields (probed 2026-11-09,
+                        # incl. includePrePost=true): fulldayChangePercent
+                        # is the working equivalent -- during pre/post it is
+                        # the ext change vs the last regular close (RKLB
+                        # +1.489% at 07:35 ET, fulldayPrice 53.86 vs
+                        # regular close 53.07; same field verified against
+                        # Nasdaq's pre-market % on the Muse side).
+                        key = ('preMarketChangePercent' if session == 'pre'
+                               else 'postMarketChangePercent')
+                        ext = meta.get(key)
+                        if ext is None:
+                            ext = meta.get('fulldayChangePercent')
+                        try:
+                            entry['ext_change_pct'] = (
+                                round(float(ext), 2)
+                                if ext is not None else None)
+                        except (TypeError, ValueError):
+                            entry['ext_change_pct'] = None
                     return entry
                 return None
             except Exception as e:
@@ -130,7 +207,7 @@ def fetch_yahoo(sym):
     return None
 
 
-def fetch_tencent(sym):
+def fetch_tencent(sym, session=None):
     """Tencent qt.gtimg.cn: US price=[3] prev=[4] chg%=[31];
     HK price=[3] prev=[4] chg%=[30]. GBK-encoded text."""
     code = TENCENT_SYMBOLS[sym]
@@ -145,13 +222,14 @@ def fetch_tencent(sym):
             f = m.group(1).split('~')
             if len(f) < 35:
                 continue
-            return _validate(f[3], f[4], f[31] if not is_hk else f[30])
+            entry = _validate(f[3], f[4], f[31] if not is_hk else f[30])
+            return entry
         except Exception as e:
             print('tencent fail', sym, scheme, e)
     return None
 
 
-def fetch_sina(sym):
+def fetch_sina(sym, session=None):
     """Sina hq.sinajs.cn (Referer required): US price=[1] prev=[26]
     chg%=[2]; HK price=[6] prev=[3] chg%=[8]. GBK-encoded text."""
     code = SINA_SYMBOLS[sym]
@@ -169,16 +247,24 @@ def fetch_sina(sym):
         if is_hk:
             if len(f) < 9:
                 return None
-            return _validate(f[6], f[3], f[8])
-        if len(f) < 27:
-            return None
-        return _validate(f[1], f[26], f[2])
+            entry = _validate(f[6], f[3], f[8])
+        else:
+            if len(f) < 27:
+                return None
+            entry = _validate(f[1], f[26], f[2])
+            if entry and session:
+                # US fields [21]/[22]/[23] are the ext price/change%/
+                # change; [1] is only the last regular close, so the ext
+                # value must come from [22], never (price-prev)/prev.
+                entry['ext_change_pct'] = _sina_ext(f)
+        return entry
     except Exception as e:
         print('sina fail', sym, e)
         return None
 
 
-def fetch_stooq(sym):
+def fetch_stooq(sym, session=None):
+    """Stooq CSV: close only, no prev close and no ext data."""
     url = 'https://stooq.com/q/l/?s=%s&f=sd2t2ohlcv&h&e=csv' % STOOQ_SYMBOLS[sym]
     try:
         text = _get(url, timeout=10).decode('utf-8', 'replace')
@@ -221,12 +307,14 @@ def main():
 
     out = {}
     live_sources = []
+    session = _ext_session()
+    print('ext session:', session)
     for sym in YAHOO_SYMBOLS:
         entry = None
         src = None
         for name, fn in FETCHERS:
             try:
-                entry = fn(sym)
+                entry = fn(sym, session)
             except Exception as e:
                 print(name, 'fail', sym, e)
                 entry = None
@@ -243,6 +331,9 @@ def main():
                     entry['change_pct'] = round(
                         (entry['price'] - prev) / prev * 100, 2)
             entry['source'] = src
+            entry['ext_session'] = session if sym in US_SYMBOLS else None
+            if 'ext_change_pct' not in entry:
+                entry['ext_change_pct'] = None
             out[sym] = entry
             live_sources.append(src)
         elif old.get(sym):
@@ -251,7 +342,8 @@ def main():
             out[sym] = old_entry
         else:
             out[sym] = {'price': FALLBACK[sym], 'prev_close': None,
-                        'change_pct': None, 'source': 'fallback'}
+                        'change_pct': None, 'source': 'fallback',
+                        'ext_session': None, 'ext_change_pct': None}
         # Small gap between symbols so a burst of requests does not
         # trip per-second rate limits.
         time.sleep(0.5)
@@ -290,9 +382,10 @@ def main():
         print('prices.json unchanged')
     for sym in sorted(out):
         e = out[sym]
-        print('  %-7s %-8s price=%s prev=%s chg=%s' % (
+        print('  %-7s %-8s price=%s prev=%s chg=%s ext=%s/%s' % (
             sym, e.get('source'), e.get('price'), e.get('prev_close'),
-            e.get('change_pct')))
+            e.get('change_pct'), e.get('ext_session'),
+            e.get('ext_change_pct')))
     return 0
 
 
