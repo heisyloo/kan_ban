@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-11-09T09:28:08.270Z",
-  "updated_at_beijing": "2026-11-09 17:28",
+  "updated_at": "2026-11-10T12:36:48.802Z",
+  "updated_at_beijing": "2026-11-10 20:36",
   "cash": 2500,
   "cash_ideal": 10,
   "holdings": [
@@ -35,7 +35,7 @@
     {
       "sym": "SPCX",
       "name": "SpaceX",
-      "shares": 40,
+      "shares": 50,
       "cost": 140,
       "ideal": 10
     }
