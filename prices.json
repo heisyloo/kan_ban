@@ -1,44 +1,44 @@
 {
-  "updated_at": "2026-11-11T15:10:45Z",
-  "updated_at_beijing": "2026-11-11 23:10",
+  "updated_at": "2026-11-11T16:06:04Z",
+  "updated_at_beijing": "2026-11-12 00:06",
   "source": "mixed",
   "prices": {
     "RKLB": {
-      "price": 66.14,
+      "price": 67.88,
       "prev_close": 62.71,
-      "change_pct": 5.46,
+      "change_pct": 8.24,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
     "TSLA": {
-      "price": 392.18,
+      "price": 394.03,
       "prev_close": 379.78,
-      "change_pct": 3.27,
+      "change_pct": 3.75,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
     "GEV": {
-      "price": 809.55,
+      "price": 825.01,
       "prev_close": 797.04,
-      "change_pct": 1.57,
+      "change_pct": 3.51,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
     "GOOGL": {
-      "price": 290.62,
+      "price": 291.78,
       "prev_close": 287.38,
-      "change_pct": 1.13,
+      "change_pct": 1.53,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
     "SPCX": {
-      "price": 140.26,
+      "price": 143.22,
       "prev_close": 143.09,
-      "change_pct": -2.83,
+      "change_pct": 0.13,
       "source": "tencent",
       "ext_session": null,
       "ext_change_pct": null
@@ -52,25 +52,25 @@
       "ext_change_pct": null
     },
     "NVDA": {
-      "price": 172.31,
+      "price": 175.65,
       "prev_close": 168.89,
-      "change_pct": 2.02,
+      "change_pct": 4.0,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
     "MU": {
-      "price": 792.1,
+      "price": 815.91,
       "prev_close": 725.11,
-      "change_pct": 9.24,
+      "change_pct": 12.52,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
     "AMD": {
-      "price": 543.35,
+      "price": 551.49,
       "prev_close": 515.21,
-      "change_pct": 5.46,
+      "change_pct": 7.04,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
