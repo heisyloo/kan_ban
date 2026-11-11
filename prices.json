@@ -1,28 +1,28 @@
 {
-  "updated_at": "2026-11-11T19:16:03Z",
-  "updated_at_beijing": "2026-11-12 03:16",
+  "updated_at": "2026-11-11T20:17:15Z",
+  "updated_at_beijing": "2026-11-12 04:17",
   "source": "mixed",
   "prices": {
     "RKLB": {
-      "price": 66.31,
+      "price": 65.95,
       "prev_close": 62.71,
-      "change_pct": 5.74,
+      "change_pct": 5.17,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
     "TSLA": {
-      "price": 392.18,
+      "price": 391.11,
       "prev_close": 379.78,
-      "change_pct": 3.27,
+      "change_pct": 2.98,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
     "GEV": {
-      "price": 813.4,
+      "price": 811.0,
       "prev_close": 797.04,
-      "change_pct": 2.05,
+      "change_pct": 1.75,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
@@ -36,9 +36,9 @@
       "ext_change_pct": null
     },
     "SPCX": {
-      "price": 141.76,
+      "price": 141.49,
       "prev_close": 143.09,
-      "change_pct": -1.33,
+      "change_pct": -1.6,
       "source": "tencent",
       "ext_session": null,
       "ext_change_pct": null
@@ -47,30 +47,30 @@
       "price": 582.91,
       "prev_close": 583.34,
       "change_pct": -0.43,
-      "source": "tencent",
+      "source": "stale",
       "ext_session": null,
       "ext_change_pct": null
     },
     "NVDA": {
-      "price": 175.91,
-      "prev_close": 168.89,
-      "change_pct": 4.16,
-      "source": "sina",
+      "price": 175.17,
+      "prev_close": 168.8,
+      "change_pct": 3.77,
+      "source": "yahoo",
       "ext_session": null,
       "ext_change_pct": null
     },
     "MU": {
-      "price": 819.61,
+      "price": 816.83,
       "prev_close": 725.11,
-      "change_pct": 13.03,
-      "source": "sina",
+      "change_pct": 12.65,
+      "source": "yahoo",
       "ext_session": null,
       "ext_change_pct": null
     },
     "AMD": {
-      "price": 561.83,
+      "price": 556.97,
       "prev_close": 515.21,
-      "change_pct": 9.05,
+      "change_pct": 8.11,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
