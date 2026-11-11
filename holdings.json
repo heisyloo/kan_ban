@@ -1,7 +1,7 @@
 {
-  "updated_at": "2026-11-10T12:36:48.802Z",
-  "updated_at_beijing": "2026-11-10 20:36",
-  "cash": 2500,
+  "updated_at": "2026-11-11T04:24:19.019Z",
+  "updated_at_beijing": "2026-11-11 12:24",
+  "cash": 100,
   "cash_ideal": 10,
   "holdings": [
     {
@@ -38,6 +38,13 @@
       "shares": 50,
       "cost": 140,
       "ideal": 10
+    },
+    {
+      "sym": "NVDA",
+      "name": "NVIDIA Corporation",
+      "shares": 10,
+      "cost": 0,
+      "ideal": 10
     }
   ],
   "watch": [
@@ -46,12 +53,6 @@
       "name": "Micron Technology, Inc.",
       "cost_line": 700,
       "ideal": 5
-    },
-    {
-      "sym": "NVDA",
-      "name": "NVIDIA Corporation",
-      "cost_line": 0,
-      "ideal": 10
     },
     {
       "sym": "BRK.B",
