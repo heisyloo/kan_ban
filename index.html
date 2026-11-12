@@ -258,7 +258,11 @@ function calcPrincipal() {
 }
 var PRINCIPAL = calcPrincipal();
 var LS_MONTHLY = 'kanban-monthly';
-var SEED_MONTHLY = [{ m: '2026-11', assets: 66016.04, profit: 26355.90 }];
+var SEED_MONTHLY = [
+  { m: '2026-09', assets: 53664, profit: 39000 },
+  { m: '2026-10', assets: 44525, profit: 37000 },
+  { m: '2026-11', assets: 66016.04, profit: 26355.90 }
+];
 var DONUT_COLORS = { RKLB: '#2fd574', TSLA: '#3b82c4', GEV: '#e0a32e', GOOGL: '#9b7ede', SPCX: '#e05d7a', '现金': '#7e939e' };
 var NAMES = { RKLB: 'Rocket Lab', TSLA: 'Tesla', GEV: 'GE Vernova', GOOGL: 'Alphabet', SPCX: 'SpaceX',
   'BRK.B': 'Berkshire Hathaway Inc', NVDA: 'NVIDIA Corporation', MU: 'Micron Technology, Inc.', AMD: 'Advanced Micro Devices, Inc.' };
@@ -445,14 +449,24 @@ function compute() {
 
 /* ================= 月度走势数据 ================= */
 function loadMonthly() {
+  var arr = null;
   try {
     var raw = lsGet(LS_MONTHLY);
     if (raw) {
-      var arr = JSON.parse(raw);
-      if (Array.isArray(arr) && arr.length) return arr;
+      var parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length) arr = parsed;
     }
   } catch (e) {}
-  return SEED_MONTHLY.slice();
+  if (!arr) return SEED_MONTHLY.slice();
+  // 补录种子月份：只补缺失的月份，已有月份（尤其当月实时值）永不覆盖
+  var changed = false;
+  SEED_MONTHLY.forEach(function (s) {
+    var exists = false;
+    arr.forEach(function (e) { if (e.m === s.m) exists = true; });
+    if (!exists) { arr.push({ m: s.m, assets: s.assets, profit: s.profit }); changed = true; }
+  });
+  if (changed) arr.sort(function (a, b) { return a.m < b.m ? -1 : (a.m > b.m ? 1 : 0); });
+  return arr;
 }
 function saveMonthly(arr) {
   try { lsSet(LS_MONTHLY, JSON.stringify(arr)); } catch (e) {}
