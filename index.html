@@ -117,6 +117,31 @@
   .principles li::before { content: counter(p) "."; flex: none;
     font-size: 16px; font-weight: 700; color: #131713; }
   #principlesView .card { padding: 20px; margin-top: 16px; }
+  /* ================= 收益日历 ================= */
+  .btn-ghost:disabled { color: #cbd5cb; cursor: default; }
+  .pnl-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 12px; }
+  .pnl-head .sub-tabs { margin-bottom: 0; }
+  .pnl-total { font-size: 14px; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
+  .pnl-total .lbl { color: #68736a; font-weight: 400; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif; }
+  .pnl-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .pnl-nav .pnl-title { font-size: 14px; font-weight: 700; min-width: 110px; text-align: center; }
+  .pnl-nav select { padding: 5px 8px; font-size: 13px; border: 1px solid #dde3dd; border-radius: 6px; background: #fff; color: #374151; }
+  .pnl-body { display: flex; gap: 24px; align-items: flex-start; }
+  .pnl-cal { flex: 1 1 55%; min-width: 0; }
+  .pnl-chart { flex: 1 1 45%; min-width: 0; }
+  .pnl-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .pnl-wd { text-align: center; font-size: 11px; color: #68736a; padding: 4px 0; font-weight: 600; }
+  .pnl-day { border: 1px solid #eef1ee; border-radius: 6px; padding: 6px 4px 5px; text-align: center; min-height: 54px; }
+  .pnl-day .d { font-size: 13px; font-weight: 700; color: #131713; }
+  .pnl-day.future .d { color: #9ca3af; font-weight: 400; }
+  .pnl-day.today { border-color: #0d9d57; box-shadow: 0 0 0 1px #0d9d57; }
+  .pnl-day .v, .pnl-day .p { font-size: 11px; margin-top: 2px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
+  .pnl-empty { color: #68736a; font-size: 13px; text-align: center; padding: 48px 0; }
+  .pnl-chart-note { text-align: right; font-size: 11px; color: #68736a; margin-top: 4px; }
+  @media (max-width: 767px) {
+    .pnl-body { flex-direction: column; }
+    .pnl-cal, .pnl-chart { flex: none; width: 100%; }
+  }
   @media (max-width: 1023px) {
     .charts-grid { grid-template-columns: 1fr; }
   }
@@ -196,6 +221,28 @@
       <div id="trendChart"></div>
       <div class="legend-line" style="justify-content:center; margin:8px 0 4px;"><span class="swatch"></span>总资产<span class="swatch-line"></span>利润</div>
       <div id="trendDetail" class="trend-detail"></div>
+    </div>
+
+    <div class="card">
+      <h2>收益日历</h2>
+      <p class="card-sub">每日收益按收盘后数据登记，年视图为当月结束时的月收益；从 2026 年 11 月 12 日起统计</p>
+      <div class="pnl-head">
+        <div class="sub-tabs">
+          <button id="pnlTabMonth" class="tab-btn active" type="button">月</button>
+          <button id="pnlTabYear" class="tab-btn" type="button">年</button>
+        </div>
+        <div class="pnl-total" id="pnlTotal"></div>
+      </div>
+      <div class="pnl-nav">
+        <button id="pnlPrev" class="btn-ghost" type="button">‹ 上一月</button>
+        <span class="pnl-title" id="pnlTitle"></span>
+        <button id="pnlNext" class="btn-ghost" type="button">下一月 ›</button>
+        <select id="pnlPicker" aria-label="选择月份"></select>
+      </div>
+      <div class="pnl-body">
+        <div class="pnl-cal" id="pnlCal"></div>
+        <div class="pnl-chart"><div id="pnlChart"></div><div class="pnl-chart-note">单位：千</div></div>
+      </div>
     </div>
   </section>
 
@@ -489,6 +536,322 @@ function updateMonthly(c) {
   return trimmed;
 }
 
+/* ================= 收益日历 ================= */
+var LS_PNL_DAILY = 'kanban-pnl-daily';
+var SEED_PNL_DAILY = [{ d: '2026-11-11', pnl: 1080, pct: 3.74 }];
+var PNL_FLOOR_YEAR = 2020;
+var pnlView = 'month';
+var pnlCursor = (function () { var n = new Date(); return { y: n.getFullYear(), m: n.getMonth() + 1 }; })();
+var pnlPickerSig = '';
+
+function loadPnlDaily() {
+  var arr = null;
+  try {
+    var raw = lsGet(LS_PNL_DAILY);
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) arr = parsed;
+    }
+  } catch (e) {}
+  if (!arr) return SEED_PNL_DAILY.slice();
+  // 补录种子日期：只补缺失的日期，已有记录永不覆盖
+  var changed = false;
+  SEED_PNL_DAILY.forEach(function (s) {
+    var exists = false;
+    arr.forEach(function (e) { if (e.d === s.d) exists = true; });
+    if (!exists) { arr.push({ d: s.d, pnl: s.pnl, pct: s.pct }); changed = true; }
+  });
+  if (changed) arr.sort(function (a, b) { return a.d < b.d ? -1 : (a.d > b.d ? 1 : 0); });
+  return arr;
+}
+function savePnlDaily(arr) {
+  try { lsSet(LS_PNL_DAILY, JSON.stringify(arr)); } catch (e) {}
+}
+function pnlDayMap() {
+  var map = {};
+  loadPnlDaily().forEach(function (e) { map[e.d] = e; });
+  return map;
+}
+function monthStartAssets(y, m) {
+  // 月初总资产取上月月末的走势记录
+  var entries = loadMonthly();
+  var pm = (m === 1) ? (y - 1) + '-12' : y + '-' + String(m - 1).padStart(2, '0');
+  var found = null;
+  entries.forEach(function (e) { if (e.m === pm) found = e; });
+  return found ? found.assets : null;
+}
+function monthPnl(y, m) {
+  var key = y + '-' + String(m).padStart(2, '0');
+  var sum = 0, n = 0;
+  loadPnlDaily().forEach(function (e) {
+    if (e.d.slice(0, 7) === key) { sum += e.pnl; n++; }
+  });
+  if (!n) return null;
+  var base = monthStartAssets(y, m);
+  return { pnl: round2(sum), pct: (base && base > 0) ? sum / base : null, n: n };
+}
+function yearPnl(y) {
+  var sum = 0, n = 0;
+  loadPnlDaily().forEach(function (e) {
+    if (parseInt(e.d.slice(0, 4), 10) === y) { sum += e.pnl; n++; }
+  });
+  if (!n) return null;
+  return { pnl: round2(sum), n: n };
+}
+
+/* ---- 美东时间与收盘登记 ---- */
+function etParts(date) {
+  try {
+    var fmt = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false });
+    var parts = {};
+    fmt.formatToParts(date).forEach(function (p) { parts[p.type] = p.value; });
+    return { y: parseInt(parts.year, 10), m: parseInt(parts.month, 10), d: parseInt(parts.day, 10), wd: parts.weekday, hh: parseInt(parts.hour, 10) % 24, mm: parseInt(parts.minute, 10) };
+  } catch (e) {
+    var d2 = new Date(date.getTime() - 5 * 3600 * 1000);
+    return { y: d2.getUTCFullYear(), m: d2.getUTCMonth() + 1, d: d2.getUTCDate(), wd: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d2.getUTCDay()], hh: d2.getUTCHours(), mm: d2.getUTCMinutes() };
+  }
+}
+function prevWeekdayET(y, m, d) {
+  var dt = new Date(y, m - 1, d);
+  do { dt.setDate(dt.getDate() - 1); } while (dt.getDay() === 0 || dt.getDay() === 6);
+  return { y: dt.getFullYear(), m: dt.getMonth() + 1, d: dt.getDate() };
+}
+function lastClosedTradingDay(nowET) {
+  // 美股收盘 16:00（美东）：收盘后记当天，否则记上一个交易日；周末记周五
+  if (nowET.wd !== 'Sat' && nowET.wd !== 'Sun' && nowET.hh >= 16) return { y: nowET.y, m: nowET.m, d: nowET.d };
+  return prevWeekdayET(nowET.y, nowET.m, nowET.d);
+}
+function recordPnlDay(c) {
+  // 只在行情为最新收盘数据时登记刚收盘的交易日；盘中、行情过期时不记
+  if (usingFallback || !priceUpdatedAt) return;
+  if (c.totalDayPnl === null || c.totalDayPnlPct === null) return;
+  var upd = etParts(priceUpdatedAt);
+  var lc = lastClosedTradingDay(etParts(new Date()));
+  if (upd.y !== lc.y || upd.m !== lc.m || upd.d !== lc.d) return;
+  var key = lc.y + '-' + String(lc.m).padStart(2, '0') + '-' + String(lc.d).padStart(2, '0');
+  var arr = loadPnlDaily();
+  var exists = false;
+  arr.forEach(function (e) { if (e.d === key) exists = true; });
+  if (exists) return;
+  arr.push({ d: key, pnl: round2(c.totalDayPnl), pct: round2(c.totalDayPnlPct * 100) });
+  arr.sort(function (a, b) { return a.d < b.d ? -1 : (a.d > b.d ? 1 : 0); });
+  savePnlDaily(arr);
+}
+
+/* ---- 日历渲染 ---- */
+function pnlIsFuture(y, m, d) {
+  var n = new Date();
+  return new Date(y, m - 1, d) > new Date(n.getFullYear(), n.getMonth(), n.getDate());
+}
+function pnlIsToday(y, m, d) {
+  var n = new Date();
+  return n.getFullYear() === y && n.getMonth() + 1 === m && n.getDate() === d;
+}
+function pnlDayCell(key, d, future, today) {
+  return { key: key, d: d, future: future, today: today };
+}
+function renderPnlMonth(map) {
+  var y = pnlCursor.y, m = pnlCursor.m;
+  var days = new Date(y, m, 0).getDate();
+  var firstWd = new Date(y, m - 1, 1).getDay();
+  var html = '<div class="pnl-grid">';
+  ['日', '一', '二', '三', '四', '五', '六'].forEach(function (w) { html += '<div class="pnl-wd">' + w + '</div>'; });
+  for (var i = 0; i < firstWd; i++) html += '<div></div>';
+  for (var d = 1; d <= days; d++) {
+    var key = y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    var e = map[key];
+    var cls = 'pnl-day' + (pnlIsFuture(y, m, d) ? ' future' : '') + (pnlIsToday(y, m, d) ? ' today' : '');
+    html += '<div class="' + cls + '"><div class="d">' + d + '</div>';
+    if (e) {
+      html += '<div class="v ' + (e.pnl >= 0 ? 'up' : 'down') + '">' + fmtSignedAmt(e.pnl) + '</div>';
+      html += '<div class="p ' + (e.pnl >= 0 ? 'up' : 'down') + '">' + (e.pct >= 0 ? '+' : '') + e.pct.toFixed(2) + '%</div>';
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  $('pnlCal').innerHTML = html;
+}
+function renderPnlYear(map) {
+  var y = pnlCursor.y;
+  var now = new Date();
+  var html = '<div class="pnl-grid" style="grid-template-columns: repeat(6, 1fr);">';
+  for (var m = 1; m <= 12; m++) {
+    var mp = monthPnl(y, m);
+    var future = (y > now.getFullYear()) || (y === now.getFullYear() && m > now.getMonth() + 1);
+    var cls = 'pnl-day' + (future ? ' future' : '');
+    html += '<div class="' + cls + '"><div class="d">' + m + '月</div>';
+    if (mp) {
+      html += '<div class="v ' + (mp.pnl >= 0 ? 'up' : 'down') + '">' + fmtSignedAmt(mp.pnl) + '</div>';
+      html += '<div class="p ' + (mp.pnl >= 0 ? 'up' : 'down') + '">' + (mp.pct === null ? '—' : fmtPct(mp.pct)) + '</div>';
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  $('pnlCal').innerHTML = html;
+}
+
+/* ---- 正负值统计图 ---- */
+function niceCeilK(x) {
+  if (x <= 0) return 1;
+  var p = Math.pow(10, Math.floor(Math.log10(x)));
+  var n = x / p;
+  var m = (n <= 1) ? 1 : (n <= 1.5) ? 1.5 : (n <= 2) ? 2 : (n <= 2.5) ? 2.5 : (n <= 3) ? 3 : (n <= 4) ? 4 : (n <= 5) ? 5 : (n <= 6) ? 6 : (n <= 8) ? 8 : 10;
+  return m * p;
+}
+function fmtAxisK(v) {
+  if (masked) return '****';
+  return (v < 0 ? '-' : '') + Math.abs(v).toFixed(2);
+}
+function renderPnlChart(values, labels) {
+  var W = 520, H = 300, ml = 52, mr = 8, mt = 10, mb = 28;
+  var maxAbs = 0, hasAny = false;
+  values.forEach(function (v) {
+    if (v !== null && v !== undefined) { hasAny = true; maxAbs = Math.max(maxAbs, Math.abs(v)); }
+  });
+  var maxK = niceCeilK(Math.max(1, maxAbs / 1000 * 1.1));
+  var plotH = H - mt - mb, cy = mt + plotH / 2;
+  function y(v) { return cy - (v / 1000) / maxK * (plotH / 2); }
+  var g = '';
+  [-maxK, -maxK / 2, 0, maxK / 2, maxK].forEach(function (v) {
+    var yy = y(v * 1000);
+    g += '<line x1="' + ml + '" y1="' + yy + '" x2="' + (W - mr) + '" y2="' + yy + '" stroke="' + (v === 0 ? '#9ca3af' : '#e5e7eb') + '" stroke-width="' + (v === 0 ? 2 : 1) + '"/>';
+    if (v !== -maxK / 2 && v !== maxK / 2) {
+      g += '<text x="' + (ml - 8) + '" y="' + (yy + 4) + '" text-anchor="end" class="axis">' + fmtAxisK(v) + '</text>';
+    }
+  });
+  var slot = (W - ml - mr) / values.length;
+  var bw = Math.min(30, slot * 0.55);
+  values.forEach(function (v, i) {
+    var cx = ml + slot * (i + 0.5);
+    if (labels[i]) g += '<text x="' + cx + '" y="' + (H - 8) + '" text-anchor="middle" class="axis axis-x">' + labels[i] + '</text>';
+    if (v === null || v === undefined || v === 0) return;
+    var y0 = y(0), y1 = y(v);
+    var top = Math.min(y0, y1), h = Math.abs(y0 - y1);
+    g += '<rect x="' + (cx - bw / 2) + '" y="' + top + '" width="' + bw + '" height="' + Math.max(h, 1.5) + '" fill="' + (v >= 0 ? '#0d9d57' : '#d93a3a') + '" rx="2"/>';
+  });
+  if (!hasAny) {
+    g += '<text x="' + ((W + ml - mr) / 2) + '" y="' + (cy + 4) + '" text-anchor="middle" class="axis" style="font-size:13px">暂无收益记录</text>';
+  }
+  $('pnlChart').innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img" aria-label="收益正负值统计图">' + g + '</svg>';
+}
+function renderPnlChartMonth(map) {
+  var y = pnlCursor.y, m = pnlCursor.m;
+  var days = new Date(y, m, 0).getDate();
+  var vals = [], labels = [];
+  for (var d = 1; d <= days; d++) {
+    var key = y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    vals.push(map[key] ? map[key].pnl : null);
+    labels.push((d - 1) % 5 === 0 ? String(d) : '');
+  }
+  renderPnlChart(vals, labels);
+}
+function renderPnlChartYear(map) {
+  var y = pnlCursor.y;
+  var vals = [], labels = [];
+  for (var m = 1; m <= 12; m++) {
+    var mp = monthPnl(y, m);
+    vals.push(mp ? mp.pnl : null);
+    labels.push(m + '月');
+  }
+  renderPnlChart(vals, labels);
+}
+
+function renderPnl(c) {
+  recordPnlDay(c);
+  var map = pnlDayMap();
+  var now = new Date();
+  var cy = now.getFullYear(), cm = now.getMonth() + 1;
+  var title = $('pnlTitle'), prev = $('pnlPrev'), next = $('pnlNext'), picker = $('pnlPicker');
+  var totalEl = $('pnlTotal');
+  var sig, opts;
+  if (pnlView === 'month') {
+    title.textContent = pnlCursor.y + '年' + pnlCursor.m + '月';
+    prev.textContent = '‹ 上一月';
+    next.textContent = '下一月 ›';
+    var mp = monthPnl(pnlCursor.y, pnlCursor.m);
+    totalEl.innerHTML = mp
+      ? '<span class="lbl">当月收益 </span><span class="' + (mp.pnl >= 0 ? 'up' : 'down') + '">' + fmtSignedAmt(mp.pnl) + '</span>' + (mp.pct === null ? '' : ' <span class="' + (mp.pnl >= 0 ? 'up' : 'down') + '">(' + fmtPct(mp.pct) + ')</span>')
+      : '<span class="lbl">当月收益 —</span>';
+    sig = 'm|' + cy + '-' + cm + '|' + pnlCursor.y + '-' + pnlCursor.m;
+    if (sig !== pnlPickerSig) {
+      opts = '';
+      var y = PNL_FLOOR_YEAR, m = 1;
+      while (y < cy || (y === cy && m <= cm)) {
+        opts += '<option value="' + y + '-' + String(m).padStart(2, '0') + '"' + (y === pnlCursor.y && m === pnlCursor.m ? ' selected' : '') + '>' + y + '年' + m + '月</option>';
+        m++;
+        if (m > 12) { m = 1; y++; }
+      }
+      picker.innerHTML = opts;
+      pnlPickerSig = sig;
+    }
+    next.disabled = (pnlCursor.y === cy && pnlCursor.m === cm);
+    prev.disabled = (pnlCursor.y === PNL_FLOOR_YEAR && pnlCursor.m === 1);
+    renderPnlMonth(map);
+    renderPnlChartMonth(map);
+  } else {
+    title.textContent = pnlCursor.y + '年';
+    prev.textContent = '‹ 上一年';
+    next.textContent = '下一年 ›';
+    var yp = yearPnl(pnlCursor.y);
+    totalEl.innerHTML = yp
+      ? '<span class="lbl">当年收益 </span><span class="' + (yp.pnl >= 0 ? 'up' : 'down') + '">' + fmtSignedAmt(yp.pnl) + '</span>'
+      : '<span class="lbl">当年收益 —</span>';
+    sig = 'y|' + cy + '|' + pnlCursor.y;
+    if (sig !== pnlPickerSig) {
+      opts = '';
+      for (var yy = PNL_FLOOR_YEAR; yy <= cy; yy++) {
+        opts += '<option value="' + yy + '"' + (yy === pnlCursor.y ? ' selected' : '') + '>' + yy + '年</option>';
+      }
+      picker.innerHTML = opts;
+      pnlPickerSig = sig;
+    }
+    next.disabled = (pnlCursor.y === cy);
+    prev.disabled = (pnlCursor.y === PNL_FLOOR_YEAR);
+    renderPnlYear(map);
+    renderPnlChartYear(map);
+  }
+}
+function setPnlView(v) {
+  pnlView = v;
+  var n = new Date();
+  pnlCursor = (v === 'month') ? { y: n.getFullYear(), m: n.getMonth() + 1 } : { y: n.getFullYear() };
+  $('pnlTabMonth').classList.toggle('active', v === 'month');
+  $('pnlTabYear').classList.toggle('active', v === 'year');
+  render();
+}
+function pnlStep(dir) {
+  var now = new Date();
+  if (pnlView === 'month') {
+    var y = pnlCursor.y, m = pnlCursor.m + dir;
+    if (m < 1) { m = 12; y--; }
+    if (m > 12) { m = 1; y++; }
+    if (y > now.getFullYear() || (y === now.getFullYear() && m > now.getMonth() + 1)) return;
+    if (y < PNL_FLOOR_YEAR) return;
+    pnlCursor = { y: y, m: m };
+  } else {
+    var yy = pnlCursor.y + dir;
+    if (yy > now.getFullYear() || yy < PNL_FLOOR_YEAR) return;
+    pnlCursor = { y: yy };
+  }
+  render();
+}
+(function initPnlNav() {
+  $('pnlTabMonth').addEventListener('click', function () { setPnlView('month'); });
+  $('pnlTabYear').addEventListener('click', function () { setPnlView('year'); });
+  $('pnlPrev').addEventListener('click', function () { pnlStep(-1); });
+  $('pnlNext').addEventListener('click', function () { pnlStep(1); });
+  $('pnlPicker').addEventListener('change', function () {
+    var v = this.value;
+    if (pnlView === 'month') {
+      var p = v.split('-');
+      pnlCursor = { y: parseInt(p[0], 10), m: parseInt(p[1], 10) };
+    } else {
+      pnlCursor = { y: parseInt(v, 10) };
+    }
+    render();
+  });
+})();
+
 /* ================= 渲染 ================= */
 var listTab = 'hold';
 function setListTab(t) { listTab = t; render(); }
@@ -564,6 +927,7 @@ function render() {
   renderBars(c);
   var entries = updateMonthly(c);
   renderTrend(entries);
+  renderPnl(c);
 }
 
 function polar(cx, cy, r, angleDeg) {
