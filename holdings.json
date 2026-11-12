@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-11-12T01:17:44.277Z",
-  "updated_at_beijing": "2026-11-12 09:17",
+  "updated_at": "2026-11-12T03:23:52.637Z",
+  "updated_at_beijing": "2026-11-12 11:23",
   "cash": 2500,
   "cash_ideal": 10,
   "holdings": [
@@ -19,6 +19,13 @@
       "ideal": 10
     },
     {
+      "sym": "SPCX",
+      "name": "SpaceX",
+      "shares": 60,
+      "cost": 140,
+      "ideal": 10
+    },
+    {
       "sym": "GEV",
       "name": "GE Vernova",
       "shares": 10,
@@ -30,13 +37,6 @@
       "name": "Alphabet",
       "shares": 26,
       "cost": 169.39,
-      "ideal": 10
-    },
-    {
-      "sym": "SPCX",
-      "name": "SpaceX",
-      "shares": 50,
-      "cost": 140,
       "ideal": 10
     },
     {
