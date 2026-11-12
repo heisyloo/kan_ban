@@ -1,14 +1,14 @@
 {
-  "updated_at": "2026-11-11T04:24:19.019Z",
-  "updated_at_beijing": "2026-11-11 12:24",
-  "cash": 100,
+  "updated_at": "2026-11-12T00:34:33.058Z",
+  "updated_at_beijing": "2026-11-12 08:34",
+  "cash": 2500,
   "cash_ideal": 10,
   "holdings": [
     {
       "sym": "RKLB",
       "name": "Rocket Lab",
       "shares": 520,
-      "cost": 21.2,
+      "cost": 30,
       "ideal": 8
     },
     {
@@ -42,8 +42,8 @@
     {
       "sym": "NVDA",
       "name": "NVIDIA Corporation",
-      "shares": 10,
-      "cost": 0,
+      "shares": 18,
+      "cost": 170,
       "ideal": 10
     }
   ],
