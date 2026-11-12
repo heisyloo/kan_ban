@@ -405,6 +405,13 @@ async function fetchQuotes() {
     if (!isNaN(t)) upd = new Date(t);
   }
   var fresh = !!(upd && (Date.now() - upd.getTime()) < STALE_MS && data.source && data.source !== 'fallback');
+  // Actions 在美股收盘后把当日收益写进 prices.json 的 pnl.daily；
+  // 页面读到后并入收益日历（只补缺失日期，永不覆盖已有记录）。
+  if (data && data.pnl && Array.isArray(data.pnl.daily)) {
+    remotePnl = data.pnl.daily.filter(function (r) {
+      return r && typeof r.d === 'string' && typeof r.pnl === 'number';
+    });
+  }
   if (data && data.prices && fresh) {
     applyPrices(data);
     usingFallback = false;
@@ -539,6 +546,7 @@ function updateMonthly(c) {
 /* ================= 收益日历 ================= */
 var LS_PNL_DAILY = 'kanban-pnl-daily';
 var SEED_PNL_DAILY = [{ d: '2026-11-11', pnl: 1080, pct: 3.74 }];
+var remotePnl = [];  // Actions 收盘后写入 prices.json 的 pnl.daily，fetchQuotes 填充
 var PNL_FLOOR_YEAR = 2020;
 var pnlView = 'month';
 var pnlCursor = (function () { var n = new Date(); return { y: n.getFullYear(), m: n.getMonth() + 1 }; })();
@@ -553,15 +561,24 @@ function loadPnlDaily() {
       if (Array.isArray(parsed)) arr = parsed;
     }
   } catch (e) {}
-  if (!arr) return SEED_PNL_DAILY.slice();
-  // 补录种子日期：只补缺失的日期，已有记录永不覆盖
+  if (!arr) arr = [];
+  // 补录种子日期与 Actions 收盘记录：只补缺失的日期，已有记录永不覆盖；
+  // 补进来的远端记录会写回本地存储，之后即使行情拉取失败也不丢失。
   var changed = false;
-  SEED_PNL_DAILY.forEach(function (s) {
+  function mergeRow(s) {
     var exists = false;
     arr.forEach(function (e) { if (e.d === s.d) exists = true; });
-    if (!exists) { arr.push({ d: s.d, pnl: s.pnl, pct: s.pct }); changed = true; }
-  });
-  if (changed) arr.sort(function (a, b) { return a.d < b.d ? -1 : (a.d > b.d ? 1 : 0); });
+    if (!exists) {
+      arr.push({ d: s.d, pnl: s.pnl, pct: (typeof s.pct === 'number' ? s.pct : 0) });
+      changed = true;
+    }
+  }
+  SEED_PNL_DAILY.forEach(mergeRow);
+  remotePnl.forEach(mergeRow);
+  if (changed) {
+    arr.sort(function (a, b) { return a.d < b.d ? -1 : (a.d > b.d ? 1 : 0); });
+    savePnlDaily(arr);
+  }
   return arr;
 }
 function savePnlDaily(arr) {

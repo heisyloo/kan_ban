@@ -54,6 +54,17 @@ Field layouts (verified 2026-11-09 against live responses):
   regular close, timestamped last close), so Tencent supplies no ext
   data -- computing (price-prev)/prev would mislabel Friday's change
   as the pre-market change. Same for Stooq (close only).
+
+Day P&L recording (added 2026-11-12, US close auto-record):
+  after the US close (Eastern weekday 16:05 or later) the script also
+  computes the day's P&L from the resolved closes and the share counts
+  in holdings.json, and appends it to prices.json under "pnl":
+  {"daily": [{"d": "2026-11-12", "pnl": 1234.56, "pct": 1.23}, ...]}.
+  Only one record per trading day, never overwritten; a day is recorded
+  only when every holding has a live close price (no stale/fallback
+  entries). The dashboard page reads data.pnl.daily and merges it into
+  its P&L calendar. The workflow runs every 15 minutes during US hours,
+  so the first run after 16:05 ET writes the record.
 """
 import json
 import os
@@ -117,6 +128,72 @@ def _ext_session(now=None):
     if 16 * 60 <= minutes < 20 * 60:
         return 'post'
     return None
+
+
+def _et_now(now=None):
+    """Current time in America/New_York (aware datetime)."""
+    try:
+        from zoneinfo import ZoneInfo
+        return (now or datetime.now(timezone.utc)).astimezone(
+            ZoneInfo('America/New_York'))
+    except Exception:
+        return (now or datetime.now(timezone.utc)) + timedelta(hours=-5)
+
+
+def _read_holdings(repo_root):
+    """Share counts per symbol from holdings.json (repo root).
+
+    Returns {sym: shares} for stock holdings, or {} when unreadable.
+    Only the share counts matter for the day P&L; cash has none.
+    """
+    path = os.path.join(repo_root, 'holdings.json')
+    try:
+        with open(path, encoding='utf-8') as f:
+            data = json.load(f)
+        out = {}
+        for h in data.get('holdings', []) or []:
+            sym = h.get('sym')
+            shares = h.get('shares')
+            if isinstance(sym, str) and isinstance(shares, (int, float)) and shares:
+                out[sym] = shares
+        return out
+    except Exception as e:
+        print('cannot read holdings.json:', e)
+        return {}
+
+
+def _day_pnl_record(out, holdings, date_str):
+    """Build one close-based day P&L record from resolved prices.
+
+    Returns {'d': date_str, 'pnl': float, 'pct': float} with pct in
+    percent units, or None when the day cannot be recorded (a holding
+    is missing, or its price is not a live close, or a prev close is
+    missing). Must only be called after the close: after 16:00 ET
+    every source's price is the regular close (Tencent/Sina stop
+    updating at the close; Yahoo's regular price freezes at the
+    close), so (price - prev_close) * shares is the day's return.
+    """
+    if not holdings:
+        return None
+    total_pnl = 0.0
+    total_prev = 0.0
+    for sym, shares in holdings.items():
+        e = out.get(sym)
+        if not e:
+            return None
+        if e.get('source') in ('stale', 'fallback'):
+            return None
+        price = e.get('price')
+        prev = e.get('prev_close')
+        if price is None or prev is None:
+            return None
+        total_pnl += (price - prev) * shares
+        total_prev += prev * shares
+    if total_prev <= 0:
+        return None
+    return {'d': date_str,
+            'pnl': round(total_pnl, 2),
+            'pct': round(total_pnl / total_prev * 100, 2)}
 
 
 def _sina_ext(f):
@@ -297,13 +374,19 @@ def main():
         repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         prices_path = os.path.join(repo_root, 'prices.json')
     old = {}
+    old_pnl_daily = []
     if os.path.exists(prices_path):
         try:
             with open(prices_path, encoding='utf-8') as f:
-                old = json.load(f).get('prices', {}) or {}
+                old_payload = json.load(f)
+            old = old_payload.get('prices', {}) or {}
+            old_pnl_daily = (old_payload.get('pnl') or {}).get('daily') or []
+            if not isinstance(old_pnl_daily, list):
+                old_pnl_daily = []
         except Exception as e:
             print('cannot read old prices.json:', e)
             old = {}
+            old_pnl_daily = []
 
     out = {}
     live_sources = []
@@ -362,12 +445,28 @@ def main():
 
     now = datetime.now(timezone.utc)
     bj = now + timedelta(hours=8)
+
+    # ---- 收盘后登记当日收益（美股收盘时间点自动记）----
+    # 美东工作日 16:05 之后才写；每天只记一次，永不覆盖。
+    pnl_daily = list(old_pnl_daily)
+    et = _et_now(now)
+    if et.weekday() < 5 and (et.hour, et.minute) >= (16, 5):
+        rec = _day_pnl_record(
+            out, _read_holdings(os.path.dirname(prices_path)),
+            et.strftime('%Y-%m-%d'))
+        if rec and not any(r.get('d') == rec['d'] for r in pnl_daily):
+            pnl_daily.append(rec)
+            pnl_daily.sort(key=lambda r: r.get('d', ''))
+            print('recorded day pnl:', rec)
+
     payload = {
         'updated_at': now.strftime('%Y-%m-%dT%H:%M:%SZ'),
         'updated_at_beijing': bj.strftime('%Y-%m-%d %H:%M'),
         'source': file_source,
         'prices': out,
     }
+    if pnl_daily:
+        payload['pnl'] = {'daily': pnl_daily}
     new_text = json.dumps(payload, indent=2, ensure_ascii=False) + '\n'
     old_text = None
     if os.path.exists(prices_path):
