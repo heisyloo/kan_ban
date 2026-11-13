@@ -548,6 +548,16 @@ var LS_PNL_DAILY = 'kanban-pnl-daily';
 var SEED_PNL_DAILY = [{ d: '2026-11-11', pnl: 1080, pct: 3.74 }];
 var remotePnl = [];  // Actions 收盘后写入 prices.json 的 pnl.daily，fetchQuotes 填充
 var PNL_FLOOR_YEAR = 2020;
+
+/* 收益日历金额简写：≥1万用 w（如 +1.23w），≥1千用 k（如 +1.08k），
+   不足 1 千保持原样（如 +$123.45）；掩码时与其它金额一样显示 ****。 */
+function fmtPnlAmt(n) {
+  if (masked) return '****';
+  var a = Math.abs(n);
+  if (a >= 10000) return (n >= 0 ? '+' : '-') + (a / 10000).toFixed(2) + 'w';
+  if (a >= 1000) return (n >= 0 ? '+' : '-') + (a / 1000).toFixed(2) + 'k';
+  return fmtSigned(n);
+}
 var pnlView = 'month';
 var pnlCursor = (function () { var n = new Date(); return { y: n.getFullYear(), m: n.getMonth() + 1 }; })();
 var pnlPickerSig = '';
@@ -680,7 +690,7 @@ function renderPnlMonth(map) {
     var cls = 'pnl-day' + (pnlIsFuture(y, m, d) ? ' future' : '') + (pnlIsToday(y, m, d) ? ' today' : '');
     html += '<div class="' + cls + '"><div class="d">' + d + '</div>';
     if (e) {
-      html += '<div class="v ' + (e.pnl >= 0 ? 'up' : 'down') + '">' + fmtSignedAmt(e.pnl) + '</div>';
+      html += '<div class="v ' + (e.pnl >= 0 ? 'up' : 'down') + '">' + fmtPnlAmt(e.pnl) + '</div>';
       html += '<div class="p ' + (e.pnl >= 0 ? 'up' : 'down') + '">' + (e.pct >= 0 ? '+' : '') + e.pct.toFixed(2) + '%</div>';
     }
     html += '</div>';
@@ -698,7 +708,7 @@ function renderPnlYear(map) {
     var cls = 'pnl-day' + (future ? ' future' : '');
     html += '<div class="' + cls + '"><div class="d">' + m + '月</div>';
     if (mp) {
-      html += '<div class="v ' + (mp.pnl >= 0 ? 'up' : 'down') + '">' + fmtSignedAmt(mp.pnl) + '</div>';
+      html += '<div class="v ' + (mp.pnl >= 0 ? 'up' : 'down') + '">' + fmtPnlAmt(mp.pnl) + '</div>';
       html += '<div class="p ' + (mp.pnl >= 0 ? 'up' : 'down') + '">' + (mp.pct === null ? '—' : fmtPct(mp.pct)) + '</div>';
     }
     html += '</div>';
@@ -787,7 +797,7 @@ function renderPnl(c) {
     next.textContent = '下一月 ›';
     var mp = monthPnl(pnlCursor.y, pnlCursor.m);
     totalEl.innerHTML = mp
-      ? '<span class="lbl">当月收益 </span><span class="' + (mp.pnl >= 0 ? 'up' : 'down') + '">' + fmtSignedAmt(mp.pnl) + '</span>' + (mp.pct === null ? '' : ' <span class="' + (mp.pnl >= 0 ? 'up' : 'down') + '">(' + fmtPct(mp.pct) + ')</span>')
+      ? '<span class="lbl">当月收益 </span><span class="' + (mp.pnl >= 0 ? 'up' : 'down') + '">' + fmtPnlAmt(mp.pnl) + '</span>' + (mp.pct === null ? '' : ' <span class="' + (mp.pnl >= 0 ? 'up' : 'down') + '">(' + fmtPct(mp.pct) + ')</span>')
       : '<span class="lbl">当月收益 —</span>';
     sig = 'm|' + cy + '-' + cm + '|' + pnlCursor.y + '-' + pnlCursor.m;
     if (sig !== pnlPickerSig) {
@@ -811,7 +821,7 @@ function renderPnl(c) {
     next.textContent = '下一年 ›';
     var yp = yearPnl(pnlCursor.y);
     totalEl.innerHTML = yp
-      ? '<span class="lbl">当年收益 </span><span class="' + (yp.pnl >= 0 ? 'up' : 'down') + '">' + fmtSignedAmt(yp.pnl) + '</span>'
+      ? '<span class="lbl">当年收益 </span><span class="' + (yp.pnl >= 0 ? 'up' : 'down') + '">' + fmtPnlAmt(yp.pnl) + '</span>'
       : '<span class="lbl">当年收益 —</span>';
     sig = 'y|' + cy + '|' + pnlCursor.y;
     if (sig !== pnlPickerSig) {
