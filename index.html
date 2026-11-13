@@ -85,8 +85,9 @@
   .donut-legend-item { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; }
   .donut-legend-item b { font-weight: 600; }
   .dot { width: 10px; height: 10px; border-radius: 2px; flex: none; }
-  #donutCard { position: relative; }
-  #donutTip { position: absolute; background: #fff; color: #131713; font-size: 12px; padding: 8px 10px;
+  #donutCard, #trendCard { position: relative; }
+  .pnl-chart { position: relative; }
+  #donutTip, #trendTip, #pnlTip { position: absolute; background: #fff; color: #131713; font-size: 12px; padding: 8px 10px;
     border: 1px solid #dde3dd; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,.1);
     pointer-events: none; z-index: 5; white-space: nowrap;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
@@ -215,10 +216,11 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="trendCard">
       <h2>总资产与利润走势</h2>
       <p class="card-sub" id="trendNote">近一年 · 每月最后一天登记一次（当月数值随实时价格更新，月末定格） · 已登记 1 个月</p>
       <div id="trendChart"></div>
+      <div id="trendTip" class="hidden"></div>
       <div class="legend-line" style="justify-content:center; margin:8px 0 4px;"><span class="swatch"></span>总资产<span class="swatch-line"></span>利润</div>
       <div id="trendDetail" class="trend-detail"></div>
     </div>
@@ -241,7 +243,7 @@
       </div>
       <div class="pnl-body">
         <div class="pnl-cal" id="pnlCal"></div>
-        <div class="pnl-chart"><div id="pnlChart"></div><div class="pnl-chart-note">单位：千</div></div>
+        <div class="pnl-chart" id="pnlChartCard"><div id="pnlChart"></div><div id="pnlTip" class="hidden"></div><div class="pnl-chart-note">单位：千</div></div>
       </div>
     </div>
   </section>
@@ -729,7 +731,26 @@ function fmtAxisK(v) {
   if (masked) return '****';
   return (v < 0 ? '-' : '') + Math.abs(v).toFixed(2);
 }
-function renderPnlChart(values, labels) {
+/* 悬停提示（对齐 Muse 版）：容器上事件委托，热区 rect 带 data 属性，
+   悬停显示提示框，移出隐藏。监听只挂一次，图表重绘不影响。 */
+function bindChartTip(containerId, cardId, tipId, buildHtml) {
+  var container = $(containerId), card = $(cardId), tip = $(tipId);
+  if (!container || !card || !tip) return;
+  container.addEventListener('mousemove', function (ev) {
+    var t = ev.target;
+    var isHit = t && t.getAttribute && t.getAttribute('class') === 'chart-hit';
+    if (!isHit) { tip.classList.add('hidden'); return; }
+    tip.innerHTML = buildHtml(t);
+    tip.classList.remove('hidden');
+    var rect = card.getBoundingClientRect();
+    var x = ev.clientX - rect.left + 12, y = ev.clientY - rect.top + 12;
+    tip.style.left = Math.max(0, Math.min(x, rect.width - tip.offsetWidth - 8)) + 'px';
+    tip.style.top = Math.max(0, y) + 'px';
+  });
+  container.addEventListener('mouseleave', function () { tip.classList.add('hidden'); });
+}
+
+function renderPnlChart(values, labels, tips) {
   var W = 520, H = 300, ml = 52, mr = 8, mt = 10, mb = 28;
   var maxAbs = 0, hasAny = false;
   values.forEach(function (v) {
@@ -756,6 +777,12 @@ function renderPnlChart(values, labels) {
     var top = Math.min(y0, y1), h = Math.abs(y0 - y1);
     g += '<rect x="' + (cx - bw / 2) + '" y="' + top + '" width="' + bw + '" height="' + Math.max(h, 1.5) + '" fill="' + (v >= 0 ? '#0d9d57' : '#d93a3a') + '" rx="2"/>';
   });
+  // 悬停热区：整列透明矩形，悬停显示日期与当日/当月收益（对齐 Muse 版）
+  values.forEach(function (v, i) {
+    var tp = tips && tips[i];
+    if (!tp) return;
+    g += '<rect class="chart-hit" x="' + (ml + slot * i) + '" y="' + mt + '" width="' + slot + '" height="' + plotH + '" fill="transparent" data-t="' + tp.t + '" data-label="' + tp.label + '" data-pnl="' + tp.pnl + '"/>';
+  });
   if (!hasAny) {
     g += '<text x="' + ((W + ml - mr) / 2) + '" y="' + (cy + 4) + '" text-anchor="middle" class="axis" style="font-size:13px">暂无收益记录</text>';
   }
@@ -764,23 +791,25 @@ function renderPnlChart(values, labels) {
 function renderPnlChartMonth(map) {
   var y = pnlCursor.y, m = pnlCursor.m;
   var days = new Date(y, m, 0).getDate();
-  var vals = [], labels = [];
+  var vals = [], labels = [], tips = [];
   for (var d = 1; d <= days; d++) {
     var key = y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
     vals.push(map[key] ? map[key].pnl : null);
     labels.push((d - 1) % 5 === 0 ? String(d) : '');
+    tips.push(map[key] ? { t: y + '年' + m + '月' + d + '日', label: '当日收益', pnl: map[key].pnl } : null);
   }
-  renderPnlChart(vals, labels);
+  renderPnlChart(vals, labels, tips);
 }
 function renderPnlChartYear(map) {
   var y = pnlCursor.y;
-  var vals = [], labels = [];
+  var vals = [], labels = [], tips = [];
   for (var m = 1; m <= 12; m++) {
     var mp = monthPnl(y, m);
     vals.push(mp ? mp.pnl : null);
     labels.push(m + '月');
+    tips.push(mp ? { t: y + '年' + m + '月', label: '当月收益', pnl: mp.pnl } : null);
   }
-  renderPnlChart(vals, labels);
+  renderPnlChart(vals, labels, tips);
 }
 
 function renderPnl(c) {
@@ -1125,6 +1154,12 @@ function renderTrend(entries) {
       g += '<circle cx="' + cx + '" cy="' + y(s.e.profit) + '" r="3.5" fill="#1e9be0"/>';
     }
   });
+  // 悬停热区：整列透明矩形，悬停显示当月总资产与利润（对齐 Muse 版）
+  slots.forEach(function (s, i) {
+    if (s.e) {
+      g += '<rect class="chart-hit" x="' + (ml + slot * i) + '" y="' + mt + '" width="' + slot + '" height="' + (H - mt - mb) + '" fill="transparent" data-m="' + s.m.slice(0, 4) + '年' + parseInt(s.m.slice(5), 10) + '月" data-assets="' + s.e.assets + '" data-profit="' + s.e.profit + '"/>';
+    }
+  });
   $('trendChart').innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img" aria-label="总资产与利润走势图">' + g + '</svg>';
 
   var det = '';
@@ -1171,6 +1206,15 @@ function setMasked(v) {
 })();
 
 /* ================= 启动 ================= */
+bindChartTip('trendChart', 'trendCard', 'trendTip', function (r) {
+  return '<div><b>' + r.getAttribute('data-m') + '</b></div>'
+    + '<div>总资产：' + fmtAmt(parseFloat(r.getAttribute('data-assets'))) + '</div>'
+    + '<div>利润：' + fmtSignedAmt(parseFloat(r.getAttribute('data-profit'))) + '</div>';
+});
+bindChartTip('pnlChart', 'pnlChartCard', 'pnlTip', function (r) {
+  return '<div><b>' + r.getAttribute('data-t') + '</b></div>'
+    + '<div>' + r.getAttribute('data-label') + '：' + fmtPnlAmt(parseFloat(r.getAttribute('data-pnl'))) + '</div>';
+});
 render();
 fetchHoldings();
 fetchQuotes();
