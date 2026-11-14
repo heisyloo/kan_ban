@@ -107,6 +107,7 @@
   .trend-row .trend-right { display: flex; gap: 18px; }
   .trend-row .up { color: #0d9d57; }
   .trend-row .down { color: #d93a3a; }
+  .trend-toggle { background: none; border: none; color: #0d9d57; font-size: 12px; cursor: pointer; padding: 0; font-family: inherit; white-space: nowrap; }
   .trend-row:last-child { border-bottom: none; }
   .footer { margin: 4px 0 24px; }
   .principles { list-style: none; counter-reset: p; margin: 0; padding: 0; }
@@ -1108,6 +1109,9 @@ function renderBars(c) {
   $('barChart').innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img" aria-label="本金与总资产柱状图">' + g + '</svg>';
 }
 
+/* 走势图下方月度列表：默认只显示当月，其余月份折叠，点“展开”才显示 */
+var trendExpanded = false;
+var trendEntries = [];
 function renderTrend(entries) {
   var last = entries[entries.length - 1];
   var anchor = last ? last.m : monthKey(new Date());
@@ -1162,11 +1166,20 @@ function renderTrend(entries) {
   });
   $('trendChart').innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img" aria-label="总资产与利润走势图">' + g + '</svg>';
 
+  trendEntries = entries;
   var det = '';
-  entries.slice().reverse().forEach(function (e) {
-    det += '<div class="trend-row"><span class="m">' + e.m + '</span><span class="trend-right"><span>总资产 <b>' + fmtAmt(e.assets) + '</b></span><span>利润 <b class="' + (e.profit >= 0 ? 'up' : 'down') + '">' + fmtSignedAmt(e.profit) + '</b></span></span></div>';
+  var rev = entries.slice().reverse();
+  rev.forEach(function (e, idx) {
+    if (idx > 0 && !trendExpanded) return;
+    det += '<div class="trend-row"><span class="m">' + e.m + '</span><span class="trend-right"><span>总资产 <b>' + fmtAmt(e.assets) + '</b></span><span>利润 <b class="' + (e.profit >= 0 ? 'up' : 'down') + '">' + fmtSignedAmt(e.profit) + '</b></span>';
+    if (idx === 0 && rev.length > 1) {
+      det += '<button class="trend-toggle" type="button" id="trendToggle">' + (trendExpanded ? '收起 ▴' : '展开 ▾') + '</button>';
+    }
+    det += '</span></div>';
   });
   $('trendDetail').innerHTML = det;
+  var tg = $('trendToggle');
+  if (tg) tg.addEventListener('click', function () { trendExpanded = !trendExpanded; renderTrend(trendEntries); });
   $('trendNote').textContent = '近一年 · 每月最后一天登记一次（当月数值随实时价格更新，月末定格） · 已登记 ' + entries.length + ' 个月';
 }
 
