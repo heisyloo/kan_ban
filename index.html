@@ -28,6 +28,17 @@
   .eye-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; margin-left: 10px; border: none; background: transparent; color: #68736a; cursor: pointer; border-radius: 6px; flex: none; }
   .eye-btn:hover { background: #f3f4f6; color: #131713; }
   .eye-btn svg { width: 22px; height: 22px; }
+  /* 掩码密码弹窗（对齐 Muse 版） */
+  .mask-modal { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; z-index: 200; }
+  .mask-modal-card { background: #fff; border-radius: 12px; padding: 20px 22px; width: min(320px, 90vw); box-shadow: 0 8px 32px rgba(0,0,0,.25); }
+  .mask-modal-title { font-size: 15px; font-weight: 700; color: #131713; text-align: center; margin-bottom: 16px; }
+  .mask-digits { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; }
+  .mask-digits input { width: 40px; height: 48px; text-align: center; font-size: 20px; border: 1px solid #dde3dd; border-radius: 8px; outline: none; background: #fff; color: #131713; }
+  .mask-digits input:focus { border-color: #0d9d57; box-shadow: 0 0 0 2px rgba(13,157,87,.2); }
+  .mask-error { color: #d93a3a; font-size: 12px; text-align: center; min-height: 16px; margin-bottom: 8px; }
+  .mask-modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .mask-confirm { padding: 8px 18px; font-size: 13px; font-weight: 700; cursor: pointer; color: #fff; background: #0d9d57; border: 1px solid #0d9d57; border-radius: 6px; }
+  .mask-confirm:disabled { background: #a7d8bd; border-color: #a7d8bd; cursor: default; }
   .hero-stats { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 12px; }
   .hero-stat { display: flex; align-items: baseline; gap: 8px; }
   .hero-stat-label { color: #68736a; font-size: 14px; }
@@ -272,6 +283,26 @@
   <p class="source-line" id="sourceLine">行情来源：Stooq · 最近刷新 —</p>
 </div>
 
+<!-- 掩码密码弹窗（对齐 Muse 版）：解除掩码需输入 6 位密码 -->
+<div id="maskModal" class="mask-modal hidden" role="dialog" aria-modal="true" aria-label="输入密码查看金额">
+  <div class="mask-modal-card">
+    <div class="mask-modal-title">输入密码查看金额</div>
+    <div class="mask-digits" id="maskDigits">
+      <input type="password" inputmode="numeric" maxlength="1" aria-label="密码第1位">
+      <input type="password" inputmode="numeric" maxlength="1" aria-label="密码第2位">
+      <input type="password" inputmode="numeric" maxlength="1" aria-label="密码第3位">
+      <input type="password" inputmode="numeric" maxlength="1" aria-label="密码第4位">
+      <input type="password" inputmode="numeric" maxlength="1" aria-label="密码第5位">
+      <input type="password" inputmode="numeric" maxlength="1" aria-label="密码第6位">
+    </div>
+    <div class="mask-error hidden" id="maskError">密码错误，请重新输入</div>
+    <div class="mask-modal-actions">
+      <button class="btn-ghost" type="button" id="maskCancel">取消</button>
+      <button class="mask-confirm" type="button" id="maskConfirm" disabled>确认</button>
+    </div>
+  </div>
+</div>
+
 <script>
 'use strict';
 /* ================= 数据（以 Muse 版 getPortfolio 为准） ================= */
@@ -358,9 +389,7 @@ function lsSet(k, v) {
 }
 
 /* ================= 金额掩码（小眼睛） ================= */
-var LS_MASKED = 'kanban-masked';
-var masked = false;
-try { masked = lsGet(LS_MASKED) === '1'; } catch (e) { masked = false; }
+var masked = true;  // 默认掩码（对齐 Muse 版）：每次打开都从掩码开始，不再读/写本地保存状态
 function fmtAmt(n, d) { return masked ? '****' : fmtMoney(n, d); }
 function fmtSignedAmt(n, d) { return masked ? '****' : fmtSigned(n, d); }
 
@@ -1203,19 +1232,88 @@ var EYE_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strok
 var EYE_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
 function setMasked(v) {
   masked = !!v;
-  try { lsSet(LS_MASKED, masked ? '1' : '0'); } catch (e) {}
   var btn = $('maskBtn');
   btn.innerHTML = masked ? EYE_OFF : EYE_OPEN;
   btn.setAttribute('aria-label', masked ? '显示金额' : '隐藏金额');
   btn.title = masked ? '显示金额' : '隐藏金额';
   render();
 }
+
+/* 掩码密码（对齐 Muse 版）：默认掩码，解除需 6 位密码弹窗验证 */
+var MASK_PASSWORD = '128213';
+var maskDigits = [];
+function maskCode() {
+  return maskDigits.map(function (d) { return d.value; }).join('');
+}
+function maskUpdateConfirm() {
+  $('maskConfirm').disabled = maskCode().length < 6;
+}
+function maskClear() {
+  maskDigits.forEach(function (d) { d.value = ''; });
+  $('maskError').classList.add('hidden');
+  maskUpdateConfirm();
+}
+function maskOpen() {
+  maskClear();
+  $('maskModal').classList.remove('hidden');
+  if (maskDigits[0]) maskDigits[0].focus();
+}
+function maskClose() {
+  $('maskModal').classList.add('hidden');
+}
+function maskTryUnlock() {
+  if (maskCode() === MASK_PASSWORD) {
+    maskClose();
+    setMasked(false);
+  } else {
+    $('maskError').classList.remove('hidden');
+    maskDigits.forEach(function (d) { d.value = ''; });
+    maskUpdateConfirm();
+    if (maskDigits[0]) maskDigits[0].focus();
+  }
+}
+(function initMaskModal() {
+  var box = $('maskDigits');
+  maskDigits = Array.prototype.slice.call(box.querySelectorAll('input'));
+  maskDigits.forEach(function (inp, i) {
+    inp.addEventListener('input', function () {
+      inp.value = inp.value.replace(/\D/g, '').slice(0, 1);
+      if (inp.value && i < maskDigits.length - 1) maskDigits[i + 1].focus();
+      maskUpdateConfirm();
+    });
+    inp.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Backspace' && !inp.value && i > 0) {
+        ev.preventDefault();
+        maskDigits[i - 1].focus();
+        maskDigits[i - 1].value = '';
+        maskUpdateConfirm();
+      } else if (ev.key === 'ArrowLeft' && i > 0) {
+        maskDigits[i - 1].focus();
+      } else if (ev.key === 'ArrowRight' && i < maskDigits.length - 1) {
+        maskDigits[i + 1].focus();
+      }
+    });
+  });
+  box.addEventListener('paste', function (ev) {
+    ev.preventDefault();
+    var text = ((ev.clipboardData || window.clipboardData).getData('text') || '').replace(/\D/g, '').slice(0, 6);
+    text.split('').forEach(function (ch, j) { if (maskDigits[j]) maskDigits[j].value = ch; });
+    if (text.length) maskDigits[Math.min(text.length, 5)].focus();
+    maskUpdateConfirm();
+  });
+  $('maskConfirm').addEventListener('click', maskTryUnlock);
+  $('maskCancel').addEventListener('click', maskClose);
+  $('maskModal').addEventListener('click', function (ev) { if (ev.target === $('maskModal')) maskClose(); });
+})();
 (function initMaskBtn() {
   var btn = $('maskBtn');
   btn.innerHTML = masked ? EYE_OFF : EYE_OPEN;
   btn.setAttribute('aria-label', masked ? '显示金额' : '隐藏金额');
   btn.title = masked ? '显示金额' : '隐藏金额';
-  btn.addEventListener('click', function () { setMasked(!masked); });
+  btn.addEventListener('click', function () {
+    if (masked) maskOpen();
+    else setMasked(true);
+  });
 })();
 
 /* ================= 启动 ================= */
