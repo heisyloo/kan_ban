@@ -1,44 +1,44 @@
 {
-  "updated_at": "2026-11-16T18:13:41Z",
-  "updated_at_beijing": "2026-11-17 02:13",
+  "updated_at": "2026-11-16T19:20:46Z",
+  "updated_at_beijing": "2026-11-17 03:20",
   "source": "mixed",
   "prices": {
     "RKLB": {
-      "price": 57.44,
+      "price": 57.86,
       "prev_close": 61.53,
-      "change_pct": -6.65,
+      "change_pct": -5.96,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
     "TSLA": {
-      "price": 379.93,
+      "price": 378.23,
       "prev_close": 390.22,
-      "change_pct": -2.64,
+      "change_pct": -3.07,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
     "GEV": {
-      "price": 767.14,
+      "price": 767.51,
       "prev_close": 803.13,
-      "change_pct": -4.48,
+      "change_pct": -4.44,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
     "GOOGL": {
-      "price": 287.2,
+      "price": 285.55,
       "prev_close": 295.77,
-      "change_pct": -2.9,
+      "change_pct": -3.46,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
     "SPCX": {
-      "price": 136.45,
+      "price": 138.75,
       "prev_close": 139.11,
-      "change_pct": -2.66,
+      "change_pct": -0.36,
       "source": "tencent",
       "ext_session": null,
       "ext_change_pct": null
@@ -47,30 +47,30 @@
       "price": 593.44,
       "prev_close": 592.94,
       "change_pct": 0.5,
-      "source": "tencent",
+      "source": "stale",
       "ext_session": null,
       "ext_change_pct": null
     },
     "NVDA": {
-      "price": 156.0,
+      "price": 156.16,
       "prev_close": 162.85,
-      "change_pct": -4.21,
+      "change_pct": -4.11,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
     "MU": {
-      "price": 724.79,
+      "price": 726.4,
       "prev_close": 778.31,
-      "change_pct": -6.88,
+      "change_pct": -6.67,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
     "AMD": {
-      "price": 506.27,
+      "price": 507.86,
       "prev_close": 534.06,
-      "change_pct": -5.2,
+      "change_pct": -4.91,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
