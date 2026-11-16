@@ -1,13 +1,13 @@
 {
-  "updated_at": "2026-11-16T21:22:22Z",
-  "updated_at_beijing": "2026-11-17 05:22",
+  "updated_at": "2026-11-16T22:21:11Z",
+  "updated_at_beijing": "2026-11-17 06:21",
   "source": "mixed",
   "prices": {
     "RKLB": {
       "price": 57.37,
       "prev_close": 61.53,
       "change_pct": -6.76,
-      "ext_change_pct": 0.02,
+      "ext_change_pct": 0.19,
       "source": "sina",
       "ext_session": "post"
     },
@@ -15,7 +15,7 @@
       "price": 379.74,
       "prev_close": 390.22,
       "change_pct": -2.69,
-      "ext_change_pct": -0.12,
+      "ext_change_pct": -0.15,
       "source": "sina",
       "ext_session": "post"
     },
@@ -23,7 +23,7 @@
       "price": 763.57,
       "prev_close": 803.13,
       "change_pct": -4.93,
-      "ext_change_pct": 0.38,
+      "ext_change_pct": 0.26,
       "source": "sina",
       "ext_session": "post"
     },
@@ -31,7 +31,7 @@
       "price": 283.72,
       "prev_close": 295.77,
       "change_pct": -4.07,
-      "ext_change_pct": 0.1,
+      "ext_change_pct": 0.24,
       "source": "sina",
       "ext_session": "post"
     },
@@ -55,7 +55,7 @@
       "price": 156.14,
       "prev_close": 162.85,
       "change_pct": -4.12,
-      "ext_change_pct": 0.51,
+      "ext_change_pct": 0.09,
       "source": "sina",
       "ext_session": "post"
     },
@@ -71,7 +71,7 @@
       "price": 504.28,
       "prev_close": 534.06,
       "change_pct": -5.58,
-      "ext_change_pct": 0.05,
+      "ext_change_pct": 0.03,
       "source": "sina",
       "ext_session": "post"
     },
