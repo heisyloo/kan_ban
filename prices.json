@@ -1,13 +1,13 @@
 {
-  "updated_at": "2026-11-20T21:31:38Z",
-  "updated_at_beijing": "2026-11-21 05:31",
+  "updated_at": "2026-11-20T22:29:35Z",
+  "updated_at_beijing": "2026-11-21 06:29",
   "source": "mixed",
   "prices": {
     "RKLB": {
       "price": 45.42,
       "prev_close": 50.99,
       "change_pct": -10.92,
-      "ext_change_pct": 3.04,
+      "ext_change_pct": 3.72,
       "source": "sina",
       "ext_session": "post"
     },
@@ -15,15 +15,15 @@
       "price": 345.82,
       "prev_close": 374.41,
       "change_pct": -7.64,
-      "ext_change_pct": 0.96,
-      "source": "sina",
+      "ext_change_pct": -6.71,
+      "source": "yahoo",
       "ext_session": "post"
     },
     "GEV": {
       "price": 699.33,
       "prev_close": 756.28,
       "change_pct": -7.53,
-      "ext_change_pct": 1.23,
+      "ext_change_pct": 1.48,
       "source": "sina",
       "ext_session": "post"
     },
@@ -31,7 +31,7 @@
       "price": 265.29,
       "prev_close": 272.66,
       "change_pct": -2.7,
-      "ext_change_pct": 1.18,
+      "ext_change_pct": 1.74,
       "source": "sina",
       "ext_session": "post"
     },
@@ -39,7 +39,7 @@
       "price": 127.79,
       "prev_close": 138.43,
       "change_pct": -7.69,
-      "ext_change_pct": 0.01,
+      "ext_change_pct": 1.02,
       "source": "sina",
       "ext_session": "post"
     },
@@ -55,15 +55,15 @@
       "price": 125.53,
       "prev_close": 145.98,
       "change_pct": -14.01,
-      "ext_change_pct": 2.06,
-      "source": "sina",
+      "ext_change_pct": -11.33,
+      "source": "yahoo",
       "ext_session": "post"
     },
     "MU": {
       "price": 594.51,
       "prev_close": 690.44,
       "change_pct": -13.89,
-      "ext_change_pct": 1.27,
+      "ext_change_pct": 1.85,
       "source": "sina",
       "ext_session": "post"
     },
@@ -71,7 +71,7 @@
       "price": 424.39,
       "prev_close": 489.19,
       "change_pct": -13.25,
-      "ext_change_pct": 1.46,
+      "ext_change_pct": 1.74,
       "source": "sina",
       "ext_session": "post"
     },
