@@ -1,13 +1,13 @@
 {
-  "updated_at": "2026-11-12T03:23:52.637Z",
-  "updated_at_beijing": "2026-11-12 11:23",
+  "updated_at": "2026-11-23T09:32:57.432Z",
+  "updated_at_beijing": "2026-11-23 17:32",
   "cash": 2500,
   "cash_ideal": 10,
   "holdings": [
     {
       "sym": "RKLB",
       "name": "Rocket Lab",
-      "shares": 520,
+      "shares": 435,
       "cost": 30,
       "ideal": 8
     },
@@ -26,18 +26,18 @@
       "ideal": 10
     },
     {
-      "sym": "GEV",
-      "name": "GE Vernova",
-      "shares": 10,
-      "cost": 693,
-      "ideal": 12
-    },
-    {
       "sym": "GOOGL",
       "name": "Alphabet",
       "shares": 26,
       "cost": 169.39,
       "ideal": 10
+    },
+    {
+      "sym": "GEV",
+      "name": "GE Vernova",
+      "shares": 9,
+      "cost": 693,
+      "ideal": 12
     },
     {
       "sym": "NVDA",
@@ -61,10 +61,28 @@
       "ideal": 15
     },
     {
+      "sym": "LLY",
+      "name": "礼来",
+      "cost_line": 0,
+      "ideal": null
+    },
+    {
       "sym": "AMD",
-      "name": "Advanced Micro Devices, Inc.",
+      "name": "美国超微公司",
       "cost_line": 0,
       "ideal": 0
+    },
+    {
+      "sym": "TSM",
+      "name": "台积电",
+      "cost_line": 0,
+      "ideal": null
+    },
+    {
+      "sym": "IBKR",
+      "name": "盈透证券",
+      "cost_line": 0,
+      "ideal": null
     }
   ]
 }
