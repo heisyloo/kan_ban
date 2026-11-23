@@ -1,13 +1,13 @@
 {
-  "updated_at": "2026-11-23T09:32:57.432Z",
-  "updated_at_beijing": "2026-11-23 17:32",
+  "updated_at": "2026-11-23T15:05:54.397Z",
+  "updated_at_beijing": "2026-11-23 23:05",
   "cash": 2500,
   "cash_ideal": 10,
   "holdings": [
     {
       "sym": "RKLB",
       "name": "Rocket Lab",
-      "shares": 435,
+      "shares": 465,
       "cost": 30,
       "ideal": 8
     },
