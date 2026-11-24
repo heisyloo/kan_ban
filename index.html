@@ -16,17 +16,17 @@
   .tabs { display: flex; gap: 4px; padding: 4px; margin-bottom: 32px;
     border: 1px solid #dde3dd; border-radius: 0; background: #fff; }
   .tab-btn { flex: 1; padding: 8px 16px; font-size: 14px; line-height: 20px; font-weight: 600; cursor: pointer;
-    border: none; background: transparent; color: #374151; border-radius: 0; }
+    border: none; background: transparent; color: #374151; border-radius: 999px; }
   .tab-btn.active { background: #0d9d57; color: #fff; }
   .hidden { display: none !important; }
   .card { background: #fff; border: 1px solid #dde3dd; border-radius: 0; padding: 12px; margin-bottom: 32px; }
   .card h2 { margin: 0 0 14px; font-size: 16px; }
-  .hero { margin-bottom: 32px; }
+  .hero { margin-bottom: 32px; 
   .hero-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
   .hero-label { display: flex; align-items: center; gap: 8px; color: #68736a; font-size: 12px; line-height: 16px; }
   .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #0d9d57; flex: none; }
   .hero-value { display: flex; align-items: center; font-size: 44px; line-height: 44px; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-  .eye-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; margin-left: 10px; border: none; background: transparent; color: #68736a; cursor: pointer; border-radius: 0; flex: none; }
+  .eye-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; margin-left: 10px; border: none; background: transparent; color: #68736a; cursor: pointer; border-radius: 999px; flex: none; }
   .eye-btn:hover { background: #f3f4f6; color: #131713; }
   .eye-btn svg { width: 22px; height: 22px; }
   /* 掩码密码弹窗（对齐 Muse 版） */
@@ -41,14 +41,14 @@
   .mask-digit.filled .mask-dot { visibility: visible; }
   .mask-error { color: #d93a3a; font-size: 12px; text-align: center; min-height: 16px; margin-bottom: 8px; }
   .mask-modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
-  .mask-confirm { padding: 8px 18px; font-size: 13px; font-weight: 700; cursor: pointer; color: #fff; background: #0d9d57; border: 1px solid #0d9d57; border-radius: 0; }
+  .mask-confirm { padding: 8px 18px; font-size: 13px; font-weight: 700; cursor: pointer; color: #fff; background: #0d9d57; border: 1px solid #0d9d57; border-radius: 999px; }
   .mask-confirm:disabled { background: #a7d8bd; border-color: #a7d8bd; cursor: default; }
   .hero-stats { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 12px; }
   .hero-stat { display: flex; align-items: baseline; gap: 8px; }
   .hero-stat-label { color: #68736a; font-size: 14px; }
   .hero-stat-value { font-size: 14px; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
   .btn-ghost { padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; color: #374151;
-    background: #fff; border: 1px solid #dde3dd; border-radius: 0; white-space: nowrap; }
+    background: #fff; border: 1px solid #dde3dd; border-radius: 999px; white-space: nowrap; }
   .btn-ghost:active { background: #f3f4f6; }
   .btn-ghost.loading { color: #9ca3af; cursor: default; pointer-events: none; }
   .btn-ghost .refresh-icon { display: inline-block; }
@@ -122,7 +122,7 @@
   .trend-row .trend-right { display: flex; gap: 18px; }
   .trend-row .up { color: #0d9d57; }
   .trend-row .down { color: #d93a3a; }
-  .trend-toggle { background: none; border: none; color: #0d9d57; font-size: 12px; cursor: pointer; padding: 0; font-family: inherit; white-space: nowrap; }
+  .trend-toggle { background: none; border: none; color: #0d9d57; font-size: 12px; cursor: pointer; padding: 0; font-family: inherit; white-space: nowrap; border-radius: 999px; }
   .trend-row:last-child { border-bottom: none; }
   .footer { margin: 4px 0 24px; }
   .principles { list-style: none; counter-reset: p; margin: 0; padding: 0; }
