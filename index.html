@@ -1360,7 +1360,8 @@ bindChartTip('barChart', 'barCard', 'barTip', function (r) {
     + '<div>本金：' + fmtAmt(principal) + '</div>'
     + '<div>总资产：' + fmtAmt(assets) + '</div>';
   if (label !== '现金') {
-    html += '<div>盈亏：' + fmtSignedAmt(pnl) + '（' + (masked ? '****' : fmtPct(principal ? pnl / principal : 0)) + '）</div>';
+    var cls = masked ? '' : (pnl >= 0 ? 'up' : 'down');
+    html += '<div>盈亏：<span' + (cls ? ' class="' + cls + '"' : '') + '>' + fmtSignedAmt(pnl) + '（' + (masked ? '****' : fmtPct(principal ? pnl / principal : 0)) + '）</span></div>';
   }
   return html;
 });
