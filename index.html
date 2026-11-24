@@ -19,9 +19,9 @@
     border: none; background: transparent; color: #374151; border-radius: 0; }
   .tab-btn.active { background: #0d9d57; color: #fff; }
   .hidden { display: none !important; }
-  .card { background: #fff; border: 1px solid #dde3dd; border-radius: 0; padding: 12px; margin-bottom: 0; }
+  .card { background: #fff; border: 1px solid #dde3dd; border-radius: 0; padding: 12px; margin-bottom: 32px; }
   .card h2 { margin: 0 0 14px; font-size: 16px; }
-  .hero { margin-bottom: 0; 
+  .hero { margin-bottom: 32px 
   .hero-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
   .hero-label { display: flex; align-items: center; gap: 8px; color: #68736a; font-size: 12px; line-height: 16px; }
   .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #0d9d57; flex: none; }
@@ -86,12 +86,12 @@
   .watch-price { color: #131713; font-weight: 700; }
   .mini-bar { width: 40px; height: 4px; background: #f4f6f4; border-radius: 0; overflow: hidden; margin: 5px 0 3px auto; }
   .mini-bar span { display: block; height: 100%; background: #0d9d57; border-radius: 0; }
-  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-bottom: 0; align-items: stretch; }
-  .charts-grid .card { margin-bottom: 0; display: flex; flex-direction: column; height: 100%; border-top:none; }
-         .card+.card,.charts-grid+.card{border-top:none}
-         .charts-grid .card+.card{border-left:none}
-         @media(max-width:1023px){.charts-grid .card+.card{border-left:1px solid #dde3dd}}
-  .donut-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 252px; }
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; align-items: stretch; }
+  .charts-grid .card { margin-bottom: 0; display: flex; flex-direction: column; height: 100%;}
+.card-head h2{margin:0 0 14px;font-size:16px}
+ #boardView .charts-grid{row-gap:0}
+ @media(max-width:1023px){#barHead{order:1}#barCard{order:2}#donutHead{order:3;margin-top:24px}#donutCard{order:4}}
+ .donut-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 252px; }
   .donut-seg { cursor: pointer; }
   .donut-seg path { transition: d 420ms cubic-bezier(0.22,1,0.36,1); }
   .donut-label { transition: transform 420ms cubic-bezier(0.22,1,0.36,1); }
@@ -198,9 +198,11 @@
       <span id="priceNote" class="note hidden" style="margin-top:10px">行情未更新，显示上次价格</span>
     </div>
 
-    <div class="card">
-      <h2>持仓列表</h2>
-      <p class="card-sub">按总资产（市值）从高到低排序 · 序号即排名 · 现价实时更新、不可更改</p>
+<div class="card-head">
+ <h2>持仓列表</h2>
+<p class="card-sub">按总资产（市值）从高到低排序 · 序号即排名 · 现价实时更新、不可更改</p>
+</div>
+   <div class="card">
       <div class="sub-tabs">
         <button id="tabHold" class="tab-btn list-tab active" type="button">持仓</button>
         <button id="tabWatch" class="tab-btn list-tab" type="button">观望</button>
@@ -216,18 +218,22 @@
     </div>
 
     <div class="charts-grid">
-      <div class="card" id="barCard">
-        <h2>本金与总资产</h2>
-        <p class="card-sub">每只持仓的成本（本金）与当前市值（总资产），按市值从高到低排列，现金单列。</p>
+<div class="card-head" id="barHead">
+ <h2>本金与总资产</h2>
+ <p class="card-sub">每只持仓的成本（本金）与当前市值（总资产），按市值从高到低排列，现金单列。</p>
+</div>
+     <div class="card" id="barCard">
         <div id="barChart"></div>
         <div id="barTip" class="hidden"></div>
         <div class="legend-line" style="justify-content:center; margin:8px 0 4px;"><span class="swatch" style="background:#5b6b73"></span>本金<span class="swatch" style="background:#0d9d57"></span>总资产</div>
         <div class="bar-footer" id="barFooter"></div>
       </div>
 
-      <div class="card" id="donutCard">
-        <h2>持仓占比</h2>
-        <p class="card-sub">按当前市值计算各持仓占比，现金单列。</p>
+<div class="card-head" id="donutHead">
+ <h2>持仓占比</h2>
+ <p class="card-sub">按当前市值计算各持仓占比，现金单列。</p>
+</div>
+     <div class="card" id="donutCard">
         <div class="donut-box">
           <svg id="donutSvg" viewBox="0 0 252 252" width="252" height="252" role="img" aria-label="持仓占比环形图"></svg>
           <div id="donutLegend" class="donut-legend"></div>
@@ -236,18 +242,22 @@
       </div>
     </div>
 
-    <div class="card" id="trendCard">
-      <h2>总资产与利润走势</h2>
-      <p class="card-sub" id="trendNote">近一年 · 每月最后一天登记一次（当月数值随实时价格更新，月末定格） · 已登记 1 个月</p>
+<div class="card-head">
+ <h2>总资产与利润走势</h2>
+ <p class="card-sub" id="trendNote">近一年 · 每月最后一天登记一次（当月数值随实时价格更新，月末定格） · 已登记 1 个月</p>
+</div>
+   <div class="card" id="trendCard">
       <div id="trendChart"></div>
       <div id="trendTip" class="hidden"></div>
       <div class="legend-line" style="justify-content:center; margin:8px 0 4px;"><span class="swatch"></span>总资产<span class="swatch-line"></span>利润</div>
       <div id="trendDetail" class="trend-detail"></div>
     </div>
 
-    <div class="card">
-      <h2>收益日历</h2>
-      <p class="card-sub">每日收益按收盘后数据登记，年视图为当月结束时的月收益；从 2026 年 11 月 12 日起统计</p>
+<div class="card-head">
+ <h2>收益日历</h2>
+ <p class="card-sub">每日收益按收盘后数据登记，年视图为当月结束时的月收益；从 2026 年 11 月 12 日起统计</p>
+</div>
+   <div class="card">
       <div class="pnl-head">
         <div class="sub-tabs">
           <button id="pnlTabMonth" class="tab-btn active" type="button">月</button>
@@ -1400,7 +1410,7 @@ $('refreshBtn').addEventListener('click', fetchQuotes);
 .rank-dot{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;color:#fff;font-size:10px;font-weight:700;flex:none}
 .mini-bar{width:40px;height:4px;background:#f4f6f4;border-radius:0;overflow:hidden;margin-top:4px}
 .mini-bar span{display:block;height:100%;background:#0d9d57;border-radius:0}
-.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-bottom:0;align-items:stretch}
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;align-items:stretch}
 .charts-grid .card{margin-bottom:0;display:flex;flex-direction:column;height:100%}
 .donut-box{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .donut-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 16px;margin-top:12px}
@@ -1458,9 +1468,9 @@ header h1{margin:0;font-size:30px;line-height:36px;font-weight:700}
 .tab-btn{flex:1;padding:8px 16px;font-size:14px;line-height:20px;font-weight:600;cursor:pointer;border:none;background:transparent;color:#374151;border-radius:0}
 .tab-btn.active{background:#0d9d57;color:#fff}
 .hidden{display:none!important}
-.card{background:#fff;border:1px solid #dde3dd;border-radius:0;padding:12px;margin-bottom:0}
+.card{background:#fff;border:1px solid #dde3dd;border-radius:0;padding:12px;margin-bottom:32px}
 .card h2{margin:0 0 14px;font-size:16px}
-.hero{margin-bottom:0}
+.hero{margin-bottom:32px}
 .hero-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
 .hero-label{display:flex;align-items:center;gap:8px;color:#68736a;font-size:12px;line-height:16px}
 .status-dot{width:8px;height:8px;border-radius:50%;background:#0d9d57;flex:none}
