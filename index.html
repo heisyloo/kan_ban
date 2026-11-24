@@ -1440,4 +1440,98 @@ $('refreshBtn').addEventListener('click', fetchQuotes);
 .pnl-chart-note{text-align:right;font-size:11px;color:#68736a;margin-top:4px}
 @media (max-width:767px){.pnl-body{flex-direction:column}.pnl-cal,.pnl-chart{flex:none;width:100%}}
 @media (max-width:1023px){.charts-grid{grid-template-columns:1fr}}
+
 </style>
+<style>
+ 
+/* 排版与间距兜底（2026-11-24）：把首个 <style> 的字号、颜色、行高、内外边距规则按原值再声明一次；下方重复声明的几条用于修正上方兜底里与原值不符的值 */
+*{box-sizing:border-box}
+body{margin:0;background:#f1f1f1;color:#131713;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"}
+.wrap{max-width:1024px;margin:0 auto;padding:24px 16px 16px}
+header h1{margin:0;font-size:30px;line-height:36px;font-weight:700}
+.usage{color:#68736a;font-size:14px;line-height:20px;margin:8px 0 24px}
+.page-h2{font-size:24px;line-height:32px;margin:0 0 6px}
+.tabs{display:flex;gap:4px;padding:4px;margin-bottom:32px;border:1px solid #dde3dd;border-radius:0;background:#fff}
+.tab-btn{flex:1;padding:8px 16px;font-size:14px;line-height:20px;font-weight:600;cursor:pointer;border:none;background:transparent;color:#374151;border-radius:0}
+.tab-btn.active{background:#0d9d57;color:#fff}
+.hidden{display:none!important}
+.card{background:#fff;border:1px solid #dde3dd;border-radius:0;padding:12px;margin-bottom:32px}
+.card h2{margin:0 0 14px;font-size:16px}
+.hero{margin-bottom:32px}
+.hero-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.hero-label{display:flex;align-items:center;gap:8px;color:#68736a;font-size:12px;line-height:16px}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#0d9d57;flex:none}
+.hero-value{display:flex;align-items:center;font-size:44px;line-height:44px;font-weight:700;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.eye-btn{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;margin-left:10px;border:none;background:transparent;color:#68736a;cursor:pointer;border-radius:0;flex:none}
+.eye-btn:hover{background:#f3f4f6;color:#131713}
+.eye-btn svg{width:22px;height:22px}
+.hero-stats{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:12px}
+.hero-stat{display:flex;align-items:baseline;gap:8px}
+.hero-stat-label{color:#68736a;font-size:14px}
+.hero-stat-value{font-size:14px;font-weight:700;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.btn-ghost{padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;color:#374151;background:#fff;border:1px solid #dde3dd;border-radius:0;white-space:nowrap}
+.btn-ghost:active{background:#f3f4f6}
+.btn-ghost.loading{color:#9ca3af;cursor:default;pointer-events:none}
+.btn-ghost .refresh-icon{display:inline-block}
+.btn-ghost.loading .refresh-icon{animation:refresh-spin 0.8s linear infinite}
+@keyframes refresh-spin{to{transform:rotate(360deg)}}
+.btn-ghost:disabled{color:#cbd5cb;cursor:default}
+.card-sub{color:#68736a;font-size:12px;margin:-8px 0 12px}
+.source-line{text-align:center;color:#68736a;font-size:11px;margin:24px 0 32px}
+.muted{color:#68736a;font-size:13px}
+.small{font-size:13px}
+.note{display:inline-block;background:#fffbeb;border:1px solid #fde68a;color:#92400e;font-size:13px;padding:5px 10px;border-radius:0}
+.sub-tabs{display:flex;gap:4px;padding:4px;margin-bottom:12px;border:1px solid #dde3dd;border-radius:0;background:#fff;width:fit-content}
+.sub-tabs .tab-btn{flex:none}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
+th,td{border-bottom:1px solid #dde3dd;white-space:nowrap}
+th{padding:10px}
+td{padding:12px}
+th{text-align:left;color:#68736a;font-weight:600;font-size:11px}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+td.c{text-align:center;color:#68736a}
+tr.total td{font-weight:800;border-top:2px solid #dde3dd;border-bottom:none}
+.sub{font-size:12px;color:#68736a;font-weight:400;margin-top:2px}
+.code-cell .sub{font-size:11px}
+.up{color:#0d9d57}
+.down{color:#d93a3a}
+.up .sub,.down .sub{color:inherit}
+.code-cell{display:flex;align-items:center;gap:8px}
+.watch-price{color:#131713;font-weight:700}
+.axis{font-size:11px;fill:#68736a}
+.axis-x{font-size:10px}
+#barChart .axis{font-size:14px}
+#barChart .axis-x{font-size:14px}
+.bar-val{font-size:14px;font-weight:700;fill:#131713;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.donut-seg{cursor:pointer}
+.donut-seg path{transition:d 420ms cubic-bezier(0.22,1,0.36,1)}
+.donut-label{transition:transform 420ms cubic-bezier(0.22,1,0.36,1)}
+.donut-label text{transition:font-size 420ms cubic-bezier(0.22,1,0.36,1)}
+.donut-scale .donut-seg{transition:transform 420ms cubic-bezier(0.22,1,0.36,1);transform-box:view-box;transform-origin:center}
+.donut-scale .donut-seg:hover{transform:scale(1.107)}
+@media (prefers-reduced-motion:reduce){.donut-seg path,.donut-label,.donut-label text,.donut-scale .donut-seg{transition:none}}
+.trend-detail{margin-top:10px}
+.trend-row b{font-weight:700;color:#131713}
+.trend-row .m{font-weight:700;color:#131713}
+.trend-row .trend-right{display:flex;gap:18px}
+.trend-row .up{color:#0d9d57}
+.trend-row .down{color:#d93a3a}
+.footer{margin:4px 0 24px}
+.principles{list-style:none;counter-reset:p;margin:0;padding:0}
+.principles li{counter-increment:p;display:flex;gap:12px;font-weight:700;color:#131713;font-size:15px;line-height:24.4px;padding:16px 0;border-bottom:1px solid #dde3dd}
+.principles li:last-child{border-bottom:none}
+.principles li:first-child{padding-top:4px}
+.principles li::before{content:counter(p) ".";flex:none;font-size:16px;font-weight:700;color:#131713}
+#principlesView .card{padding:20px;margin-top:16px}
+@media (max-width:767px){#principlesView .card{padding:16px}}
+/* 修正上方兜底里与原值不符的几条（以下声明在后，同等优先级下生效） */
+.mini-bar{width:40px;height:4px;background:#f4f6f4;border-radius:0;overflow:hidden;margin:5px 0 3px auto}
+.donut-box{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:252px}
+.donut-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 16px;margin-top:8px}
+.legend-line{display:flex;align-items:center;gap:6px;font-size:12px;color:#374151;margin-bottom:8px}
+.swatch-line{display:inline-block;width:22px;height:3px;background:#1e9be0;border-radius:0;margin-left:14px}
+.trend-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px 18px;font-size:12px;color:#68736a;padding:6px 0;border-bottom:1px solid #dde3dd;font-variant-numeric:tabular-nums;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.trend-toggle{background:none;border:none;color:#0d9d57;font-size:12px;cursor:pointer;padding:0;font-family:inherit;white-space:nowrap}
+.pnl-day .v,.pnl-day .p{font-size:11px;margin-top:2px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+ </style>
