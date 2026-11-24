@@ -1,47 +1,47 @@
 {
-  "updated_at": "2026-11-24T20:57:56Z",
-  "updated_at_beijing": "2026-11-25 04:57",
+  "updated_at": "2026-11-24T21:57:11Z",
+  "updated_at_beijing": "2026-11-25 05:57",
   "source": "mixed",
   "prices": {
     "RKLB": {
       "price": 45.98,
       "prev_close": 49.63,
-      "change_pct": -7.34,
+      "change_pct": -7.35,
+      "ext_change_pct": 0.5,
       "source": "sina",
-      "ext_session": null,
-      "ext_change_pct": null
+      "ext_session": "post"
     },
     "TSLA": {
-      "price": 384.72,
+      "price": 384.68,
       "prev_close": 385.46,
-      "change_pct": -0.74,
+      "change_pct": -0.78,
       "source": "tencent",
-      "ext_session": null,
+      "ext_session": "post",
       "ext_change_pct": null
     },
     "GEV": {
-      "price": 718.83,
+      "price": 720.65,
       "prev_close": 756.71,
-      "change_pct": -5.01,
+      "change_pct": -4.77,
+      "ext_change_pct": -0.06,
       "source": "sina",
-      "ext_session": null,
-      "ext_change_pct": null
+      "ext_session": "post"
     },
     "GOOGL": {
-      "price": 278.82,
+      "price": 279.05,
       "prev_close": 282.1,
-      "change_pct": -1.16,
+      "change_pct": -1.08,
+      "ext_change_pct": 0.16,
       "source": "sina",
-      "ext_session": null,
-      "ext_change_pct": null
+      "ext_session": "post"
     },
     "SPCX": {
-      "price": 125.66,
+      "price": 125.81,
       "prev_close": 133.35,
-      "change_pct": -5.77,
+      "change_pct": -5.65,
+      "ext_change_pct": 0.53,
       "source": "sina",
-      "ext_session": null,
-      "ext_change_pct": null
+      "ext_session": "post"
     },
     "BRK.B": {
       "price": 570.0,
@@ -52,60 +52,60 @@
       "ext_change_pct": null
     },
     "NVDA": {
-      "price": 155.49,
+      "price": 155.38,
       "prev_close": 165.05,
-      "change_pct": -5.8,
-      "source": "sina",
-      "ext_session": null,
-      "ext_change_pct": null
+      "change_pct": -5.86,
+      "ext_change_pct": -7.34,
+      "source": "yahoo",
+      "ext_session": "post"
     },
     "MU": {
-      "price": 629.14,
+      "price": 629.79,
       "prev_close": 707.7,
-      "change_pct": -11.1,
+      "change_pct": -11.01,
+      "ext_change_pct": -0.44,
       "source": "sina",
-      "ext_session": null,
-      "ext_change_pct": null
+      "ext_session": "post"
     },
     "AMD": {
-      "price": 412.89,
+      "price": 413.27,
       "prev_close": 453.46,
-      "change_pct": -8.95,
+      "change_pct": -8.86,
+      "ext_change_pct": -0.08,
       "source": "sina",
-      "ext_session": null,
-      "ext_change_pct": null
+      "ext_session": "post"
     },
     "LLY": {
-      "price": 1410.97,
+      "price": 1407.59,
       "prev_close": 1364.6,
-      "change_pct": 3.4,
+      "change_pct": 3.15,
+      "ext_change_pct": 0.1,
       "source": "sina",
-      "ext_session": null,
-      "ext_change_pct": null
+      "ext_session": "post"
     },
     "TSM": {
-      "price": 349.5,
+      "price": 349.2,
       "prev_close": 363.6,
-      "change_pct": -3.88,
+      "change_pct": -3.96,
+      "ext_change_pct": 0.05,
       "source": "sina",
-      "ext_session": null,
-      "ext_change_pct": null
+      "ext_session": "post"
     },
     "IBKR": {
-      "price": 74.75,
+      "price": 74.71,
       "prev_close": 76.47,
-      "change_pct": -1.72,
+      "change_pct": -1.76,
       "source": "tencent",
-      "ext_session": null,
+      "ext_session": "post",
       "ext_change_pct": null
     },
     "BE": {
-      "price": 156.4,
+      "price": 156.41,
       "prev_close": 168.15,
-      "change_pct": -6.99,
+      "change_pct": -6.98,
+      "ext_change_pct": -0.02,
       "source": "sina",
-      "ext_session": null,
-      "ext_change_pct": null
+      "ext_session": "post"
     },
     "HK700": {
       "price": 340.6,
@@ -165,6 +165,11 @@
         "d": "2026-11-23",
         "pnl": 5660.61,
         "pct": 9.58
+      },
+      {
+        "d": "2026-11-24",
+        "pnl": -2761.09,
+        "pct": -4.26
       }
     ]
   }
