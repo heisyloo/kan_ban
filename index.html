@@ -66,6 +66,10 @@
     font-size: 13px; padding: 5px 10px; border-radius: 0; }
   .sub-tabs { display: flex; gap: 4px; padding: 4px; margin-bottom: 12px; border: 1px solid #dde3dd; border-radius: 0; background: #fff; width: fit-content; }
   .sub-tabs .tab-btn { flex: none; }
+ /* holdings tabs outside and cash row */
+ .card.holdings-card{padding:0;}
+ #holdingsBody tr.cash-row td{border-top:3px solid #cdd6cd;border-bottom:none;}
+ .cash-icon{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;font-size:16px;line-height:1;flex:none;}
   .table-wrap { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 560px; }
   th, td { border-bottom: 1px solid #dde3dd; white-space: nowrap; }
@@ -202,11 +206,11 @@
  <h2>持仓列表</h2>
 <p class="card-sub">按总资产（市值）从高到低排序 · 序号即排名 · 现价实时更新、不可更改</p>
 </div>
-   <div class="card">
-      <div class="sub-tabs">
+  <div class="sub-tabs holdings-tabs">
         <button id="tabHold" class="tab-btn list-tab active" type="button">持仓</button>
         <button id="tabWatch" class="tab-btn list-tab" type="button">观望</button>
       </div>
+    <div class="card holdings-card">
       <div class="table-wrap">
         <table>
           <thead>
@@ -1014,8 +1018,8 @@ function render() {
           + '<td class="num ' + (r.dayPnl === null ? '' : (r.dayPnl >= 0 ? 'up' : 'down')) + '">' + (r.dayPnl === null ? '—' : fmtSignedAmt(r.dayPnl) + '<div class="sub">(' + fmtPct(r.dayPnlPct) + ')</div>') + '</td>'
           + '<td class="num ' + (r.pnl >= 0 ? 'up' : 'down') + '">' + fmtSignedAmt(r.pnl) + '<div class="sub">(' + fmtPct(r.pnl / r.principal) + ')</div></td></tr>';
       } else {
-        html += '<tr><td><div class="code-cell"><span class="rank-dot" style="background:' + color + '">' + (i + 1) + '</span><span><b>现金</b><div class="sub">现金 (USD)</div></span></div></td>'
-          + '<td class="num">—</td>'
+        html += '<tr class="cash-row"><td><div class="code-cell"><span class="cash-icon">&#128181;</span><span><b>现金</b><div class="sub">现金 (USD)</div></span></div></td>'
+         + '<td class="num">—</td>'
           + '<td class="num">' + fmtAmt(CASH) + '<div class="sub">可用现金</div></td>'
           + '<td class="num">' + fmtAmt(CASH) + '<div class="mini-bar"><span style="width:' + (r.weight * 100).toFixed(2) + '%"></span></div><div class="sub">' + (r.weight * 100).toFixed(1) + '%（理想 ' + r.ideal + '%）</div></td>'
           + '<td class="num">不计盈亏</td>'
