@@ -1315,6 +1315,8 @@ function maskTryUnlock() {
         maskDigits[i - 1].focus();
       } else if (ev.key === 'ArrowRight' && i < maskDigits.length - 1) {
         maskDigits[i + 1].focus();
+      } else if (ev.key === 'Enter') {
+        if (maskCode().length === 6) maskTryUnlock();
       }
     });
   });
@@ -1329,6 +1331,7 @@ function maskTryUnlock() {
   $('maskConfirm').addEventListener('click', maskTryUnlock);
   $('maskCancel').addEventListener('click', maskClose);
   $('maskModal').addEventListener('click', function (ev) { if (ev.target === $('maskModal')) maskClose(); });
+  $('maskModal').addEventListener('keydown', function (ev) { if (ev.key === 'Escape') maskClose(); });
 })();
 (function initMaskBtn() {
   var btn = $('maskBtn');
