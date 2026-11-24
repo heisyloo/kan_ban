@@ -318,7 +318,13 @@ var FALLBACK = {
   'BRK.B':{ price: 570.89, ccy: 'USD' },
   NVDA:   { price: 186.64, ccy: 'USD' },
   MU:     { price: 690.00, ccy: 'USD' },
-  AMD:    { price: 449.04, ccy: 'USD' }
+  AMD:    { price: 449.04, ccy: 'USD' },
+  LLY:    { price: 1364.60, ccy: 'USD' },
+  TSM:    { price: 363.60, ccy: 'USD' },
+  IBKR:   { price: 76.47,  ccy: 'USD' },
+  BE:     { price: 168.15, ccy: 'USD' },
+  HK700:  { price: 419.80, ccy: 'HKD' },
+  HK9992: { price: 141.90, ccy: 'HKD' }
 };
 var HOLDINGS = [
   { sym: 'RKLB',  shares: 520, cost: 21.20,  ideal: 8  },
@@ -349,7 +355,8 @@ var SEED_MONTHLY = [
 ];
 var DONUT_COLORS = { RKLB: '#2fd574', TSLA: '#3b82c4', GEV: '#e0a32e', GOOGL: '#9b7ede', SPCX: '#e05d7a', '现金': '#7e939e' };
 var NAMES = { RKLB: 'Rocket Lab', TSLA: 'Tesla', GEV: 'GE Vernova', GOOGL: 'Alphabet', SPCX: 'SpaceX',
-  'BRK.B': 'Berkshire Hathaway Inc', NVDA: 'NVIDIA Corporation', MU: 'Micron Technology, Inc.', AMD: 'Advanced Micro Devices, Inc.' };
+  'BRK.B': 'Berkshire Hathaway Inc', NVDA: 'NVIDIA Corporation', MU: 'Micron Technology, Inc.', AMD: 'Advanced Micro Devices, Inc.',
+  LLY: '礼来', TSM: '台积电', IBKR: '盈透证券', BE: 'Bloom Energy' };
 
 /* ================= 工具 ================= */
 function $(id) { return document.getElementById(id); }
@@ -502,16 +509,17 @@ async function fetchHoldings() {
 /* ================= 计算 ================= */
 function compute() {
   var rows = HOLDINGS.map(function (h) {
-    var pr = prices[h.sym];
-    var value = h.shares * pr.price;
+    var pr = prices[h.sym] || { price: null, change: null, prev: null };
+    var hasPrice = (typeof pr.price === 'number' && isFinite(pr.price));
+    var value = hasPrice ? h.shares * pr.price : 0;
     var principal = h.shares * h.cost;
     var dayPnl = null, dayPnlPct = null;
-    if (typeof pr.prev === 'number' && pr.prev > 0) {
+    if (hasPrice && typeof pr.prev === 'number' && pr.prev > 0) {
       dayPnl = round2((pr.price - pr.prev) * h.shares);
       dayPnlPct = (pr.price - pr.prev) / pr.prev;
     }
     return { type: 'hold', sym: h.sym, ideal: h.ideal, shares: h.shares, cost: h.cost,
-      price: pr.price, change: pr.change, prev: pr.prev, principal: principal, value: value, pnl: value - principal,
+      price: hasPrice ? pr.price : null, change: pr.change, prev: pr.prev, principal: principal, value: value, pnl: value - principal,
       dayPnl: dayPnl, dayPnlPct: dayPnlPct };
   });
   var totalHold = rows.reduce(function (s, r) { return s + r.value; }, 0);
@@ -520,9 +528,9 @@ function compute() {
   var cashRow = { type: 'cash', sym: '现金', ideal: CASH_IDEAL, value: CASH, principal: CASH, pnl: 0,
     weight: totalAssets ? CASH / totalAssets : 0 };
   var watchRows = WATCH.map(function (w) {
-    var pr = prices[w.sym];
+    var pr = prices[w.sym] || { price: null, change: null, prev: null };
     return { type: 'watch', sym: w.sym, ideal: w.ideal, costLine: w.costLine,
-      price: pr.price, change: pr.change, value: 0, weight: 0 };
+      price: (typeof pr.price === 'number' && isFinite(pr.price)) ? pr.price : null, change: pr.change, value: 0, weight: 0 };
   });
   var totalDayPnl = 0, totalPrevValue = 0, dayOk = true;
   rows.forEach(function (r) {
@@ -985,7 +993,7 @@ function render() {
       var color = DONUT_COLORS[r.sym] || '#7e939e';
       if (r.type === 'hold') {
         html += '<tr><td><div class="code-cell"><span class="rank-dot" style="background:' + color + '">' + (i + 1) + '</span><span><b>' + r.sym + '</b><div class="sub">' + (NAMES[r.sym] || r.sym) + '</div></span></div></td>'
-          + '<td class="num">' + fmtMoney(r.price) + '<div class="sub ' + (r.change === null ? '' : (r.change >= 0 ? 'up' : 'down')) + '">' + (r.change === null ? '—' : fmtPct(r.change)) + '</div></td>'
+          + '<td class="num">' + (r.price === null ? '—' : fmtMoney(r.price)) + '<div class="sub ' + (r.change === null ? '' : (r.change >= 0 ? 'up' : 'down')) + '">' + (r.change === null ? '—' : fmtPct(r.change)) + '</div></td>'
           + '<td class="num">' + fmtNum(r.shares) + ' × ' + fmtAmt(r.cost) + '<div class="sub">本金 ' + fmtAmt(r.principal) + '</div></td>'
           + '<td class="num">' + fmtAmt(r.value) + '<div class="mini-bar"><span style="width:' + (r.weight * 100).toFixed(2) + '%"></span></div><div class="sub">' + (r.weight * 100).toFixed(1) + '%（理想 ' + r.ideal + '%）</div></td>'
           + '<td class="num ' + (r.dayPnl === null ? '' : (r.dayPnl >= 0 ? 'up' : 'down')) + '">' + (r.dayPnl === null ? '—' : fmtSignedAmt(r.dayPnl) + '<div class="sub">(' + fmtPct(r.dayPnlPct) + ')</div>') + '</td>'
@@ -1003,7 +1011,7 @@ function render() {
     var base = items.length;
     c.watchRows.forEach(function (w, i) {
       html += '<tr class="watch"><td><div class="code-cell"><span class="rank-dot" style="background:#9ca3af">' + (base + 1 + i) + '</span><span><b>' + w.sym + '</b><div class="sub">' + (NAMES[w.sym] || w.sym) + '</div></span></div></td>'
-        + '<td class="num"><span class="watch-price">' + fmtMoney(w.price) + '</span><div class="sub">' + (w.change === null ? '—' : fmtPct(w.change)) + '</div></td>'
+        + '<td class="num"><span class="watch-price">' + (w.price === null ? '—' : fmtMoney(w.price)) + '</span><div class="sub">' + (w.change === null ? '—' : fmtPct(w.change)) + '</div></td>'
         + '<td class="num">0 × ' + fmtAmt(w.costLine) + '<div class="sub">本金 ' + fmtAmt(0) + '</div></td>'
         + '<td class="num">' + fmtAmt(0) + '<div class="mini-bar"><span style="width:0%;background:#9ca3af"></span></div><div class="sub">0.0%（理想 ' + w.ideal + '%）</div></td>'
         + '<td class="num" style="color:#6b7280">' + fmtSignedAmt(0) + '<div class="sub">(—)</div></td>'

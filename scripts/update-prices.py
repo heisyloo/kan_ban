@@ -78,29 +78,34 @@ from datetime import datetime, timedelta, timezone
 YAHOO_SYMBOLS = {
     'RKLB': 'RKLB', 'TSLA': 'TSLA', 'GEV': 'GEV', 'GOOGL': 'GOOGL',
     'SPCX': 'SPCX', 'BRK.B': 'BRK-B', 'NVDA': 'NVDA', 'MU': 'MU',
-    'AMD': 'AMD', 'HK700': '0700.HK', 'HK9992': '9992.HK',
+    'AMD': 'AMD', 'LLY': 'LLY', 'TSM': 'TSM', 'IBKR': 'IBKR', 'BE': 'BE',
+    'HK700': '0700.HK', 'HK9992': '9992.HK',
 }
 TENCENT_SYMBOLS = {
     'RKLB': 'usRKLB', 'TSLA': 'usTSLA', 'GEV': 'usGEV', 'GOOGL': 'usGOOGL',
     'SPCX': 'usSPCX', 'BRK.B': 'usBRK.B', 'NVDA': 'usNVDA', 'MU': 'usMU',
-    'AMD': 'usAMD', 'HK700': 'hk00700', 'HK9992': 'hk09992',
+    'AMD': 'usAMD', 'LLY': 'usLLY', 'TSM': 'usTSM', 'IBKR': 'usIBKR', 'BE': 'usBE',
+    'HK700': 'hk00700', 'HK9992': 'hk09992',
 }
 SINA_SYMBOLS = {
     'RKLB': 'gb_rklb', 'TSLA': 'gb_tsla', 'GEV': 'gb_gev', 'GOOGL': 'gb_googl',
     'SPCX': 'gb_spcx', 'BRK.B': None, 'NVDA': 'gb_nvda', 'MU': 'gb_mu',
-    'AMD': 'gb_amd', 'HK700': 'hk00700', 'HK9992': 'hk09992',
+    'AMD': 'gb_amd', 'LLY': 'gb_lly', 'TSM': 'gb_tsm', 'IBKR': 'gb_ibkr', 'BE': 'gb_be',
+    'HK700': 'hk00700', 'HK9992': 'hk09992',
 }
 STOOQ_SYMBOLS = {
     'RKLB': 'rklb.us', 'TSLA': 'tsla.us', 'GEV': 'gev.us', 'GOOGL': 'googl.us',
     'SPCX': 'spcx.us', 'BRK.B': 'brk-b.us', 'NVDA': 'nvda.us', 'MU': 'mu.us',
-    'AMD': 'amd.us', 'HK700': '0700.hk', 'HK9992': '9992.hk',
+    'AMD': 'amd.us', 'LLY': 'lly.us', 'TSM': 'tsm.us', 'IBKR': 'ibkr.us', 'BE': 'be.us',
+    'HK700': '0700.hk', 'HK9992': '9992.hk',
 }
 # Built-in fallback closes (same as the page's FALLBACK). Only used when
 # there is no previous prices.json and nothing could be fetched.
 FALLBACK = {
     'RKLB': 53.07, 'TSLA': 358.22, 'GEV': 774.11, 'GOOGL': 284.78,
     'SPCX': 134.27, 'BRK.B': 570.89, 'NVDA': 186.64, 'MU': 690.00,
-    'AMD': 449.04, 'HK700': 419.80, 'HK9992': 141.90,
+    'AMD': 449.04, 'LLY': 1364.60, 'TSM': 363.60, 'IBKR': 76.47, 'BE': 168.15,
+    'HK700': 419.80, 'HK9992': 141.90,
 }
 UA = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
                    '(KHTML, like Gecko) Chrome/120.0 Safari/537.36'}
