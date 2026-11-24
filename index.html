@@ -89,8 +89,8 @@
   .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; align-items: stretch; }
   .charts-grid .card { margin-bottom: 0; display: flex; flex-direction: column; height: 100%;}
 .card-head h2{margin:0 0 14px;font-size:16px}
- #boardView .charts-grid{row-gap:0}
- @media(max-width:1023px){#barHead{order:1}#barCard{order:2}#donutHead{order:3;margin-top:24px}#donutCard{order:4}}
+ #boardView .charts-grid{grid-auto-flow:column;grid-template-rows:auto auto;row-gap:0}
+ @media(max-width:1023px)#boardView .charts-grid{grid-auto-flow:row;grid-template-rows:none}#barHead{order:1}#barCard{order:2}#donutHead{order:3;margin-top:24px}#donutCard{order:4}}
  .donut-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 252px; }
   .donut-seg { cursor: pointer; }
   .donut-seg path { transition: d 420ms cubic-bezier(0.22,1,0.36,1); }
