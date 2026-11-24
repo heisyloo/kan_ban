@@ -1,44 +1,44 @@
 {
-  "updated_at": "2026-11-24T17:52:36Z",
-  "updated_at_beijing": "2026-11-25 01:52",
+  "updated_at": "2026-11-24T18:57:03Z",
+  "updated_at_beijing": "2026-11-25 02:57",
   "source": "mixed",
   "prices": {
     "RKLB": {
-      "price": 46.45,
+      "price": 46.63,
       "prev_close": 49.63,
-      "change_pct": -6.41,
+      "change_pct": -6.05,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
     "TSLA": {
-      "price": 383.63,
+      "price": 382.9,
       "prev_close": 385.46,
-      "change_pct": -0.47,
+      "change_pct": -0.66,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
     "GEV": {
-      "price": 718.22,
+      "price": 715.84,
       "prev_close": 756.71,
-      "change_pct": -5.09,
+      "change_pct": -5.4,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
     "GOOGL": {
-      "price": 278.74,
+      "price": 277.9,
       "prev_close": 282.1,
-      "change_pct": -1.19,
-      "source": "sina",
+      "change_pct": -1.49,
+      "source": "yahoo",
       "ext_session": null,
       "ext_change_pct": null
     },
     "SPCX": {
-      "price": 126.37,
+      "price": 127.45,
       "prev_close": 133.35,
-      "change_pct": -5.23,
+      "change_pct": -4.42,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
@@ -52,57 +52,57 @@
       "ext_change_pct": null
     },
     "NVDA": {
-      "price": 152.74,
+      "price": 153.41,
       "prev_close": 165.05,
-      "change_pct": -7.46,
+      "change_pct": -7.05,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
     "MU": {
-      "price": 633.31,
+      "price": 631.27,
       "prev_close": 707.7,
-      "change_pct": -10.51,
+      "change_pct": -10.8,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
     "AMD": {
-      "price": 411.36,
+      "price": 414.61,
       "prev_close": 453.46,
-      "change_pct": -9.28,
+      "change_pct": -8.57,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
     "LLY": {
-      "price": 1409.08,
+      "price": 1408.78,
       "prev_close": 1364.6,
-      "change_pct": 3.26,
+      "change_pct": 3.24,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
     "TSM": {
-      "price": 346.87,
+      "price": 348.68,
       "prev_close": 363.6,
-      "change_pct": -4.6,
+      "change_pct": -4.1,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
     "IBKR": {
-      "price": 74.96,
+      "price": 74.94,
       "prev_close": 76.47,
-      "change_pct": -1.51,
+      "change_pct": -1.53,
       "source": "tencent",
       "ext_session": null,
       "ext_change_pct": null
     },
     "BE": {
-      "price": 154.66,
+      "price": 155.01,
       "prev_close": 168.15,
-      "change_pct": -8.02,
+      "change_pct": -7.81,
       "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
