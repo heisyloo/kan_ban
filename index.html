@@ -100,9 +100,9 @@
   .donut-legend-item { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; }
   .donut-legend-item b { font-weight: 600; }
   .dot { width: 10px; height: 10px; border-radius: 2px; flex: none; }
-  #donutCard, #trendCard { position: relative; }
+  #donutCard, #trendCard, #barCard { position: relative; }
   .pnl-chart { position: relative; }
-  #donutTip, #trendTip, #pnlTip { position: absolute; background: #fff; color: #131713; font-size: 12px; padding: 8px 10px;
+  #donutTip, #trendTip, #pnlTip, #barTip { position: absolute; background: #fff; color: #131713; font-size: 12px; padding: 8px 10px;
     border: 1px solid #dde3dd; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,.1);
     pointer-events: none; z-index: 5; white-space: nowrap;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
@@ -213,10 +213,11 @@
     </div>
 
     <div class="charts-grid">
-      <div class="card">
+      <div class="card" id="barCard">
         <h2>本金与总资产</h2>
         <p class="card-sub">每只持仓的成本（本金）与当前市值（总资产），按市值从高到低排列，现金单列。</p>
         <div id="barChart"></div>
+        <div id="barTip" class="hidden"></div>
         <div class="legend-line" style="justify-content:center; margin:8px 0 4px;"><span class="swatch" style="background:#5b6b73"></span>本金<span class="swatch" style="background:#0d9d57"></span>总资产</div>
         <div class="bar-footer" id="barFooter"></div>
       </div>
@@ -1145,6 +1146,7 @@ function renderBars(c) {
     var x1 = cx - bw - gap / 2, x2 = cx + gap / 2;
     g += '<rect x="' + x1 + '" y="' + y(gr.principal) + '" width="' + bw + '" height="' + (y(0) - y(gr.principal)) + '" fill="#5b6b73" rx="3"/>';
     g += '<rect x="' + x2 + '" y="' + y(gr.assets) + '" width="' + bw + '" height="' + (y(0) - y(gr.assets)) + '" fill="#0d9d57" rx="3"/>';
+    g += '<rect class="chart-hit" x="' + (ml + slot * i) + '" y="' + mt + '" width="' + slot + '" height="' + (H - mt - mb) + '" fill="transparent" data-label="' + gr.label + '" data-principal="' + gr.principal + '" data-assets="' + gr.assets + '"/>';
     g += '<text x="' + cx + '" y="' + (H - 10) + '" text-anchor="middle" class="axis axis-x">' + gr.label + '</text>';
   });
   $('barChart').innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img" aria-label="本金与总资产柱状图">' + g + '</svg>';
@@ -1348,6 +1350,19 @@ bindChartTip('trendChart', 'trendCard', 'trendTip', function (r) {
 bindChartTip('pnlChart', 'pnlChartCard', 'pnlTip', function (r) {
   return '<div><b>' + r.getAttribute('data-t') + '</b></div>'
     + '<div>' + r.getAttribute('data-label') + '：' + fmtPnlAmt(parseFloat(r.getAttribute('data-pnl'))) + '</div>';
+});
+bindChartTip('barChart', 'barCard', 'barTip', function (r) {
+  var label = r.getAttribute('data-label');
+  var principal = parseFloat(r.getAttribute('data-principal'));
+  var assets = parseFloat(r.getAttribute('data-assets'));
+  var pnl = assets - principal;
+  var html = '<div><b>' + label + '</b></div>'
+    + '<div>本金：' + fmtAmt(principal) + '</div>'
+    + '<div>总资产：' + fmtAmt(assets) + '</div>';
+  if (label !== '现金') {
+    html += '<div>盈亏：' + fmtSignedAmt(pnl) + '（' + (masked ? '****' : fmtPct(principal ? pnl / principal : 0)) + '）</div>';
+  }
+  return html;
 });
 render();
 fetchHoldings();
