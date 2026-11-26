@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-11-26T17:53:52Z",
-  "updated_at_beijing": "2026-11-27 01:53",
+  "updated_at": "2026-11-26T18:56:28Z",
+  "updated_at_beijing": "2026-11-27 02:56",
   "source": "mixed",
   "prices": {
     "RKLB": {
@@ -55,7 +55,7 @@
       "price": 149.3,
       "prev_close": 155.38,
       "change_pct": -3.91,
-      "source": "sina",
+      "source": "yahoo",
       "ext_session": null,
       "ext_change_pct": null
     },
