@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-11-26T18:56:28Z",
-  "updated_at_beijing": "2026-11-27 02:56",
+  "updated_at": "2026-11-26T20:01:20Z",
+  "updated_at_beijing": "2026-11-27 04:01",
   "source": "mixed",
   "prices": {
     "RKLB": {
@@ -31,7 +31,7 @@
       "price": 273.1,
       "prev_close": 279.05,
       "change_pct": -2.13,
-      "source": "sina",
+      "source": "yahoo",
       "ext_session": null,
       "ext_change_pct": null
     },
@@ -44,10 +44,10 @@
       "ext_change_pct": null
     },
     "BRK.B": {
-      "price": 576.67,
+      "price": 579.32,
       "prev_close": 577.21,
-      "change_pct": -0.54,
-      "source": "stale",
+      "change_pct": 0.37,
+      "source": "yahoo",
       "ext_session": null,
       "ext_change_pct": null
     },
@@ -55,7 +55,7 @@
       "price": 149.3,
       "prev_close": 155.38,
       "change_pct": -3.91,
-      "source": "yahoo",
+      "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
@@ -71,7 +71,7 @@
       "price": 406.03,
       "prev_close": 413.27,
       "change_pct": -1.75,
-      "source": "sina",
+      "source": "yahoo",
       "ext_session": null,
       "ext_change_pct": null
     },
