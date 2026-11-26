@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-11-26T20:01:20Z",
-  "updated_at_beijing": "2026-11-27 04:01",
+  "updated_at": "2026-11-26T20:59:09Z",
+  "updated_at_beijing": "2026-11-27 04:59",
   "source": "mixed",
   "prices": {
     "RKLB": {
@@ -31,7 +31,7 @@
       "price": 273.1,
       "prev_close": 279.05,
       "change_pct": -2.13,
-      "source": "yahoo",
+      "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
@@ -47,7 +47,7 @@
       "price": 579.32,
       "prev_close": 577.21,
       "change_pct": 0.37,
-      "source": "yahoo",
+      "source": "stale",
       "ext_session": null,
       "ext_change_pct": null
     },
@@ -71,7 +71,7 @@
       "price": 406.03,
       "prev_close": 413.27,
       "change_pct": -1.75,
-      "source": "yahoo",
+      "source": "sina",
       "ext_session": null,
       "ext_change_pct": null
     },
@@ -103,7 +103,7 @@
       "price": 152.89,
       "prev_close": 156.41,
       "change_pct": -2.25,
-      "source": "sina",
+      "source": "yahoo",
       "ext_session": null,
       "ext_change_pct": null
     },
