@@ -173,7 +173,7 @@
     display: flex; align-items: flex-end; gap: 10px; padding: 10px; height: 68px;
     background: rgba(255,255,255,0.55);
     backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(221,227,221,0.9); border-radius: 22px; corner-shape: squircle;
+    border: 1px solid rgba(221,227,221,0.9); border-radius: 24px; corner-shape: squircle;
     box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
   .dock-btn { position: relative; flex: none; width: 48px; height: 48px; padding: 0;
     border: 1px solid #d5dbd5; border-radius: 11px; background: #fff; color: #374151; cursor: pointer;
@@ -398,8 +398,8 @@
   <button class="dock-btn" type="button" data-view="principles" aria-label="原则" aria-current="false">
     <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <g transform="translate(24 23) scale(0.91) translate(-24 -23)" stroke-width="2.86">
-      <rect x="7.2" y="15" width="6" height="24.8" rx="3"/>
-      <rect x="13.2" y="6.2" width="27.6" height="33.6" rx="5"/>
+      <path d="M 7.2 39.8 L 7.2 18 A 3 3 0 0 1 10.2 15 A 3 3 0 0 1 13.2 18 L 13.2 39.8 Z"/>
+      <path d="M 13.2 39.8 L 13.2 11.2 A 5 5 0 0 1 18.2 6.2 L 35.8 6.2 A 5 5 0 0 1 40.8 11.2 L 40.8 34.8 A 5 5 0 0 1 35.8 39.8 L 13.2 39.8 Z"/>
       <line x1="19.5" y1="15.5" x2="33" y2="15.5"/>
       <line x1="19.5" y1="22.5" x2="29" y2="22.5"/>
       </g>
@@ -408,11 +408,12 @@
   </button>
   <button class="dock-btn" type="button" data-view="opportunities" aria-label="机会" aria-current="false">
     <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <g transform="translate(24 28.25) scale(1.15) translate(-24 -25.45)" stroke-width="2.26">
+      <g transform="translate(24 25.95) scale(1.15) translate(-24 -25.45)" stroke-width="2.26">
       <path d="M 17.28 26 A 10.6 10.6 0 1 1 30.72 26"/>
       <line x1="17.28" y1="26" x2="20.5" y2="31"/>
       <line x1="30.72" y1="26" x2="27.5" y2="31"/>
       <rect x="19" y="31" width="10" height="4.5" rx="1.5"/>
+      <path d="M 21.5 35.5 L 26.5 35.5 L 25.5 37.5 L 22.5 37.5 Z"/>
       </g>
     </svg>
     <span class="dock-dot"></span>
