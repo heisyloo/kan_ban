@@ -126,13 +126,23 @@
   .trend-row:last-child { border-bottom: none; }
   .footer { margin: 4px 0 24px; }
   .principles { list-style: none; counter-reset: p; margin: 0; padding: 0; }
-  .principles li { counter-increment: p; display: flex; gap: 12px; font-weight: 700; color: #131713; font-size: 15px;
-    line-height: 24.4px; padding: 16px 0;
+  .principles li { counter-increment: p; display: flex; gap: 14px; font-weight: 400; color: #131713; font-size: 15px;
+    line-height: 24.4px; padding: 18px 0;
     border-bottom: 1px solid #dde3dd; }
   .principles li:last-child { border-bottom: none; }
   .principles li:first-child { padding-top: 4px; }
-  .principles li::before { content: counter(p) "."; flex: none;
-    font-size: 16px; font-weight: 700; color: #131713; }
+  .principles li::before { content: counter(p, decimal-leading-zero); flex: none;
+    font-size: 20px; font-weight: 700; color: #0d9d57; line-height: 1.4; padding-top: 1px; }
+  .principles .p-body { flex: 1; min-width: 0; }
+  .principles .p-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .principles .p-key { font-size: 16px; font-weight: 700; color: #131713; line-height: 1.55; }
+  .principles .p-sub { display: block; font-size: 13.5px; font-weight: 400; color: #68736a; line-height: 1.65; margin-top: 3px; }
+  .principles .p-tag { flex: none; font-size: 11px; font-weight: 700; line-height: 1.4; padding: 3px 8px; border-radius: 999px; margin-top: 2px; }
+  .principles .p-tag.mind { background: #eef1ee; color: #68736a; }
+  .principles .p-tag.disc { background: #e6f4ea; color: #0d7a4a; }
+  .principles .p-tag.stock { background: #e8effc; color: #2b5cb8; }
+  .principles .p-tag.warn { background: #fdecea; color: #c62f2f; }
+  .principles li.warn { background: #fdf3f2; border-left: 3px solid #d93a3a; margin: 0 -12px; padding: 18px 12px; }
   #principlesView .card { padding: 20px; margin-top: 16px; }
   /* ================= 收益日历 ================= */
   .btn-ghost:disabled { color: #cbd5cb; cursor: default; }
@@ -322,17 +332,17 @@
   <section id="principlesView" class="hidden">
     <div class="card">
       <ol class="principles">
-        <li>跟随趋势，低买高卖，控制风险，避免在市场过热或过冷时盲目操作。</li>
-        <li>不要总以为股市即将崩盘就被吓得匆匆卖出，天不会塌的，除非公司基本面恶化，否则坚决不要因恐慌害怕而卖出手中好公司的股票。</li>
-        <li>总会有事让你担心，不要因为网络上那些危言耸听的分析和评论而焦虑不安，也不要理会最近新闻报道中的悲观预测言论。</li>
-        <li>别贪快，别浮躁，别怕慢，慢就是快。</li>
-        <li>散户痛点：持股数量过多，不会空仓，弱势急于补仓，钱少票多，侥幸心理，死扛到底。</li>
-        <li>真正的高手不会追逐短期快钱，而是守得住寂寞，赚时间的钱。</li>
-        <li>投资最重要的是买好公司，剩下的就交给时间，价值投资不是天天盯盘，而是用心选对公司。</li>
-        <li>广泛的恐惧是投资者的朋友，因为它提供了廉价的购买。</li>
-        <li>一定要培养对事情悬而未决的耐受力，避免因急于求成的心态而造成焦虑和烦恼，要允许事情处于灰色地带，接受事情的不可控因素。</li>
-        <li>除非你真的了解自己在干什么，否则什么也别做。</li>
-        <li>平常时间最好静坐，越少买卖越好，永远耐心等待投资机会的来临。</li>
+        <li><div class="p-body"><div class="p-head"><span class="p-key">跟随趋势，低买高卖，控制风险，</span><span class="p-tag disc">纪律</span></div><span class="p-sub">避免在市场过热或过冷时盲目操作。</span></div></li>
+        <li><div class="p-body"><div class="p-head"><span class="p-key">不要总以为股市即将崩盘就被吓得匆匆卖出，</span><span class="p-tag mind">心态</span></div><span class="p-sub">天不会塌的，除非公司基本面恶化，否则坚决不要因恐慌害怕而卖出手中好公司的股票。</span></div></li>
+        <li><div class="p-body"><div class="p-head"><span class="p-key">总会有事让你担心，</span><span class="p-tag mind">心态</span></div><span class="p-sub">不要因为网络上那些危言耸听的分析和评论而焦虑不安，也不要理会最近新闻报道中的悲观预测言论。</span></div></li>
+        <li><div class="p-body"><div class="p-head"><span class="p-key">别贪快，别浮躁，别怕慢，慢就是快。</span><span class="p-tag disc">纪律</span></div></div></li>
+        <li class="warn"><div class="p-body"><div class="p-head"><span class="p-key">散户痛点：</span><span class="p-tag warn">警示</span></div><span class="p-sub">持股数量过多，不会空仓，弱势急于补仓，钱少票多，侥幸心理，死扛到底。</span></div></li>
+        <li><div class="p-body"><div class="p-head"><span class="p-key">真正的高手不会追逐短期快钱，</span><span class="p-tag mind">心态</span></div><span class="p-sub">而是守得住寂寞，赚时间的钱。</span></div></li>
+        <li><div class="p-body"><div class="p-head"><span class="p-key">投资最重要的是买好公司，</span><span class="p-tag stock">选股</span></div><span class="p-sub">剩下的就交给时间，价值投资不是天天盯盘，而是用心选对公司。</span></div></li>
+        <li><div class="p-body"><div class="p-head"><span class="p-key">广泛的恐惧是投资者的朋友，</span><span class="p-tag stock">选股</span></div><span class="p-sub">因为它提供了廉价的购买。</span></div></li>
+        <li><div class="p-body"><div class="p-head"><span class="p-key">一定要培养对事情悬而未决的耐受力，</span><span class="p-tag mind">心态</span></div><span class="p-sub">避免因急于求成的心态而造成焦虑和烦恼，要允许事情处于灰色地带，接受事情的不可控因素。</span></div></li>
+        <li><div class="p-body"><div class="p-head"><span class="p-key">除非你真的了解自己在干什么，否则什么也别做。</span><span class="p-tag disc">纪律</span></div></div></li>
+        <li><div class="p-body"><div class="p-head"><span class="p-key">平常时间最好静坐，越少买卖越好，</span><span class="p-tag disc">纪律</span></div><span class="p-sub">永远耐心等待投资机会的来临。</span></div></li>
       </ol>
     </div>
   </section>
