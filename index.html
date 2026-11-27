@@ -1341,7 +1341,6 @@ function render() {
   var entries = updateMonthly(c);
   renderTrend(entries);
   renderPnl(c);
-  renderDaily();
 }
 
 function polar(cx, cy, r, angleDeg) {
@@ -1706,10 +1705,6 @@ var WEEKDAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周
 function escHtml(s) {
 return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
-function maskMoneyText(s) {
-if (!masked) return s;
-return s.replace(/(?:HK\$|\$|¥)\s*[\d,]+(?:\.\d+)?|[\d,]+(?:\.\d+)?\s*(?:万|亿){0,2}(?:美元|港元|元)/g, '****');
-}
 function digestDateLabel(dateKey) {
 var d = new Date(dateKey + 'T12:00:00');
 var p = dateKey.split('-');
@@ -1726,7 +1721,7 @@ var hm = line.match(/^【(.+?)】\s*(.*)$/) || line.match(/^(今日重点|逐只
 if (hm) {
 section = hm[1];
 html += '<p class="digest-sec-title">' + escHtml(hm[1]) + '</p>';
-if (hm[2]) html += '<p class="digest-note">' + escHtml(maskMoneyText(hm[2])) + '</p>';
+if (hm[2]) html += '<p class="digest-note">' + escHtml(hm[2]) + '</p>';
 return;
 }
 if (line === '仅为消息汇总，不给买卖建议。') {
@@ -1736,9 +1731,9 @@ return;
 if (section === '今日重点') {
 var km = line.match(/^(\d+)\.\s*(.*)$/);
 if (km) {
-html += '<div class="digest-key-item"><span class="digest-key-num">' + km[1] + '</span><span class="digest-key-text">' + escHtml(maskMoneyText(km[2])) + '</span></div>';
+html += '<div class="digest-key-item"><span class="digest-key-num">' + km[1] + '</span><span class="digest-key-text">' + escHtml(km[2]) + '</span></div>';
 } else {
-html += '<p class="digest-note">' + escHtml(maskMoneyText(line)) + '</p>';
+html += '<p class="digest-note">' + escHtml(line) + '</p>';
 }
 return;
 }
@@ -1748,22 +1743,22 @@ if (tm) {
 var hp = tm[1].split(/[\s：:]+/);
 var code = hp[0], nm = hp.slice(1).join(' ');
 var up = tm[5].charAt(0) === '+', down = tm[5].charAt(0) === '-';
-var dir = masked? '': (up? 'up': (down? 'down': ''));
-var price = masked? '****': (tm[2]? '$': '') + tm[3] + (tm[4] || '');
+var dir = up ? 'up' : (down ? 'down' : '');
+var price = (tm[2] ? '$' : '') + tm[3] + (tm[4] || '');
 var chgNum = parseFloat(tm[5]);
-var chg = masked? '****': ((tm[5].charAt(0) === '+' || tm[5].charAt(0) === '-')? tm[5]: (chgNum > 0? '+' + tm[5]: tm[5])) + '%';
+var chg = ((tm[5].charAt(0) === '+' || tm[5].charAt(0) === '-') ? tm[5] : (chgNum > 0 ? '+' + tm[5] : tm[5])) + '%';
 html += '<div class="digest-tk"><div class="digest-tk-head"><span class="digest-tk-code">' + escHtml(code) + '</span>'
 + (nm? '<span class="digest-tk-nm">' + escHtml(nm) + '</span>': '')
 + '<span class="digest-tk-price' + (dir? ' ' + dir: '') + '">' + escHtml(price) + '</span>'
 + '<span class="digest-tk-chg' + (dir? ' ' + dir: '') + '">' + escHtml(chg) + '</span>'
 + (tm[6]? '<span class="digest-tk-date">' + escHtml(tm[6]) + '</span>': '')
-+ '</div><div class="digest-tk-body">' + escHtml(maskMoneyText(tm[7])) + '</div></div>';
++ '</div><div class="digest-tk-body">' + escHtml(tm[7]) + '</div></div>';
 } else {
-html += '<p class="digest-note">' + escHtml(maskMoneyText(line.replace(/^- /, ''))) + '</p>';
+html += '<p class="digest-note">' + escHtml(line.replace(/^- /, '')) + '</p>';
 }
 return;
 }
-html += '<p class="digest-note">' + escHtml(maskMoneyText(line)) + '</p>';
+html += '<p class="digest-note">' + escHtml(line) + '</p>';
 });
 return html;
 }
