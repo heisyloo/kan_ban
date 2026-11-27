@@ -173,10 +173,10 @@
     display: flex; align-items: flex-end; gap: 10px; padding: 10px; height: 68px;
     background: rgba(255,255,255,0.55);
     backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(221,227,221,0.9); border-radius: 20px; corner-shape: squircle;
+    border: 1px solid rgba(221,227,221,0.9); border-radius: 15px; corner-shape: squircle;
     box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
   .dock-btn { position: relative; flex: none; width: 48px; height: 48px; padding: 0;
-    border: 1px solid #d5dbd5; border-radius: 10px; background: #fff; color: #374151; cursor: pointer;
+    border: 1px solid #d5dbd5; border-radius: 11px; background: #fff; color: #374151; cursor: pointer;
     display: flex; align-items: center; justify-content: center; }
   .dock-btn svg { width: 70%; height: 70%; display: block; }
   .dock-btn:focus-visible { outline: 2px solid #0d9d57; outline-offset: 2px; }
@@ -386,8 +386,8 @@
 <!-- 底部悬浮 Dock（对齐 Muse 版）：看板 / 原则 / 机会 -->
 <nav class="dock-nav" id="dockNav" aria-label="页面导航">
   <button class="dock-btn active" type="button" data-view="board" aria-label="看板" aria-current="page">
-    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <g transform="translate(24 24.8) scale(0.92) translate(-24 -24.8)" stroke-width="1.63">
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <g transform="translate(24 24.8) scale(0.92) translate(-24 -24.8)" stroke-width="2.72">
       <rect x="5.2" y="26.3" width="10.4" height="13.5" rx="2.2"/>
       <rect x="18.8" y="17.3" width="10.4" height="22.5" rx="2.2"/>
       <rect x="32.4" y="9.8" width="10.4" height="30" rx="2.2"/>
@@ -396,8 +396,8 @@
     <span class="dock-dot"></span>
   </button>
   <button class="dock-btn" type="button" data-view="principles" aria-label="原则" aria-current="false">
-    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <g transform="translate(24 23) scale(0.91) translate(-24 -23)" stroke-width="1.76">
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <g transform="translate(24 23) scale(0.91) translate(-24 -23)" stroke-width="2.86">
       <rect x="7.2" y="15" width="6" height="24.8" rx="3"/>
       <rect x="13.2" y="6.2" width="27.6" height="33.6" rx="5"/>
       <line x1="19.5" y1="15.5" x2="33" y2="15.5"/>
@@ -407,13 +407,13 @@
     <span class="dock-dot"></span>
   </button>
   <button class="dock-btn" type="button" data-view="opportunities" aria-label="机会" aria-current="false">
-    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <g transform="translate(24 28.25) scale(1.15) translate(-24 -25.45)" stroke-width="2.26">
       <path d="M 17.28 26 A 10.6 10.6 0 1 1 30.72 26"/>
       <line x1="17.28" y1="26" x2="20.5" y2="31"/>
       <line x1="30.72" y1="26" x2="27.5" y2="31"/>
       <rect x="19" y="31" width="10" height="4.5" rx="1.5"/>
-      <line x1="20" y1="33.2" x2="28" y2="33.2"/>
-      <path d="M 22 35.5 L 26 35.5 L 24 39.5 Z" fill="currentColor" stroke="none"/>
+      </g>
     </svg>
     <span class="dock-dot"></span>
   </button>
@@ -1398,7 +1398,7 @@ function dockSetSize(b, size) {
   b.size = size;
   b.el.style.width = size + 'px';
   b.el.style.height = size + 'px';
-  b.el.style.borderRadius = (size * 10 / 48) + 'px';
+  b.el.style.borderRadius = (size * 11 / 48) + 'px';
 }
 function dockTick() {
   dockRaf = 0;
