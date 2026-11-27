@@ -194,7 +194,7 @@
     width: 4px; height: 4px; border-radius: 1px; background: #0d9d57; display: none; }
   .dock-btn.active .dock-dot { display: block; }
   /* ============ 投资人持仓卡片（机会页） ============ */
-  .inv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; align-items: start; }
+  .inv-grid { display: grid; grid-template-columns: 1fr; gap: 24px; margin-bottom: 32px; align-items: start; }
   .inv-grid .card { margin-bottom: 0; }
   .inv-card h2 { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
   .inv-ret { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: nowrap; }
@@ -207,7 +207,10 @@
   .inv-stat { background: #f4f6f4; border: 1px solid #e3e8e3; padding: 10px 12px; text-align: center; }
   .inv-stat .sym { display: block; font-size: 12px; font-weight: 600; color: #68736a; }
   .inv-stat .pct { display: block; font-size: 22px; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; line-height: 1.3; }
-  .inv-donut { display: flex; flex-direction: column; align-items: center; }
+  .inv-bar-wrap { display: flex; flex-direction: column; }
+  .inv-bar { display: flex; width: 100%; height: 16px; border-radius: 8px; overflow: hidden; background: #eef1ee; }
+  .inv-bar-seg { height: 100%; flex: none; }
+  .inv-bar-seg + .inv-bar-seg { border-left: 2px solid #fff; }
   .inv-card .donut-legend { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; width: 100%; margin-top: 10px; justify-content: normal; }
   .inv-card .donut-legend-item { justify-content: flex-start; }
   .inv-rows { display: flex; flex-direction: column; }
@@ -359,8 +362,8 @@
           </div>
         </div>
         <div class="inv-sec">
-          <div class="inv-donut">
-            <svg id="invDonutBuffett" viewBox="0 0 200 200" width="160" height="160" role="img" aria-label="伯克希尔持仓占比环形图"></svg>
+          <div class="inv-bar-wrap">
+            <div class="inv-bar" id="invBarBuffett" role="img" aria-label="伯克希尔持仓占比"></div>
             <div class="donut-legend" id="invLegendBuffett"></div>
           </div>
         </div>
@@ -397,8 +400,8 @@
           </div>
         </div>
         <div class="inv-sec">
-          <div class="inv-donut">
-            <svg id="invDonutArk" viewBox="0 0 200 200" width="160" height="160" role="img" aria-label="ARKK 持仓占比环形图"></svg>
+          <div class="inv-bar-wrap">
+            <div class="inv-bar" id="invBarArk" role="img" aria-label="ARKK 持仓占比"></div>
             <div class="donut-legend" id="invLegendArk"></div>
           </div>
         </div>
@@ -437,8 +440,8 @@
           </div>
         </div>
         <div class="inv-sec">
-          <div class="inv-donut">
-            <svg id="invDonutPelosi" viewBox="0 0 200 200" width="160" height="160" role="img" aria-label="佩洛西持仓占比环形图"></svg>
+          <div class="inv-bar-wrap">
+            <div class="inv-bar" id="invBarPelosi" role="img" aria-label="佩洛西持仓占比"></div>
             <div class="donut-legend" id="invLegendPelosi"></div>
           </div>
         </div>
@@ -485,8 +488,8 @@
           </div>
         </div>
         <div class="inv-sec">
-          <div class="inv-donut">
-            <svg id="invDonutDuan" viewBox="0 0 200 200" width="160" height="160" role="img" aria-label="H&amp;H 持仓占比环形图"></svg>
+          <div class="inv-bar-wrap">
+            <div class="inv-bar" id="invBarDuan" role="img" aria-label="H&amp;H 持仓占比"></div>
             <div class="donut-legend" id="invLegendDuan"></div>
           </div>
         </div>
@@ -1615,53 +1618,41 @@ function dockResetTargets() {
   });
 })();
 
-/* ================= 投资人持仓环形图（机会页，静态快照） ================= */
+/* ================= 投资人持仓横向占比条（机会页，静态快照） ================= */
 var INV_COLORS = ['#2fd574', '#3b82c4', '#e0a32e', '#9b7ede', '#e05d7a', '#9ca3af'];
-function renderMiniDonut(svgId, legendId, segs) {
-  var svg = $(svgId), leg = $(legendId);
-  if (!svg || !leg) return;
-  var R_OUT = 84, R_IN = 56, CX = 100, CY = 100, GAP = 2;
+function renderMiniBar(barId, legendId, segs) {
+  var bar = $(barId), leg = $(legendId);
+  if (!bar || !leg) return;
   var total = 0;
   segs.forEach(function (s) { total += s.pct; });
-  var cursor = 0, g = '';
-  segs.forEach(function (s, i) {
-    var sweep = (total ? s.pct / total : 0) * 360;
-    var halfGap = sweep > GAP ? GAP / 2 : 0;
-    var a0 = cursor + halfGap, a1 = cursor + sweep - halfGap;
-    if (sweep > 0.1) {
-      var p0 = polar(CX, CY, R_OUT, a0), p1 = polar(CX, CY, R_OUT, a1);
-      var p2 = polar(CX, CY, R_IN, a1), p3 = polar(CX, CY, R_IN, a0);
-      var large = (a1 - a0) > 180 ? 1 : 0;
-      g += '<path d="M ' + p0.x.toFixed(2) + ' ' + p0.y.toFixed(2)
-        + ' A ' + R_OUT + ' ' + R_OUT + ' 0 ' + large + ' 1 ' + p1.x.toFixed(2) + ' ' + p1.y.toFixed(2)
-        + ' L ' + p2.x.toFixed(2) + ' ' + p2.y.toFixed(2)
-        + ' A ' + R_IN + ' ' + R_IN + ' 0 ' + large + ' 0 ' + p3.x.toFixed(2) + ' ' + p3.y.toFixed(2) + ' Z" fill="' + INV_COLORS[i % INV_COLORS.length] + '"/>';
-    }
-    cursor += sweep;
-  });
-  svg.innerHTML = g;
   var html = '';
   segs.forEach(function (s, i) {
-    html += '<span class="donut-legend-item"><span class="dot" style="background:' + INV_COLORS[i % INV_COLORS.length] + '"></span><b>' + s.label + '</b> ' + s.pct.toFixed(2) + '%</span>';
+    var w = total ? (s.pct / total * 100) : 0;
+    html += '<div class="inv-bar-seg" style="width:' + w.toFixed(2) + '%;background:' + INV_COLORS[i % INV_COLORS.length] + '" title="' + s.label + ' ' + s.pct.toFixed(2) + '%"></div>';
   });
-  leg.innerHTML = html;
+  bar.innerHTML = html;
+  var legHtml = '';
+  segs.forEach(function (s, i) {
+    legHtml += '<span class="donut-legend-item"><span class="dot" style="background:' + INV_COLORS[i % INV_COLORS.length] + '"></span><b>' + s.label + '</b> ' + s.pct.toFixed(2) + '%</span>';
+  });
+  leg.innerHTML = legHtml;
 }
-var INVESTOR_DONUTS = [
-  { svg: 'invDonutBuffett', legend: 'invLegendBuffett', segs: [
+var INVESTOR_BARS = [
+  { bar: 'invBarBuffett', legend: 'invLegendBuffett', segs: [
     { label: 'AAPL', pct: 24.95 }, { label: 'AXP', pct: 15.16 }, { label: 'KO', pct: 11.32 },
     { label: 'GOOGL', pct: 8.91 }, { label: 'BAC', pct: 8.16 }, { label: '其他', pct: 31.50 } ] },
-  { svg: 'invDonutArk', legend: 'invLegendArk', segs: [
+  { bar: 'invBarArk', legend: 'invLegendArk', segs: [
     { label: 'TSLA', pct: 12.50 }, { label: 'SPCX', pct: 8.29 }, { label: 'TEM', pct: 4.79 },
     { label: 'OpenAI', pct: 4.36 }, { label: 'CRCL', pct: 3.53 }, { label: '其他 39 只', pct: 66.53 } ] },
-  { svg: 'invDonutPelosi', legend: 'invLegendPelosi', segs: [
+  { bar: 'invBarPelosi', legend: 'invLegendPelosi', segs: [
     { label: 'AAPL', pct: 13 }, { label: 'V', pct: 12 }, { label: 'AMZN', pct: 11 },
     { label: 'MSFT', pct: 10 }, { label: 'GOOGL', pct: 9 }, { label: '其他', pct: 45 } ] },
-  { svg: 'invDonutDuan', legend: 'invLegendDuan', segs: [
+  { bar: 'invBarDuan', legend: 'invLegendDuan', segs: [
     { label: 'AAPL', pct: 41.07 }, { label: 'BRK.B', pct: 24.21 }, { label: 'PDD', pct: 12.69 },
     { label: 'TSLA', pct: 8.42 }, { label: 'OXY', pct: 3.30 }, { label: '其他 11 只', pct: 10.31 } ] }
 ];
-function renderInvestorDonuts() {
-  INVESTOR_DONUTS.forEach(function (d) { renderMiniDonut(d.svg, d.legend, d.segs); });
+function renderInvestorBars() {
+  INVESTOR_BARS.forEach(function (d) { renderMiniBar(d.bar, d.legend, d.segs); });
 }
 
 /* ================= 掩码眼睛开关 ================= */
@@ -1793,7 +1784,7 @@ bindChartTip('barChart', 'barCard', 'barTip', function (r) {
 });
 render();
 showView('board');
-renderInvestorDonuts();
+renderInvestorBars();
 fetchHoldings();
 fetchQuotes();
 setInterval(fetchQuotes, 5 * 60 * 1000);
