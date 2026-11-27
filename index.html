@@ -204,7 +204,7 @@
   .inv-ret.na { background: #eef1ee; color: #68736a; font-weight: 400; }
   .inv-sec { margin-top: 14px; padding-top: 12px; border-top: 1px solid #e3e8e3; }
   .inv-sec-label { font-size: 12px; font-weight: 700; color: #68736a; margin: 0 0 8px; }
-  .inv-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .inv-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .inv-stat { background: #f4f6f4; border: 1px solid #e3e8e3; padding: 10px 12px; text-align: center; }
   .inv-stat .sym { display: block; font-size: 12px; font-weight: 600; color: #68736a; }
   .inv-stat .pct { display: block; font-size: 22px; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; line-height: 1.3; }
@@ -212,7 +212,7 @@
   .inv-bar { display: flex; width: 100%; height: 16px; border-radius: 0; overflow: hidden; background: #eef1ee; }
   .inv-bar-seg { height: 100%; flex: none; }
   .inv-bar-seg + .inv-bar-seg { border-left: 2px solid #fff; }
-  .inv-card .donut-legend { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; width: 100%; margin-top: 10px; justify-content: normal; }
+  .inv-card .donut-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; width: 100%; margin-top: 10px; justify-content: flex-start; }
   .inv-card .donut-legend-item { justify-content: flex-start; }
   .inv-rows { display: flex; flex-direction: column; }
   .inv-row { display: flex; align-items: baseline; gap: 8px; font-size: 13px; line-height: 20px; color: #374151; padding: 6px 0; border-bottom: 1px solid #eef1ee; }
@@ -234,7 +234,13 @@
   .chip.buy { background: #e3f6ec; color: #0d9d57; }
   .chip.sell { background: #fdecec; color: #d93a3a; }
   .inv-note { font-size: 12px; color: #68736a; margin: 8px 0 0; }
-  .inv-source { font-size: 11px; color: #68736a; margin: 12px 0 0; padding-top: 10px; border-top: 1px solid #dde3dd; line-height: 18px; }
+  .inv-ret-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .inv-ret-label { font-size: 13px; color: #374151; }
+  .inv-ret-note { font-size: 12px; color: #68736a; }
+  .inv-asof { font-size: 11px; color: #68736a; margin: 12px 0 0; padding-top: 10px; border-top: 1px solid #dde3dd; line-height: 18px; }
+  .inv-source { font-size: 11px; color: #68736a; margin: 4px 0 0; line-height: 18px; }
+  .inv-row .nm { color: #68736a; font-weight: 400; }
+  .inv-row .date { color: #68736a; font-size: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: nowrap; }
   @media (max-width: 767px) {
     .inv-grid { grid-template-columns: 1fr; }
   }
@@ -356,16 +362,9 @@
     </div>
     <div class="inv-grid">
       <div class="card inv-card">
-        <h2>巴菲特 <span class="inv-ret up">250日 +17.15%</span></h2>
-        <p class="card-sub">伯克希尔 13F · 2026Q3 · 30 只 · 3042 亿美元</p>
-        <div class="inv-sec">
-          <p class="inv-sec-label">前三大</p>
-          <div class="inv-stats">
-            <div class="inv-stat"><span class="sym">AAPL</span><span class="pct">24.95%</span></div>
-            <div class="inv-stat"><span class="sym">AXP</span><span class="pct">15.16%</span></div>
-            <div class="inv-stat"><span class="sym">KO</span><span class="pct">11.32%</span></div>
-          </div>
-        </div>
+        <h2>巴菲特持仓</h2>
+        <p class="card-sub">伯克希尔·哈撒韦 · SEC 13F 机构持仓</p>
+        <div class="inv-ret-row"><span class="inv-ret-label">250日升幅</span><span class="inv-ret up">+17.15%</span><span class="inv-ret-note">BRK.B 股价 · 250 个交易日</span></div>
         <div class="inv-sec">
           <div class="inv-bar-wrap">
             <div class="inv-bar" id="invBarBuffett" role="img" aria-label="伯克希尔持仓占比"></div>
@@ -373,38 +372,35 @@
           </div>
         </div>
         <div class="inv-sec">
-          <p class="inv-sec-label">前五（合计 68.50%）</p>
-          <div class="inv-rows">
-            <div class="inv-row"><span class="sym">AAPL</span><span class="pct">24.95%</span></div>
-            <div class="inv-row"><span class="sym">AXP</span><span class="pct">15.16%</span></div>
-            <div class="inv-row"><span class="sym">KO</span><span class="pct">11.32%</span></div>
-            <div class="inv-row"><span class="sym">GOOGL</span><span class="pct">8.91%</span></div>
-            <div class="inv-row"><span class="sym">BAC</span><span class="pct">8.16%</span></div>
+          <div class="inv-stats">
+            <div class="inv-stat"><span class="sym">AAPL 苹果</span><span class="pct">24.95%</span></div>
+            <div class="inv-stat"><span class="sym">AXP 美国运通</span><span class="pct">15.16%</span></div>
           </div>
         </div>
         <div class="inv-sec">
-          <p class="inv-sec-label">Q3 变化</p>
           <div class="inv-rows">
-            <div class="inv-row"><span class="tag buy">新买</span><span class="txt">Bending Spoons（BSP，6.89 亿美元）</span></div>
-            <div class="inv-row"><span class="sym">Lennar</span><span class="chg up">+98.56%</span></div>
-            <div class="inv-row"><span class="sym">Delta</span><span class="chg up">+12.44%</span></div>
-            <div class="inv-row"><span class="sym">BAC</span><span class="chg down">减 6%</span></div>
+            <div class="inv-row"><span class="sym">KO</span><span class="nm">可口可乐</span><span class="pct">11.32%</span></div>
+            <div class="inv-row"><span class="sym">GOOGL</span><span class="nm">Alphabet</span><span class="pct">8.91%</span></div>
+            <div class="inv-row"><span class="sym">BAC</span><span class="nm">美国银行</span><span class="pct">8.16%</span></div>
           </div>
         </div>
-        <p class="inv-source">来源：SEC 13F，2026-11-16 提交 · 季度披露，下次约 2027-02-16</p>
+        <div class="inv-sec">
+          <p class="inv-sec-label">买卖变化（按披露）</p>
+          <div class="inv-rows">
+            <div class="inv-row"><span class="date">2026Q3</span><span class="tag buy">买入</span><span class="txt">新进 Bending Spoons（BSP)，约 6.89 亿美元</span></div>
+            <div class="inv-row"><span class="date">2026Q3</span><span class="tag buy">买入</span><span class="txt">Lennar（LEN）加仓近一倍</span></div>
+            <div class="inv-row"><span class="date">2026Q3</span><span class="tag buy">买入</span><span class="txt">达美航空（DAL）加仓</span></div>
+            <div class="inv-row"><span class="date">2026Q3</span><span class="tag sell">卖出</span><span class="txt">减持美国银行（BAC）</span></div>
+          </div>
+        </div>
+        <p class="inv-asof">持仓截至 2026-09-30 · 2026-11-16 提交（13F 按季度披露、最长滞后 45 天，非今日持仓）</p>
+        <p class="inv-source">来源：SEC 13F 持仓报告（伯克希尔·哈撒韦）· 共 30 只、约 3,042 亿美元 · 季度更新，下次披露约 2027-02-16</p>
       </div>
 
       <div class="card inv-card">
-        <h2>木头姐 <span class="inv-ret down">250日 −16.11%</span></h2>
-        <p class="card-sub">ARK 每日披露 · 截至 2026-11-25 · ARKK 共 44 只</p>
-        <div class="inv-sec">
-          <p class="inv-sec-label">前三大</p>
-          <div class="inv-stats">
-            <div class="inv-stat"><span class="sym">TSLA</span><span class="pct">12.50%</span></div>
-            <div class="inv-stat"><span class="sym">SPCX</span><span class="pct">8.29%</span></div>
-            <div class="inv-stat"><span class="sym">TEM</span><span class="pct">4.79%</span></div>
-          </div>
-        </div>
+        <h2>木头姐持仓</h2>
+        <p class="card-sub">Cathie Wood · ARK Invest 旗舰基金 ARKK</p>
+        <div class="inv-ret-row"><span class="inv-ret-label">250日升幅</span><span class="inv-ret down">−16.11%</span><span class="inv-ret-note">ARKK 股价 · 250 个交易日</span></div>
         <div class="inv-sec">
           <div class="inv-bar-wrap">
             <div class="inv-bar" id="invBarArk" role="img" aria-label="ARKK 持仓占比"></div>
@@ -412,40 +408,38 @@
           </div>
         </div>
         <div class="inv-sec">
-          <p class="inv-sec-label">前十（合计 50.2%）</p>
-          <div class="inv-rows">
-            <div class="inv-row"><span class="sym">TSLA</span><span class="pct">12.50%</span></div>
-            <div class="inv-row"><span class="sym">SPCX</span><span class="pct">8.29%</span></div>
-            <div class="inv-row"><span class="sym">TEM</span><span class="pct">4.79%</span></div>
-            <div class="inv-row"><span class="sym">OpenAI</span><span class="pct">4.36%</span></div>
-            <div class="inv-row"><span class="sym">CRCL</span><span class="pct">3.53%</span></div>
-            <div class="inv-row"><span class="sym">SHOP</span><span class="pct">3.26%</span></div>
-            <div class="inv-row"><span class="sym">TWST</span><span class="pct">3.24%</span></div>
-            <div class="inv-row"><span class="sym">COIN</span><span class="pct">3.19%</span></div>
-            <div class="inv-row"><span class="sym">XYZ</span><span class="pct">2.74%</span></div>
+          <div class="inv-stats">
+            <div class="inv-stat"><span class="sym">TSLA 特斯拉</span><span class="pct">12.85%</span></div>
+            <div class="inv-stat"><span class="sym">SPCX SpaceX</span><span class="pct">8.83%</span></div>
           </div>
-          <p class="inv-note">另有 4.28% 货币市场基金，不计入股票排名</p>
         </div>
         <div class="inv-sec">
-          <p class="inv-sec-label">11-25 买卖</p>
-          <div class="inv-chips"><span class="lbl">买入</span><span class="chip buy">ANT</span><span class="chip buy">SPCX</span><span class="chip buy">BEAM</span><span class="chip buy">TWST</span><span class="chip buy">CRSP</span><span class="chip buy">WGS</span><span class="chip buy">NTRA</span><span class="chip buy">KDK</span><span class="chip buy">RXRX</span></div>
-          <div class="inv-chips"><span class="lbl">卖出</span><span class="chip sell">HOOD</span><span class="chip sell">BLSH</span><span class="chip sell">ILMN</span><span class="chip sell">BYDDY</span><span class="chip sell">SOLQ.U</span><span class="chip sell">ETHQ.U</span><span class="chip sell">SPOT</span></div>
-          <p class="inv-note">权重每日变动，此处为当日快照。</p>
+          <div class="inv-rows">
+            <div class="inv-row"><span class="sym">TEM</span><span class="nm">Tempus AI</span><span class="pct">5.02%</span></div>
+            <div class="inv-row"><span class="sym">OpenAI</span><span class="nm">OpenAI</span><span class="pct">4.59%</span></div>
+            <div class="inv-row"><span class="sym">CRCL</span><span class="nm">Circle</span><span class="pct">3.71%</span></div>
+            <div class="inv-row"><span class="sym">SHOP</span><span class="nm">Shopify</span><span class="pct">3.42%</span></div>
+            <div class="inv-row"><span class="sym">TWST</span><span class="nm">Twist Bioscience</span><span class="pct">3.40%</span></div>
+            <div class="inv-row"><span class="sym">COIN</span><span class="nm">Coinbase</span><span class="pct">3.37%</span></div>
+            <div class="inv-row"><span class="sym">XYZ</span><span class="nm">Block</span><span class="pct">2.92%</span></div>
+            <div class="inv-row"><span class="sym">PLTR</span><span class="nm">Palantir</span><span class="pct">2.74%</span></div>
+          </div>
         </div>
-        <p class="inv-source">来源：ARK 每日披露（ark-funds.com），截至 2026-11-25</p>
+        <div class="inv-sec">
+          <p class="inv-sec-label">买卖变化（按披露）</p>
+          <div class="inv-rows">
+            <div class="inv-row"><span class="date">2026-11-25</span><span class="tag buy">买入</span><span class="txt">买入 Anthropic（ANT）、SPCX、BEAM、TWST、CRSP、TEM、NTRA、RXRX、WGS</span></div>
+            <div class="inv-row"><span class="date">2026-11-25</span><span class="tag sell">卖出</span><span class="txt">卖出 HOOD、BLSH、ILMN</span></div>
+          </div>
+        </div>
+        <p class="inv-asof">持仓截至 2026-11-27 · 最近交易日 2026-11-25（11 月 26 日感恩节休市）· 四人中唯一每日更新</p>
+        <p class="inv-source">来源：ARK 每日持仓披露（ark-funds.com，各 ETF 持仓文件，收盘后公布）· ARKK 共 44 只、前十合计 50.85%（含 0.37% 货币市场基金，不计入股票排名）· 权重每日变动，此处为当日快照</p>
       </div>
 
       <div class="card inv-card">
-        <h2>佩洛西 <span class="inv-ret na">250日 暂无公开数据</span></h2>
-        <p class="card-sub">众议院 Clerk 定期交易报告（STOCK Act）· 配偶 Paul Pelosi 账户</p>
-        <div class="inv-sec">
-          <p class="inv-sec-label">前三大（第三方估算值）</p>
-          <div class="inv-stats">
-            <div class="inv-stat"><span class="sym">AAPL</span><span class="pct">约 13%</span></div>
-            <div class="inv-stat"><span class="sym">V</span><span class="pct">约 12%</span></div>
-            <div class="inv-stat"><span class="sym">AMZN</span><span class="pct">约 11%</span></div>
-          </div>
-        </div>
+        <h2>佩洛西持仓</h2>
+        <p class="card-sub">Nancy Pelosi · 美国国会定期交易披露 · 权重为第三方估算值</p>
+        <div class="inv-ret-row"><span class="inv-ret-label">250日升幅</span><span class="inv-ret na">暂无公开数据</span></div>
         <div class="inv-sec">
           <div class="inv-bar-wrap">
             <div class="inv-bar" id="invBarPelosi" role="img" aria-label="佩洛西持仓占比"></div>
@@ -453,48 +447,39 @@
           </div>
         </div>
         <div class="inv-sec">
-          <p class="inv-sec-label">前排持仓（第三方按披露区间估算）</p>
-          <div class="inv-rows">
-            <div class="inv-row"><span class="sym">AAPL</span><span class="pct">约 13%</span></div>
-            <div class="inv-row"><span class="sym">V</span><span class="pct">约 12%</span></div>
-            <div class="inv-row"><span class="sym">AMZN</span><span class="pct">约 11%</span></div>
-            <div class="inv-row"><span class="sym">MSFT</span><span class="pct">约 10%</span></div>
-            <div class="inv-row"><span class="sym">GOOGL</span><span class="pct">约 9%</span></div>
-            <div class="inv-row"><span class="sym">AVGO</span><span class="pct">约 9%</span></div>
-            <div class="inv-row"><span class="sym">NVDA</span><span class="pct">约 8%</span></div>
-            <div class="inv-row"><span class="sym">CRM</span><span class="pct">约 8%</span></div>
+          <div class="inv-stats">
+            <div class="inv-stat"><span class="sym">AAPL 苹果</span><span class="pct">约 13%</span></div>
+            <div class="inv-stat"><span class="sym">V Visa</span><span class="pct">约 12%</span></div>
           </div>
         </div>
         <div class="inv-sec">
-          <p class="inv-sec-label">最新披露</p>
           <div class="inv-rows">
-            <div class="inv-row"><span class="tag sell">卖出</span><span class="txt">2026-11-06 提交，仅一笔——10 月 7 日卖 WBD 5 万–10 万美元（派拉蒙天空之舞并购现金兑付，不是择时卖出）</span></div>
-            <div class="inv-row"><span class="txt">11 月 6 日之后暂无新披露</span></div>
+            <div class="inv-row"><span class="sym">AMZN</span><span class="nm">亚马逊</span><span class="pct">约 11%</span></div>
+            <div class="inv-row"><span class="sym">MSFT</span><span class="nm">微软</span><span class="pct">约 10%</span></div>
+            <div class="inv-row"><span class="sym">GOOGL</span><span class="nm">谷歌</span><span class="pct">约 9%</span></div>
+            <div class="inv-row"><span class="sym">AVGO</span><span class="nm">博通</span><span class="pct">约 9%</span></div>
+            <div class="inv-row"><span class="sym">NVDA</span><span class="nm">英伟达</span><span class="pct">约 8%</span></div>
+            <div class="inv-row"><span class="sym">CRM</span><span class="nm">Salesforce</span><span class="pct">约 8%</span></div>
           </div>
         </div>
         <div class="inv-sec">
-          <p class="inv-sec-label">2026 年其他</p>
+          <p class="inv-sec-label">买卖变化（按披露）</p>
           <div class="inv-rows">
-            <div class="inv-row"><span class="tag buy">买入</span><span class="txt">7 月 24–28 日 Bloom Energy 15000 股（150 万–600 万美元）＋ 200 张 100 美元行权价 2027 年 6 月到期看涨期权</span></div>
-            <div class="inv-row"><span class="tag buy">买入</span><span class="txt">7 月 24 日 Intel 10000 股（50 万–100 万美元）</span></div>
-            <div class="inv-row"><span class="tag buy">买入</span><span class="txt">5 月 29 日 Uber 期权</span></div>
-            <div class="inv-row"><span class="tag buy">买入</span><span class="txt">9 月 8 日 REOF XXX（50 万–100 万美元）</span></div>
+            <div class="inv-row"><span class="date">2026-10-07</span><span class="tag sell">卖出</span><span class="txt">卖出 WBD（华纳兄弟探索）5万–10万美元，配偶账户；披露说明为派拉蒙天空之舞并购的现金兑付，非择时卖出（2026-11-06 提交，仅此一笔）</span></div>
+            <div class="inv-row"><span class="date">2026-09-08</span><span class="tag buy">买入</span><span class="txt">买入 REOF XXX，披露区间 50万–100万美元</span></div>
+            <div class="inv-row"><span class="date">2026-07-24</span><span class="tag buy">买入</span><span class="txt">买入 Bloom Energy（BE）共 15,000 股，披露区间 150万–600万美元；另买 200 张 100 美元行权价、2027 年 6 月到期看涨期权（7月24–28日）</span></div>
+            <div class="inv-row"><span class="date">2026-07-24</span><span class="tag buy">买入</span><span class="txt">买入 Intel（INTC）10,000 股，披露区间 50万–100万美元</span></div>
+            <div class="inv-row"><span class="date">2026-05-29</span><span class="tag buy">买入</span><span class="txt">买入 Uber（UBER）期权</span></div>
           </div>
         </div>
-        <p class="inv-source">来源：众议院 Clerk 定期交易报告，最新 2026-11-06 · 最长滞后 45 天 · 金额只报区间无精确数 · 任期 2027 年 1 月结束，届时不再有新披露</p>
+        <p class="inv-asof">最新披露 2026-11-06 提交（交易日 2026-10-07）· 此后暂无新披露 · 披露最长滞后 45 天，非实时</p>
+        <p class="inv-source">来源：众议院 Clerk 定期交易报告（STOCK Act 披露），最新 2026-11-06 · 金额只报区间、无精确数 · 全部交易均在配偶 Paul Pelosi 账户 · 前排权重为第三方按披露区间估算（估算值）· 2025 年报（2026-05-15 提交）中 500万–2500万美元档持仓：Alphabet、Amazon、Apple、Broadcom、Microsoft、Nvidia、Salesforce、Visa · 其任期 2027 年 1 月结束，届时不再有新披露</p>
       </div>
 
       <div class="card inv-card">
-        <h2>段永平 <span class="inv-ret na">250日 暂无公开数据</span></h2>
-        <p class="card-sub">H&H International Investment · SEC 13F（CIK 1759760）· 2026Q3 · 总计 171.9 亿美元 · 16 只</p>
-        <div class="inv-sec">
-          <p class="inv-sec-label">前三大</p>
-          <div class="inv-stats">
-            <div class="inv-stat"><span class="sym">AAPL</span><span class="pct">41.07%</span></div>
-            <div class="inv-stat"><span class="sym">BRK.B</span><span class="pct">24.21%</span></div>
-            <div class="inv-stat"><span class="sym">PDD</span><span class="pct">12.69%</span></div>
-          </div>
-        </div>
+        <h2>段永平持仓</h2>
+        <p class="card-sub">H&amp;H International Investment · SEC 13F 机构持仓</p>
+        <div class="inv-ret-row"><span class="inv-ret-label">250日升幅</span><span class="inv-ret na">暂无公开数据</span></div>
         <div class="inv-sec">
           <div class="inv-bar-wrap">
             <div class="inv-bar" id="invBarDuan" role="img" aria-label="H&amp;H 持仓占比"></div>
@@ -502,26 +487,35 @@
           </div>
         </div>
         <div class="inv-sec">
-          <p class="inv-sec-label">持仓</p>
-          <div class="inv-rows">
-            <div class="inv-row"><span class="sym">AAPL</span><span class="amt">70.6 亿美元</span><span class="pct">41.07%</span><span class="chg down">减 22%</span></div>
-            <div class="inv-row"><span class="sym">BRK.B</span><span class="amt">41.6 亿美元</span><span class="pct">24.21%</span><span class="chg down">减 10%</span></div>
-            <div class="inv-row"><span class="sym">PDD</span><span class="amt">21.8 亿美元</span><span class="pct">12.69%</span><span class="chg up">加 12%</span></div>
-            <div class="inv-row"><span class="sym">TSLA</span><span class="amt">14.5 亿美元</span><span class="pct">8.42%</span><span class="chg up">加 21%</span></div>
-            <div class="inv-row"><span class="sym">OXY</span><span class="pct">3.30%</span></div>
-            <div class="inv-row"><span class="sym">NVDA</span><span class="pct">3.08%</span><span class="chg down">砍 63%</span></div>
-            <div class="inv-row"><span class="sym">GOOG</span><span class="pct">2.28%</span><span class="chg down">砍 42%</span></div>
-            <div class="inv-row"><span class="sym">MSFT</span><span class="pct">2.07%</span></div>
-            <div class="inv-row"><span class="sym">DIS</span><span class="pct">1.04%</span></div>
+          <div class="inv-stats">
+            <div class="inv-stat"><span class="sym">AAPL 苹果</span><span class="pct">41.07%</span></div>
+            <div class="inv-stat"><span class="sym">BRK.B 伯克希尔</span><span class="pct">24.21%</span></div>
           </div>
-          <p class="inv-note">前三约 78%</p>
         </div>
         <div class="inv-sec">
-          <p class="inv-sec-label">Q3 变化</p>
-          <div class="inv-chips"><span class="chip sell">AAPL 减 22%</span><span class="chip sell">BRK.B 减 10%</span><span class="chip buy">PDD 加 12%</span><span class="chip buy">TSLA 加 21%</span><span class="chip sell">NVDA 砍 63%</span><span class="chip sell">GOOG 砍 42%</span></div>
-          <p class="inv-note">Q3 还小仓位试了 SPCX</p>
+          <div class="inv-rows">
+            <div class="inv-row"><span class="sym">PDD</span><span class="nm">拼多多</span><span class="pct">12.69%</span></div>
+            <div class="inv-row"><span class="sym">TSLA</span><span class="nm">特斯拉</span><span class="pct">8.42%</span></div>
+            <div class="inv-row"><span class="sym">OXY</span><span class="nm">西方石油</span><span class="pct">3.30%</span></div>
+            <div class="inv-row"><span class="sym">NVDA</span><span class="nm">英伟达</span><span class="pct">3.08%</span></div>
+            <div class="inv-row"><span class="sym">GOOG</span><span class="nm">谷歌</span><span class="pct">2.28%</span></div>
+            <div class="inv-row"><span class="sym">MSFT</span><span class="nm">微软</span><span class="pct">2.07%</span></div>
+            <div class="inv-row"><span class="sym">DIS</span><span class="nm">迪士尼</span><span class="pct">1.04%</span></div>
+          </div>
         </div>
-        <p class="inv-source">来源：SEC 13F，2026-11-16 提交、截至 2026-09-30 · 13F 只含美股，不含茅台等 A 股与现金 · 最长滞后 45 天 · H&amp;H 非其个人全部财富</p>
+        <div class="inv-sec">
+          <p class="inv-sec-label">买卖变化（按披露）</p>
+          <div class="inv-rows">
+            <div class="inv-row"><span class="date">2026Q3</span><span class="tag sell">卖出</span><span class="txt">苹果（AAPL）减持 22%</span></div>
+            <div class="inv-row"><span class="date">2026Q3</span><span class="tag sell">卖出</span><span class="txt">伯克希尔（BRK.B）减持 10%</span></div>
+            <div class="inv-row"><span class="date">2026Q3</span><span class="tag buy">买入</span><span class="txt">拼多多（PDD）加仓 12%</span></div>
+            <div class="inv-row"><span class="date">2026Q3</span><span class="tag buy">买入</span><span class="txt">特斯拉（TSLA）加仓 21%</span></div>
+            <div class="inv-row"><span class="date">2026Q3</span><span class="tag sell">卖出</span><span class="txt">英伟达（NVDA）减持 63%</span></div>
+            <div class="inv-row"><span class="date">2026Q3</span><span class="tag sell">卖出</span><span class="txt">谷歌（GOOG）减持 42%</span></div>
+          </div>
+        </div>
+        <p class="inv-asof">持仓截至 2026-09-30 · 2026-11-16 提交（13F 按季度披露、最长滞后 45 天，非今日持仓）</p>
+        <p class="inv-source">来源：SEC 13F 持仓报告（H&amp;H International Investment，CIK 1759760）· 共 16 只、约 171.9 亿美元 · 13F 只含美股，不含茅台等 A 股与现金 · H&amp;H 是其管理的投资顾问账户，非其个人全部财富</p>
       </div>
     </div>
   </section>
@@ -1636,32 +1630,33 @@ function renderMiniBar(barId, legendId, segs) {
   var html = '';
   segs.forEach(function (s, i) {
     var w = total ? (s.pct / total * 100) : 0;
-    html += '<div class="inv-bar-seg" style="width:' + w.toFixed(2) + '%;background:' + INV_COLORS[i % INV_COLORS.length] + '" title="' + s.label + ' ' + s.pct.toFixed(2) + '%"></div>';
+    var disp = s.disp || s.pct.toFixed(2) + '%';
+    html += '<div class="inv-bar-seg" style="width:' + w.toFixed(2) + '%;background:' + INV_COLORS[i % INV_COLORS.length] + '" title="' + s.symbol + ' ' + s.label + ' ' + disp + '"></div>';
   });
   bar.innerHTML = html;
   var legHtml = '';
   segs.forEach(function (s, i) {
-    legHtml += '<span class="donut-legend-item"><span class="dot" style="background:' + INV_COLORS[i % INV_COLORS.length] + '"></span><b>' + s.label + '</b> ' + s.pct.toFixed(2) + '%</span>';
+    legHtml += '<span class="donut-legend-item"><span class="dot" style="background:' + INV_COLORS[i % INV_COLORS.length] + '"></span><b>' + s.symbol + '</b> ' + s.label + ' ' + (s.disp || s.pct.toFixed(2) + '%') + '</span>';
   });
   leg.innerHTML = legHtml;
 }
 var INVESTOR_BARS = [
   { bar: 'invBarBuffett', legend: 'invLegendBuffett', segs: [
-    { label: 'AAPL', pct: 24.95 }, { label: 'AXP', pct: 15.16 }, { label: 'KO', pct: 11.32 },
-    { label: 'GOOGL', pct: 8.91 }, { label: 'BAC', pct: 8.16 }, { label: '其他', pct: 31.50 } ] },
+    { symbol: 'AAPL', label: '苹果', pct: 24.95 }, { symbol: 'AXP', label: '美国运通', pct: 15.16 }, { symbol: 'KO', label: '可口可乐', pct: 11.32 },
+    { symbol: 'GOOGL', label: 'Alphabet', pct: 8.91 }, { symbol: 'BAC', label: '美国银行', pct: 8.16 }, { symbol: '其他', label: '其他 25 只', pct: 31.50 } ] },
   { bar: 'invBarArk', legend: 'invLegendArk', segs: [
-    { label: 'TSLA', pct: 12.50 }, { label: 'SPCX', pct: 8.29 }, { label: 'TEM', pct: 4.79 },
-    { label: 'OpenAI', pct: 4.36 }, { label: 'CRCL', pct: 3.53 }, { label: '其他 39 只', pct: 66.53 } ] },
+    { symbol: 'TSLA', label: '特斯拉', pct: 12.85 }, { symbol: 'SPCX', label: 'SpaceX', pct: 8.83 }, { symbol: 'TEM', label: 'Tempus AI', pct: 5.02 },
+    { symbol: 'OpenAI', label: 'OpenAI', pct: 4.59 }, { symbol: 'CRCL', label: 'Circle', pct: 3.71 }, { symbol: '其他', label: '其他 39 只', pct: 65.00 } ] },
   { bar: 'invBarPelosi', legend: 'invLegendPelosi', segs: [
-    { label: 'AAPL', pct: 13 }, { label: 'V', pct: 12 }, { label: 'AMZN', pct: 11 },
-    { label: 'MSFT', pct: 10 }, { label: 'GOOGL', pct: 9 }, { label: '其他', pct: 45 } ] },
+    { symbol: 'AAPL', label: '苹果', pct: 13, disp: '约 13%' }, { symbol: 'V', label: 'Visa', pct: 12, disp: '约 12%' }, { symbol: 'AMZN', label: '亚马逊', pct: 11, disp: '约 11%' },
+    { symbol: 'MSFT', label: '微软', pct: 10, disp: '约 10%' }, { symbol: 'GOOGL', label: '谷歌', pct: 9, disp: '约 9%' }, { symbol: '其他', label: '其他（含博通、英伟达、Salesforce）', pct: 45, disp: '约 45%' } ] },
   { bar: 'invBarDuan', legend: 'invLegendDuan', segs: [
-    { label: 'AAPL', pct: 41.07 }, { label: 'BRK.B', pct: 24.21 }, { label: 'PDD', pct: 12.69 },
-    { label: 'TSLA', pct: 8.42 }, { label: 'OXY', pct: 3.30 }, { label: '其他 11 只', pct: 10.31 } ] }
+    { symbol: 'AAPL', label: '苹果', pct: 41.07 }, { symbol: 'BRK.B', label: '伯克希尔', pct: 24.21 }, { symbol: 'PDD', label: '拼多多', pct: 12.69 },
+    { symbol: 'TSLA', label: '特斯拉', pct: 8.42 }, { symbol: 'OXY', label: '西方石油', pct: 3.30 }, { symbol: '其他', label: '其他 11 只', pct: 10.31 } ] }
 ];
 /* 刷新披露：与最新同步的披露数据比对，有新数据则重载页面，无新数据提示暂无新披露。
    披露数据本身是静态快照，由 Muse 端刷新后同步到本页；本按钮只同步最新已推送的数据。 */
-var INVESTOR_DATA_SIG = '2834701142';
+var INVESTOR_DATA_SIG = '4068440154';
 function invSig(text) {
   var m = text.match(/<section id="opportunitiesView"[\s\S]*?<\/section>/);
   if (!m) return null;
