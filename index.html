@@ -195,6 +195,7 @@
   .dock-btn.active .dock-dot { display: block; }
   /* ============ 投资人持仓卡片（机会页） ============ */
   .inv-grid { display: grid; grid-template-columns: 1fr; gap: 24px; margin-bottom: 32px; align-items: start; }
+  .inv-toolbar { display: flex; justify-content: flex-end; margin-bottom: 12px; }
   .inv-grid .card { margin-bottom: 0; }
   .inv-card h2 { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
   .inv-ret { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: nowrap; }
@@ -350,6 +351,9 @@
   </section>
 
   <section id="opportunitiesView" class="hidden">
+    <div class="inv-toolbar">
+      <button id="refreshDisclosuresBtn" class="btn-ghost" type="button"><span class="refresh-icon">↻</span> <span class="refresh-text">刷新披露</span></button>
+    </div>
     <div class="inv-grid">
       <div class="card inv-card">
         <h2>巴菲特 <span class="inv-ret up">250日 +17.15%</span></h2>
@@ -1655,6 +1659,36 @@ var INVESTOR_BARS = [
     { label: 'AAPL', pct: 41.07 }, { label: 'BRK.B', pct: 24.21 }, { label: 'PDD', pct: 12.69 },
     { label: 'TSLA', pct: 8.42 }, { label: 'OXY', pct: 3.30 }, { label: '其他 11 只', pct: 10.31 } ] }
 ];
+/* 刷新披露：与最新同步的披露数据比对，有新数据则重载页面，无新数据提示暂无新披露。
+   披露数据本身是静态快照，由 Muse 端刷新后同步到本页；本按钮只同步最新已推送的数据。 */
+var INVESTOR_DATA_SIG = '2834701142';
+function invSig(text) {
+  var m = text.match(/<section id="opportunitiesView"[\s\S]*?<\/section>/);
+  if (!m) return null;
+  var s = m[0], h = 5381;
+  for (var i = 0; i < s.length; i++) { h = ((h * 33) + s.charCodeAt(i)) >>> 0; }
+  return String(h);
+}
+async function refreshDisclosures() {
+  var btn = $('refreshDisclosuresBtn');
+  if (!btn || btn.classList.contains('loading')) return;
+  var label = btn.querySelector('.refresh-text');
+  btn.classList.add('loading'); btn.disabled = true;
+  if (label) label.textContent = '刷新中\u2026';
+  var note = '暂无新披露';
+  try {
+    var res = await fetch(location.pathname + '?v=' + Date.now(), { cache: 'no-store' });
+    if (!res || !res.ok) throw new Error('fetch failed');
+    var text = await res.text();
+    var sig = invSig(text);
+    if (sig && sig !== INVESTOR_DATA_SIG) { location.reload(); return; }
+    if (sig === null) note = '刷新失败';
+  } catch (e) { note = '刷新失败'; }
+  btn.classList.remove('loading'); btn.disabled = false;
+  if (label) label.textContent = note;
+  setTimeout(function () { if (label) label.textContent = '刷新披露'; }, 2000);
+}
+$('refreshDisclosuresBtn').addEventListener('click', refreshDisclosures);
 function renderInvestorBars() {
   INVESTOR_BARS.forEach(function (d) { renderMiniBar(d.bar, d.legend, d.segs); });
 }
