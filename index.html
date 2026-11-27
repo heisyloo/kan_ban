@@ -173,12 +173,12 @@
     display: flex; align-items: flex-end; gap: 10px; padding: 10px; height: 68px;
     background: rgba(255,255,255,0.55);
     backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(221,227,221,0.9); border-radius: 22px; corner-shape: squircle;
+    border: 1px solid rgba(221,227,221,0.9); border-radius: 20px; corner-shape: squircle;
     box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
   .dock-btn { position: relative; flex: none; width: 48px; height: 48px; padding: 0;
-    border: 1px solid #d5dbd5; border-radius: 12px; background: #fff; color: #374151; cursor: pointer;
+    border: 1px solid #d5dbd5; border-radius: 10px; background: #fff; color: #374151; cursor: pointer;
     display: flex; align-items: center; justify-content: center; }
-  .dock-btn svg { width: 100%; height: 100%; display: block; }
+  .dock-btn svg { width: 70%; height: 70%; display: block; }
   .dock-btn:focus-visible { outline: 2px solid #0d9d57; outline-offset: 2px; }
   .dock-btn .dock-dot { position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%);
     width: 4px; height: 4px; border-radius: 1px; background: #0d9d57; display: none; }
@@ -1398,7 +1398,7 @@ function dockSetSize(b, size) {
   b.size = size;
   b.el.style.width = size + 'px';
   b.el.style.height = size + 'px';
-  b.el.style.borderRadius = (size * 0.25) + 'px';
+  b.el.style.borderRadius = (size * 10 / 48) + 'px';
 }
 function dockTick() {
   dockRaf = 0;
