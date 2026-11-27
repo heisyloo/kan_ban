@@ -186,16 +186,40 @@
   /* ============ 投资人持仓卡片（机会页） ============ */
   .inv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; align-items: start; }
   .inv-grid .card { margin-bottom: 0; }
-  .inv-card h2 { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
-  .inv-ret { font-size: 14px; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-  .inv-ret.up { color: #0d9d57; }
-  .inv-ret.down { color: #d93a3a; }
-  .inv-ret.na { color: #68736a; font-weight: 400; font-size: 13px; }
-  .inv-donut { display: flex; flex-direction: column; align-items: center; margin: 4px 0 8px; }
-  .inv-top2 { font-size: 14px; margin: 0 0 8px; }
-  .inv-list { margin: 0 0 8px; padding-left: 18px; font-size: 13px; line-height: 22px; color: #374151; }
-  .inv-list li { margin-bottom: 2px; }
-  .inv-note { font-size: 12px; color: #68736a; margin: 0 0 8px; }
+  .inv-card h2 { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .inv-ret { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: nowrap; }
+  .inv-ret.up { background: #e3f6ec; color: #0d9d57; }
+  .inv-ret.down { background: #fdecec; color: #d93a3a; }
+  .inv-ret.na { background: #eef1ee; color: #68736a; font-weight: 400; }
+  .inv-sec { margin-top: 14px; padding-top: 12px; border-top: 1px solid #e3e8e3; }
+  .inv-sec-label { font-size: 12px; font-weight: 700; color: #68736a; margin: 0 0 8px; }
+  .inv-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .inv-stat { background: #f4f6f4; border: 1px solid #e3e8e3; padding: 10px 12px; text-align: center; }
+  .inv-stat .sym { display: block; font-size: 12px; font-weight: 600; color: #68736a; }
+  .inv-stat .pct { display: block; font-size: 22px; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; line-height: 1.3; }
+  .inv-donut { display: flex; flex-direction: column; align-items: center; }
+  .inv-card .donut-legend { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; width: 100%; margin-top: 10px; justify-content: normal; }
+  .inv-card .donut-legend-item { justify-content: flex-start; }
+  .inv-rows { display: flex; flex-direction: column; }
+  .inv-row { display: flex; align-items: baseline; gap: 8px; font-size: 13px; line-height: 20px; color: #374151; padding: 6px 0; border-bottom: 1px solid #eef1ee; }
+  .inv-row:last-child { border-bottom: 0; }
+  .inv-row .sym { font-weight: 700; color: #111827; white-space: nowrap; }
+  .inv-row .amt { color: #68736a; font-size: 12px; white-space: nowrap; }
+  .inv-row .pct { margin-left: auto; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight: 600; white-space: nowrap; }
+  .inv-row .chg { font-weight: 700; white-space: nowrap; }
+  .inv-row .chg.up { color: #0d9d57; }
+  .inv-row .chg.down { color: #d93a3a; }
+  .inv-row .tag { font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; white-space: nowrap; }
+  .inv-row .tag.buy { background: #e3f6ec; color: #0d9d57; }
+  .inv-row .tag.sell { background: #fdecec; color: #d93a3a; }
+  .inv-row .txt { flex: 1; min-width: 0; }
+  .inv-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .inv-chips + .inv-chips { margin-top: 6px; }
+  .inv-chips .lbl { font-size: 12px; font-weight: 700; color: #68736a; margin-right: 2px; }
+  .chip { display: inline-flex; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .chip.buy { background: #e3f6ec; color: #0d9d57; }
+  .chip.sell { background: #fdecec; color: #d93a3a; }
+  .inv-note { font-size: 12px; color: #68736a; margin: 8px 0 0; }
   .inv-source { font-size: 11px; color: #68736a; margin: 12px 0 0; padding-top: 10px; border-top: 1px solid #dde3dd; line-height: 18px; }
   @media (max-width: 767px) {
     .inv-grid { grid-template-columns: 1fr; }
@@ -318,62 +342,165 @@
       <div class="card inv-card">
         <h2>巴菲特 <span class="inv-ret up">250日 +17.15%</span></h2>
         <p class="card-sub">伯克希尔 13F · 2026Q3 · 30 只 · 3042 亿美元</p>
-        <div class="inv-donut">
-          <svg id="invDonutBuffett" viewBox="0 0 200 200" width="180" height="180" role="img" aria-label="伯克希尔持仓占比环形图"></svg>
-          <div class="donut-legend" id="invLegendBuffett"></div>
+        <div class="inv-sec">
+          <p class="inv-sec-label">前两大</p>
+          <div class="inv-stats">
+            <div class="inv-stat"><span class="sym">AAPL</span><span class="pct">24.95%</span></div>
+            <div class="inv-stat"><span class="sym">AXP</span><span class="pct">15.16%</span></div>
+          </div>
         </div>
-        <p class="inv-top2">前两大：<b>AAPL 24.95%</b> · <b>AXP 15.16%</b></p>
-        <ul class="inv-list">
-          <li>前五：AAPL 24.95%、AXP 15.16%、KO 11.32%、GOOGL 8.91%、BAC 8.16%（合计 68.50%）</li>
-          <li>Q3 变化：新买 Bending Spoons（BSP，6.89 亿美元）；Lennar +98.56%；Delta +12.44%；BAC 减 6%</li>
-        </ul>
+        <div class="inv-sec">
+          <div class="inv-donut">
+            <svg id="invDonutBuffett" viewBox="0 0 200 200" width="160" height="160" role="img" aria-label="伯克希尔持仓占比环形图"></svg>
+            <div class="donut-legend" id="invLegendBuffett"></div>
+          </div>
+        </div>
+        <div class="inv-sec">
+          <p class="inv-sec-label">前五（合计 68.50%）</p>
+          <div class="inv-rows">
+            <div class="inv-row"><span class="sym">AAPL</span><span class="pct">24.95%</span></div>
+            <div class="inv-row"><span class="sym">AXP</span><span class="pct">15.16%</span></div>
+            <div class="inv-row"><span class="sym">KO</span><span class="pct">11.32%</span></div>
+            <div class="inv-row"><span class="sym">GOOGL</span><span class="pct">8.91%</span></div>
+            <div class="inv-row"><span class="sym">BAC</span><span class="pct">8.16%</span></div>
+          </div>
+        </div>
+        <div class="inv-sec">
+          <p class="inv-sec-label">Q3 变化</p>
+          <div class="inv-rows">
+            <div class="inv-row"><span class="tag buy">新买</span><span class="txt">Bending Spoons（BSP，6.89 亿美元）</span></div>
+            <div class="inv-row"><span class="sym">Lennar</span><span class="chg up">+98.56%</span></div>
+            <div class="inv-row"><span class="sym">Delta</span><span class="chg up">+12.44%</span></div>
+            <div class="inv-row"><span class="sym">BAC</span><span class="chg down">减 6%</span></div>
+          </div>
+        </div>
         <p class="inv-source">来源：SEC 13F，2026-11-16 提交 · 季度披露，下次约 2027-02-16</p>
       </div>
 
       <div class="card inv-card">
         <h2>木头姐 <span class="inv-ret down">250日 −16.11%</span></h2>
         <p class="card-sub">ARK 每日披露 · 截至 2026-11-25 · ARKK 共 44 只</p>
-        <div class="inv-donut">
-          <svg id="invDonutArk" viewBox="0 0 200 200" width="180" height="180" role="img" aria-label="ARKK 持仓占比环形图"></svg>
-          <div class="donut-legend" id="invLegendArk"></div>
+        <div class="inv-sec">
+          <p class="inv-sec-label">前两大</p>
+          <div class="inv-stats">
+            <div class="inv-stat"><span class="sym">TSLA</span><span class="pct">12.50%</span></div>
+            <div class="inv-stat"><span class="sym">SPCX</span><span class="pct">8.29%</span></div>
+          </div>
         </div>
-        <p class="inv-top2">前两大：<b>TSLA 12.50%</b> · <b>SPCX 8.29%</b></p>
-        <ul class="inv-list">
-          <li>前十（合计 50.2%）：TSLA 12.50%、SPCX 8.29%、TEM 4.79%、OpenAI 4.36%、CRCL 3.53%、SHOP 3.26%、TWST 3.24%、COIN 3.19%、XYZ 2.74%（另有 4.28% 货币市场基金，不计入股票排名）</li>
-          <li>11-25 买卖：买入 ANT、SPCX、BEAM、TWST、CRSP、WGS、NTRA、KDK、RXRX；卖出 HOOD、BLSH、ILMN、BYDDY、SOLQ.U、ETHQ.U、SPOT</li>
-        </ul>
-        <p class="inv-note">权重每日变动，此处为当日快照。</p>
+        <div class="inv-sec">
+          <div class="inv-donut">
+            <svg id="invDonutArk" viewBox="0 0 200 200" width="160" height="160" role="img" aria-label="ARKK 持仓占比环形图"></svg>
+            <div class="donut-legend" id="invLegendArk"></div>
+          </div>
+        </div>
+        <div class="inv-sec">
+          <p class="inv-sec-label">前十（合计 50.2%）</p>
+          <div class="inv-rows">
+            <div class="inv-row"><span class="sym">TSLA</span><span class="pct">12.50%</span></div>
+            <div class="inv-row"><span class="sym">SPCX</span><span class="pct">8.29%</span></div>
+            <div class="inv-row"><span class="sym">TEM</span><span class="pct">4.79%</span></div>
+            <div class="inv-row"><span class="sym">OpenAI</span><span class="pct">4.36%</span></div>
+            <div class="inv-row"><span class="sym">CRCL</span><span class="pct">3.53%</span></div>
+            <div class="inv-row"><span class="sym">SHOP</span><span class="pct">3.26%</span></div>
+            <div class="inv-row"><span class="sym">TWST</span><span class="pct">3.24%</span></div>
+            <div class="inv-row"><span class="sym">COIN</span><span class="pct">3.19%</span></div>
+            <div class="inv-row"><span class="sym">XYZ</span><span class="pct">2.74%</span></div>
+          </div>
+          <p class="inv-note">另有 4.28% 货币市场基金，不计入股票排名</p>
+        </div>
+        <div class="inv-sec">
+          <p class="inv-sec-label">11-25 买卖</p>
+          <div class="inv-chips"><span class="lbl">买入</span><span class="chip buy">ANT</span><span class="chip buy">SPCX</span><span class="chip buy">BEAM</span><span class="chip buy">TWST</span><span class="chip buy">CRSP</span><span class="chip buy">WGS</span><span class="chip buy">NTRA</span><span class="chip buy">KDK</span><span class="chip buy">RXRX</span></div>
+          <div class="inv-chips"><span class="lbl">卖出</span><span class="chip sell">HOOD</span><span class="chip sell">BLSH</span><span class="chip sell">ILMN</span><span class="chip sell">BYDDY</span><span class="chip sell">SOLQ.U</span><span class="chip sell">ETHQ.U</span><span class="chip sell">SPOT</span></div>
+          <p class="inv-note">权重每日变动，此处为当日快照。</p>
+        </div>
         <p class="inv-source">来源：ARK 每日披露（ark-funds.com），截至 2026-11-25</p>
       </div>
 
       <div class="card inv-card">
         <h2>佩洛西 <span class="inv-ret na">250日 暂无公开数据</span></h2>
         <p class="card-sub">众议院 Clerk 定期交易报告（STOCK Act）· 配偶 Paul Pelosi 账户</p>
-        <div class="inv-donut">
-          <svg id="invDonutPelosi" viewBox="0 0 200 200" width="180" height="180" role="img" aria-label="佩洛西持仓占比环形图"></svg>
-          <div class="donut-legend" id="invLegendPelosi"></div>
+        <div class="inv-sec">
+          <p class="inv-sec-label">前两大（第三方估算值）</p>
+          <div class="inv-stats">
+            <div class="inv-stat"><span class="sym">AAPL</span><span class="pct">约 13%</span></div>
+            <div class="inv-stat"><span class="sym">V</span><span class="pct">约 12%</span></div>
+          </div>
         </div>
-        <p class="inv-top2">前两大（第三方估算值）：<b>AAPL 约 13%</b> · <b>V 约 12%</b></p>
-        <ul class="inv-list">
-          <li>前排持仓（第三方按披露区间估算）：AAPL 约 13%、V 约 12%、AMZN 约 11%、MSFT 约 10%、GOOGL 约 9%、AVGO 约 9%、NVDA 约 8%、CRM 约 8%</li>
-          <li>最新披露：2026-11-06 提交，仅一笔——10 月 7 日卖 WBD 5 万–10 万美元（派拉蒙天空之舞并购现金兑付，不是择时卖出）；11 月 6 日之后暂无新披露</li>
-          <li>2026 年其他：7 月 24–28 日买 Bloom Energy 15000 股（150 万–600 万美元）＋ 200 张 100 美元行权价 2027 年 6 月到期看涨期权；7 月 24 日买 Intel 10000 股（50 万–100 万美元）；5 月 29 日买 Uber 期权；9 月 8 日买 REOF XXX（50 万–100 万美元）</li>
-        </ul>
+        <div class="inv-sec">
+          <div class="inv-donut">
+            <svg id="invDonutPelosi" viewBox="0 0 200 200" width="160" height="160" role="img" aria-label="佩洛西持仓占比环形图"></svg>
+            <div class="donut-legend" id="invLegendPelosi"></div>
+          </div>
+        </div>
+        <div class="inv-sec">
+          <p class="inv-sec-label">前排持仓（第三方按披露区间估算）</p>
+          <div class="inv-rows">
+            <div class="inv-row"><span class="sym">AAPL</span><span class="pct">约 13%</span></div>
+            <div class="inv-row"><span class="sym">V</span><span class="pct">约 12%</span></div>
+            <div class="inv-row"><span class="sym">AMZN</span><span class="pct">约 11%</span></div>
+            <div class="inv-row"><span class="sym">MSFT</span><span class="pct">约 10%</span></div>
+            <div class="inv-row"><span class="sym">GOOGL</span><span class="pct">约 9%</span></div>
+            <div class="inv-row"><span class="sym">AVGO</span><span class="pct">约 9%</span></div>
+            <div class="inv-row"><span class="sym">NVDA</span><span class="pct">约 8%</span></div>
+            <div class="inv-row"><span class="sym">CRM</span><span class="pct">约 8%</span></div>
+          </div>
+        </div>
+        <div class="inv-sec">
+          <p class="inv-sec-label">最新披露</p>
+          <div class="inv-rows">
+            <div class="inv-row"><span class="tag sell">卖出</span><span class="txt">2026-11-06 提交，仅一笔——10 月 7 日卖 WBD 5 万–10 万美元（派拉蒙天空之舞并购现金兑付，不是择时卖出）</span></div>
+            <div class="inv-row"><span class="txt">11 月 6 日之后暂无新披露</span></div>
+          </div>
+        </div>
+        <div class="inv-sec">
+          <p class="inv-sec-label">2026 年其他</p>
+          <div class="inv-rows">
+            <div class="inv-row"><span class="tag buy">买入</span><span class="txt">7 月 24–28 日 Bloom Energy 15000 股（150 万–600 万美元）＋ 200 张 100 美元行权价 2027 年 6 月到期看涨期权</span></div>
+            <div class="inv-row"><span class="tag buy">买入</span><span class="txt">7 月 24 日 Intel 10000 股（50 万–100 万美元）</span></div>
+            <div class="inv-row"><span class="tag buy">买入</span><span class="txt">5 月 29 日 Uber 期权</span></div>
+            <div class="inv-row"><span class="tag buy">买入</span><span class="txt">9 月 8 日 REOF XXX（50 万–100 万美元）</span></div>
+          </div>
+        </div>
         <p class="inv-source">来源：众议院 Clerk 定期交易报告，最新 2026-11-06 · 最长滞后 45 天 · 金额只报区间无精确数 · 任期 2027 年 1 月结束，届时不再有新披露</p>
       </div>
 
       <div class="card inv-card">
         <h2>段永平 <span class="inv-ret na">250日 暂无公开数据</span></h2>
         <p class="card-sub">H&H International Investment · SEC 13F（CIK 1759760）· 2026Q3 · 总计 171.9 亿美元 · 16 只</p>
-        <div class="inv-donut">
-          <svg id="invDonutDuan" viewBox="0 0 200 200" width="180" height="180" role="img" aria-label="H&amp;H 持仓占比环形图"></svg>
-          <div class="donut-legend" id="invLegendDuan"></div>
+        <div class="inv-sec">
+          <p class="inv-sec-label">前两大</p>
+          <div class="inv-stats">
+            <div class="inv-stat"><span class="sym">AAPL</span><span class="pct">41.07%</span></div>
+            <div class="inv-stat"><span class="sym">BRK.B</span><span class="pct">24.21%</span></div>
+          </div>
         </div>
-        <p class="inv-top2">前两大：<b>AAPL 41.07%</b> · <b>BRK.B 24.21%</b></p>
-        <ul class="inv-list">
-          <li>持仓：AAPL 41.07%（70.6 亿美元，减 22%）、BRK.B 24.21%（41.6 亿美元，减 10%）、PDD 12.69%（21.8 亿美元，加 12%）、TSLA 8.42%（14.5 亿美元，加 21%）、OXY 3.30%、NVDA 3.08%（砍 63%）、GOOG 2.28%（砍 42%）、MSFT 2.07%、DIS 1.04%（前三约 78%）</li>
-          <li>Q3 变化：AAPL 减 22%、BRK.B 减 10%、PDD 加 12%、TSLA 加 21%、NVDA 砍 63%、GOOG 砍 42%；Q3 还小仓位试了 SPCX</li>
-        </ul>
+        <div class="inv-sec">
+          <div class="inv-donut">
+            <svg id="invDonutDuan" viewBox="0 0 200 200" width="160" height="160" role="img" aria-label="H&amp;H 持仓占比环形图"></svg>
+            <div class="donut-legend" id="invLegendDuan"></div>
+          </div>
+        </div>
+        <div class="inv-sec">
+          <p class="inv-sec-label">持仓</p>
+          <div class="inv-rows">
+            <div class="inv-row"><span class="sym">AAPL</span><span class="amt">70.6 亿美元</span><span class="pct">41.07%</span><span class="chg down">减 22%</span></div>
+            <div class="inv-row"><span class="sym">BRK.B</span><span class="amt">41.6 亿美元</span><span class="pct">24.21%</span><span class="chg down">减 10%</span></div>
+            <div class="inv-row"><span class="sym">PDD</span><span class="amt">21.8 亿美元</span><span class="pct">12.69%</span><span class="chg up">加 12%</span></div>
+            <div class="inv-row"><span class="sym">TSLA</span><span class="amt">14.5 亿美元</span><span class="pct">8.42%</span><span class="chg up">加 21%</span></div>
+            <div class="inv-row"><span class="sym">OXY</span><span class="pct">3.30%</span></div>
+            <div class="inv-row"><span class="sym">NVDA</span><span class="pct">3.08%</span><span class="chg down">砍 63%</span></div>
+            <div class="inv-row"><span class="sym">GOOG</span><span class="pct">2.28%</span><span class="chg down">砍 42%</span></div>
+            <div class="inv-row"><span class="sym">MSFT</span><span class="pct">2.07%</span></div>
+            <div class="inv-row"><span class="sym">DIS</span><span class="pct">1.04%</span></div>
+          </div>
+          <p class="inv-note">前三约 78%</p>
+        </div>
+        <div class="inv-sec">
+          <p class="inv-sec-label">Q3 变化</p>
+          <div class="inv-chips"><span class="chip sell">AAPL 减 22%</span><span class="chip sell">BRK.B 减 10%</span><span class="chip buy">PDD 加 12%</span><span class="chip buy">TSLA 加 21%</span><span class="chip sell">NVDA 砍 63%</span><span class="chip sell">GOOG 砍 42%</span></div>
+          <p class="inv-note">Q3 还小仓位试了 SPCX</p>
+        </div>
         <p class="inv-source">来源：SEC 13F，2026-11-16 提交、截至 2026-09-30 · 13F 只含美股，不含茅台等 A 股与现金 · 最长滞后 45 天 · H&amp;H 非其个人全部财富</p>
       </div>
     </div>
