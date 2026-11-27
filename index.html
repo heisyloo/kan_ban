@@ -198,14 +198,15 @@
   .inv-toolbar { display: flex; justify-content: flex-end; margin-bottom: 12px; }
   .inv-grid .card { margin-bottom: 0; }
   .inv-card h2 { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
-  .inv-ret { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: nowrap; }
+  .inv-ret { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 0; font-size: 12px; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: nowrap; }
+  .inv-ret.up, .inv-ret.down { font-size: 14px; }
   .inv-ret.up { background: #e3f6ec; color: #0d9d57; }
   .inv-ret.down { background: #fdecec; color: #d93a3a; }
   .inv-ret.na { background: #eef1ee; color: #68736a; font-weight: 400; }
   .inv-sec { margin-top: 14px; padding-top: 12px; border-top: 1px solid #e3e8e3; }
   .inv-sec-label { font-size: 12px; font-weight: 700; color: #68736a; margin: 0 0 8px; }
   .inv-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .inv-stat { background: #f4f6f4; border: 1px solid #e3e8e3; padding: 10px 12px; text-align: center; }
+  .inv-stat { background: #f4f6f4; border: 1px solid #e3e8e3; padding: 10px 12px; text-align: left; }
   .inv-stat .sym { display: block; font-size: 12px; font-weight: 600; color: #68736a; }
   .inv-stat .pct { display: block; font-size: 22px; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; line-height: 1.3; }
   .inv-bar-wrap { display: flex; flex-direction: column; }
@@ -223,7 +224,7 @@
   .inv-row .chg { font-weight: 700; white-space: nowrap; }
   .inv-row .chg.up { color: #0d9d57; }
   .inv-row .chg.down { color: #d93a3a; }
-  .inv-row .tag { font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; white-space: nowrap; }
+  .inv-row .tag { font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 0; white-space: nowrap; }
   .inv-row .tag.buy { background: #e3f6ec; color: #0d9d57; }
   .inv-row .tag.sell { background: #fdecec; color: #d93a3a; }
   .inv-row .txt { flex: 1; min-width: 0; }
@@ -366,15 +367,15 @@
         <p class="card-sub">伯克希尔·哈撒韦 · SEC 13F 机构持仓</p>
         <div class="inv-ret-row"><span class="inv-ret-label">250日升幅</span><span class="inv-ret up">+17.15%</span><span class="inv-ret-note">BRK.B 股价 · 250 个交易日</span></div>
         <div class="inv-sec">
-          <div class="inv-bar-wrap">
-            <div class="inv-bar" id="invBarBuffett" role="img" aria-label="伯克希尔持仓占比"></div>
-            <div class="donut-legend" id="invLegendBuffett"></div>
-          </div>
-        </div>
-        <div class="inv-sec">
           <div class="inv-stats">
             <div class="inv-stat"><span class="sym">AAPL 苹果</span><span class="pct">24.95%</span></div>
             <div class="inv-stat"><span class="sym">AXP 美国运通</span><span class="pct">15.16%</span></div>
+          </div>
+        </div>
+        <div class="inv-sec">
+          <div class="inv-bar-wrap">
+            <div class="inv-bar" id="invBarBuffett" role="img" aria-label="伯克希尔持仓占比"></div>
+            <div class="donut-legend" id="invLegendBuffett"></div>
           </div>
         </div>
         <div class="inv-sec">
@@ -402,15 +403,15 @@
         <p class="card-sub">Cathie Wood · ARK Invest 旗舰基金 ARKK</p>
         <div class="inv-ret-row"><span class="inv-ret-label">250日升幅</span><span class="inv-ret down">−16.11%</span><span class="inv-ret-note">ARKK 股价 · 250 个交易日</span></div>
         <div class="inv-sec">
-          <div class="inv-bar-wrap">
-            <div class="inv-bar" id="invBarArk" role="img" aria-label="ARKK 持仓占比"></div>
-            <div class="donut-legend" id="invLegendArk"></div>
-          </div>
-        </div>
-        <div class="inv-sec">
           <div class="inv-stats">
             <div class="inv-stat"><span class="sym">TSLA 特斯拉</span><span class="pct">12.85%</span></div>
             <div class="inv-stat"><span class="sym">SPCX SpaceX</span><span class="pct">8.83%</span></div>
+          </div>
+        </div>
+        <div class="inv-sec">
+          <div class="inv-bar-wrap">
+            <div class="inv-bar" id="invBarArk" role="img" aria-label="ARKK 持仓占比"></div>
+            <div class="donut-legend" id="invLegendArk"></div>
           </div>
         </div>
         <div class="inv-sec">
@@ -441,15 +442,15 @@
         <p class="card-sub">Nancy Pelosi · 美国国会定期交易披露 · 权重为第三方估算值</p>
         <div class="inv-ret-row"><span class="inv-ret-label">250日升幅</span><span class="inv-ret na">暂无公开数据</span></div>
         <div class="inv-sec">
-          <div class="inv-bar-wrap">
-            <div class="inv-bar" id="invBarPelosi" role="img" aria-label="佩洛西持仓占比"></div>
-            <div class="donut-legend" id="invLegendPelosi"></div>
-          </div>
-        </div>
-        <div class="inv-sec">
           <div class="inv-stats">
             <div class="inv-stat"><span class="sym">AAPL 苹果</span><span class="pct">约 13%</span></div>
             <div class="inv-stat"><span class="sym">V Visa</span><span class="pct">约 12%</span></div>
+          </div>
+        </div>
+        <div class="inv-sec">
+          <div class="inv-bar-wrap">
+            <div class="inv-bar" id="invBarPelosi" role="img" aria-label="佩洛西持仓占比"></div>
+            <div class="donut-legend" id="invLegendPelosi"></div>
           </div>
         </div>
         <div class="inv-sec">
@@ -481,15 +482,15 @@
         <p class="card-sub">H&amp;H International Investment · SEC 13F 机构持仓</p>
         <div class="inv-ret-row"><span class="inv-ret-label">250日升幅</span><span class="inv-ret na">暂无公开数据</span></div>
         <div class="inv-sec">
-          <div class="inv-bar-wrap">
-            <div class="inv-bar" id="invBarDuan" role="img" aria-label="H&amp;H 持仓占比"></div>
-            <div class="donut-legend" id="invLegendDuan"></div>
-          </div>
-        </div>
-        <div class="inv-sec">
           <div class="inv-stats">
             <div class="inv-stat"><span class="sym">AAPL 苹果</span><span class="pct">41.07%</span></div>
             <div class="inv-stat"><span class="sym">BRK.B 伯克希尔</span><span class="pct">24.21%</span></div>
+          </div>
+        </div>
+        <div class="inv-sec">
+          <div class="inv-bar-wrap">
+            <div class="inv-bar" id="invBarDuan" role="img" aria-label="H&amp;H 持仓占比"></div>
+            <div class="donut-legend" id="invLegendDuan"></div>
           </div>
         </div>
         <div class="inv-sec">
@@ -1656,7 +1657,7 @@ var INVESTOR_BARS = [
 ];
 /* 刷新披露：与最新同步的披露数据比对，有新数据则重载页面，无新数据提示暂无新披露。
    披露数据本身是静态快照，由 Muse 端刷新后同步到本页；本按钮只同步最新已推送的数据。 */
-var INVESTOR_DATA_SIG = '4068440154';
+var INVESTOR_DATA_SIG = '1155406682';
 function invSig(text) {
   var m = text.match(/<section id="opportunitiesView"[\s\S]*?<\/section>/);
   if (!m) return null;
