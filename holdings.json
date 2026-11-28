@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-11-26T01:11:35.839Z",
-  "updated_at_beijing": "2026-11-26 09:11",
+  "updated_at": "2026-11-28T02:27:18.491Z",
+  "updated_at_beijing": "2026-11-28 10:27",
   "cash": 2500,
   "cash_ideal": 10,
   "holdings": [
@@ -58,7 +58,7 @@
       "sym": "BRK.B",
       "name": "Berkshire Hathaway Inc",
       "cost_line": 0,
-      "ideal": 15
+      "ideal": 25
     },
     {
       "sym": "LLY",
