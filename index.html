@@ -455,11 +455,11 @@
         <div class="inv-sec">
           <p class="inv-sec-label">买卖变化（按披露）</p>
           <div class="inv-rows">
-            <div class="inv-row"><span class="date">2026-11-25</span><span class="tag buy">买入</span><span class="txt">买入 Anthropic（ANT）、SPCX、BEAM、TWST、CRSP、TEM、NTRA、RXRX、WGS</span></div>
-            <div class="inv-row"><span class="date">2026-11-25</span><span class="tag sell">卖出</span><span class="txt">卖出 HOOD、BLSH、ILMN</span></div>
+            <div class="inv-row"><span class="date">2026-11-27</span><span class="tag buy">买入</span><span class="txt">买入 Anthropic（ANT）、RXRX、BEAM、CRSP、TWST、WGS、NTRA</span></div>
+            <div class="inv-row"><span class="date">2026-11-27</span><span class="tag sell">卖出</span><span class="txt">卖出 ILMN、BLSH（ILMN 持仓量减逾半）</span></div>
           </div>
         </div>
-        <p class="inv-asof">持仓截至 2026-11-27 · 最近交易日 2026-11-25（11 月 26 日感恩节休市）· 四人中唯一每日更新</p>
+        <p class="inv-asof">持仓截至 2026-11-27 · 最近交易日 2026-11-27 · 四人中唯一每日更新</p>
         <p class="inv-source">来源：ARK 每日持仓披露（ark-funds.com，各 ETF 持仓文件，收盘后公布）· ARKK 共 44 只、前十合计 50.85%（含 0.37% 货币市场基金，不计入股票排名）· 权重每日变动，此处为当日快照</p>
       </div>
 
@@ -1728,6 +1728,7 @@ if (line === '仅为消息汇总，不给买卖建议。') {
 html += '<p class="digest-foot">' + escHtml(line) + '</p>';
 return;
 }
+if (line.indexOf('- ') === 0 && section !== '逐只') section = '逐只';
 if (section === '今日重点') {
 var km = line.match(/^(\d+)\.\s*(.*)$/);
 if (km) {
@@ -1803,7 +1804,7 @@ renderDaily();
 
 /* 刷新披露：与最新同步的披露数据比对，有新数据则重载页面，无新数据提示暂无新披露。
    披露数据本身是静态快照，由 Muse 端刷新后同步到本页；本按钮只同步最新已推送的数据。 */
-var INVESTOR_DATA_SIG = '1155406682';
+var INVESTOR_DATA_SIG = '2635090981';
 function invSig(text) {
   var m = text.match(/<section id="opportunitiesView"[\s\S]*?<\/section>/);
   if (!m) return null;
